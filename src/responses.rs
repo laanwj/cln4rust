@@ -161,3 +161,13 @@ pub struct DecodePay {
     pub payment_hash: String,
     pub signature: String,
 }
+
+/// 'connect' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Connect {
+    pub id: String,
+}
+
+/// 'disconnect' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Disconnect {}

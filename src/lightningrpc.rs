@@ -100,4 +100,19 @@ impl LightningRPC {
             },
         )
     }
+
+    /// Connect to {id} at {host} (which can end in ':port' if not default). {id} can also be of
+    /// the form id@host
+    pub fn connect(
+        &mut self,
+        id: String,
+        host: Option<String>,
+    ) -> Result<responses::Connect, Error> {
+        self.call("connect", requests::Connect { id, host })
+    }
+
+    /// Disconnect from peer with {peer_id}
+    pub fn disconnect(&mut self, id: String) -> Result<responses::Disconnect, Error> {
+        self.call("disconnect", requests::Disconnect { id })
+    }
 }

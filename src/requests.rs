@@ -53,3 +53,16 @@ pub struct DecodePay {
     pub bolt11: String,
     pub description: Option<String>,
 }
+
+/// 'connect' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Connect {
+    pub id: String,
+    pub host: Option<String>,
+}
+
+/// 'disconnect' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Disconnect {
+    pub id: String,
+}
