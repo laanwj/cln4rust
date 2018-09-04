@@ -59,3 +59,15 @@ pub struct FeeRates {
     pub perkw: Option<FeeRatesInner>,
     pub onchain_fee_estimates: Option<FeeRatesOnchain>,
 }
+
+/// Sub-structure for peer in 'listpeers'
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Peer {
+    pub id: String,
+}
+
+/// 'listpeers' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListPeers {
+    pub peers: Vec<Peer>,
+}

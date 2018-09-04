@@ -34,6 +34,18 @@ pub struct Client {
     nonce: Arc<Mutex<u64>>,
 }
 
+/// Filter out top-level parameters with value None, this is used for handling optional
+/// parameters correctly as c-lightning expects.
+fn filter_nones(params: Json) -> Json {
+    let mut rv: Vec<(String, Json)> = Vec::new();
+    for (k, v) in params.object().unwrap() {
+        if let None = v.null() {
+            rv.push((k.clone(), v.clone()));
+        }
+    }
+    Json::from(rv)
+}
+
 impl Client {
     /// Creates a new client
     pub fn new(sockname: String) -> Client {
@@ -68,9 +80,10 @@ impl Client {
     pub fn build_request(&self, name: String, params: Json) -> Request {
         let mut nonce = self.nonce.lock().unwrap();
         *nonce += 1;
+
         Request {
             method: name,
-            params: params,
+            params: filter_nones(params),
             id: From::from(*nonce),
             jsonrpc: Some(String::from("2.0")),
         }

@@ -23,3 +23,10 @@ pub struct GetInfo {}
 pub struct FeeRates {
     pub style: String,
 }
+
+/// 'listpeers' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListPeers {
+    pub id: Option<String>,
+    pub level: Option<String>,
+}

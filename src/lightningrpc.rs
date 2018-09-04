@@ -42,4 +42,12 @@ impl LightningRPC {
             },
         )
     }
+
+    pub fn listpeers(
+        &mut self,
+        id: Option<String>,
+        level: Option<String>,
+    ) -> Result<responses::ListPeers, Error> {
+        self.call("listpeers", requests::ListPeers { id, level })
+    }
 }
