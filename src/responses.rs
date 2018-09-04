@@ -17,7 +17,7 @@
 /// structure for network addresses
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct NetworkAddress {
-    #[serde(rename="type")]
+    #[serde(rename = "type")]
     pub type_: String,
     pub address: String,
     pub port: String,

@@ -16,8 +16,7 @@
 
 /// 'getinfo' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct GetInfo {
-}
+pub struct GetInfo {}
 
 /// 'feerates' command
 #[derive(Debug, Clone, Deserialize, Serialize)]

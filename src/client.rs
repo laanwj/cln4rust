@@ -20,8 +20,8 @@
 //!
 
 use std::io::Write;
-use std::sync::{Arc, Mutex};
 use std::os::unix::net::UnixStream;
+use std::sync::{Arc, Mutex};
 
 use strason::Json;
 
@@ -31,7 +31,7 @@ use error::Error;
 /// A handle to a remote JSONRPC server
 pub struct Client {
     sockname: String,
-    nonce: Arc<Mutex<u64>>
+    nonce: Arc<Mutex<u64>>,
 }
 
 impl Client {
@@ -39,7 +39,7 @@ impl Client {
     pub fn new(sockname: String) -> Client {
         Client {
             sockname: sockname,
-            nonce: Arc::new(Mutex::new(0))
+            nonce: Arc::new(Mutex::new(0)),
         }
     }
 
@@ -54,8 +54,7 @@ impl Client {
         stream.write_all(&request_raw)?;
 
         let response: Response = Json::from_reader(&mut stream)?.into_deserialize()?;
-        if response.jsonrpc != None &&
-           response.jsonrpc != Some(From::from("2.0")) {
+        if response.jsonrpc != None && response.jsonrpc != Some(From::from("2.0")) {
             return Err(Error::VersionMismatch);
         }
         if response.id != request.id {
@@ -73,7 +72,7 @@ impl Client {
             method: name,
             params: params,
             id: From::from(*nonce),
-            jsonrpc: Some(String::from("2.0"))
+            jsonrpc: Some(String::from("2.0")),
         }
     }
 
@@ -98,5 +97,3 @@ mod tests {
         assert!(req1 != req2);
     }
 }
-
-
