@@ -46,3 +46,10 @@ pub struct Invoice {
     pub description: String,
     pub expiry: Option<i64>,
 }
+
+/// 'decodepay' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct DecodePay {
+    pub bolt11: String,
+    pub description: Option<String>,
+}

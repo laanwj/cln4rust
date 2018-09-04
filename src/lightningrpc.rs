@@ -75,6 +75,29 @@ impl LightningRPC {
         description: String,
         expiry: Option<i64>,
     ) -> Result<responses::Invoice, Error> {
-        self.call("invoice", requests::Invoice { msatoshi, label, description, expiry })
+        self.call(
+            "invoice",
+            requests::Invoice {
+                msatoshi,
+                label,
+                description,
+                expiry,
+            },
+        )
+    }
+
+    /// Decode {bolt11}, using {description} if necessary
+    pub fn decodepay(
+        &mut self,
+        bolt11: String,
+        description: Option<String>,
+    ) -> Result<responses::DecodePay, Error> {
+        self.call(
+            "decodepay",
+            requests::DecodePay {
+                bolt11,
+                description,
+            },
+        )
     }
 }

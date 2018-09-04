@@ -147,3 +147,17 @@ pub struct Invoice {
     pub expires_at: i64,
     pub bolt11: String,
 }
+
+/// 'decodepay' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct DecodePay {
+    pub currency: String,
+    pub created_at: i64,
+    pub expiry: i64,
+    pub payee: String,
+    pub msatoshi: i64,
+    pub description: String,
+    pub min_final_cltv_expiry: i64,
+    pub payment_hash: String,
+    pub signature: String,
+}
