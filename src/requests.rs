@@ -37,3 +37,12 @@ pub struct ListPeers {
 pub struct ListInvoices {
     pub label: Option<String>,
 }
+
+/// 'invoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Invoice {
+    pub msatoshi: i64,
+    pub label: String,
+    pub description: String,
+    pub expiry: Option<i64>,
+}
