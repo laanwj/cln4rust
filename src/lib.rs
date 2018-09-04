@@ -36,6 +36,7 @@ pub mod client;
 pub mod error;
 pub mod requests;
 pub mod responses;
+pub mod lightningrpc;
 
 use strason::Json;
 // Re-export error type
