@@ -34,6 +34,8 @@ extern crate strason;
 
 pub mod client;
 pub mod error;
+pub mod requests;
+pub mod responses;
 
 use strason::Json;
 // Re-export error type
