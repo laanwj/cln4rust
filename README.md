@@ -21,4 +21,4 @@ Not all calls supported by c-clightning have been implemented on the high-level 
 
 # Credits
 
-This library is based on Andre Poelstra's [rust-jsonrpc](https://github.com/apoelstra/rust-jsonrpc).
+This library is based on Andrew Poelstra's [rust-jsonrpc](https://github.com/apoelstra/rust-jsonrpc).
