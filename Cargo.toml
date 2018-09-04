@@ -1,0 +1,9 @@
+[package]
+name = "clightningrpc"
+version = "0.1.0"
+authors = ["Wladimir J. van der Laan <laanwj@gmail.com>"]
+
+[dependencies]
+serde = "1"
+serde_derive = "1"
+strason = "0.4"
