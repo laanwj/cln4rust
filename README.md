@@ -1,6 +1,6 @@
 # Rust c-lightning client
 
-This provides an interface from rust to the c-lightning daemon.
+This provides an interface from rust to the [c-lightning](https://github.com/ElementsProject/lightning) daemon.
 
 See [examples](examples/) directory for usage examples.
 
