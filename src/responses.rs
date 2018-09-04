@@ -36,3 +36,26 @@ pub struct GetInfo {
     pub network: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FeeRatesInner {
+    pub urgent: i64,
+    pub normal: i64,
+    pub slow: i64,
+    pub min_acceptable: i64,
+    pub max_acceptable: i64,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FeeRatesOnchain {
+    pub opening_channel_satoshis: i64,
+    pub mutual_close_satoshis: i64,
+    pub unilateral_close_satoshis: i64,
+}
+
+/// 'feerates' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FeeRates {
+    pub perkb: Option<FeeRatesInner>,
+    pub perkw: Option<FeeRatesInner>,
+    pub onchain_fee_estimates: Option<FeeRatesOnchain>,
+}

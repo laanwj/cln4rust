@@ -18,3 +18,9 @@
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetInfo {
 }
+
+/// 'feerates' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FeeRates {
+    pub style: String,
+}
