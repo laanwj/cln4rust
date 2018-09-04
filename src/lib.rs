@@ -116,12 +116,12 @@ mod tests {
     fn request_serialize_round_trip() {
         let original = Request {
             method: "test".to_owned(),
-            params: vec![
-                From::from(()),
-                From::from(false),
-                From::from(true),
-                From::from("test2"),
-            ],
+            params: From::from(vec![
+                ("a".to_string(), From::from(())),
+                ("b".to_string(), From::from(false)),
+                ("c".to_string(), From::from(true)),
+                ("d".to_string(), From::from("test2")),
+            ]),
             id: From::from("69"),
             jsonrpc: Some(String::from("2.0")),
         };

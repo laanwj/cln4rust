@@ -98,14 +98,17 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use strason::Json;
 
     #[test]
     fn sanity() {
-        let client = Client::new("localhost".to_owned(), None, None);
+        let client = Client::new("/tmp/socket/localhost".to_owned());
         assert_eq!(client.last_nonce(), 0);
-        let req1 = client.build_request("test".to_owned(), vec![]);
+        let req1 =
+            client.build_request("test".to_owned(), Json::from(Vec::<(String, Json)>::new()));
         assert_eq!(client.last_nonce(), 1);
-        let req2 = client.build_request("test".to_owned(), vec![]);
+        let req2 =
+            client.build_request("test".to_owned(), Json::from(Vec::<(String, Json)>::new()));
         assert_eq!(client.last_nonce(), 2);
         assert!(req1 != req2);
     }
