@@ -47,7 +47,7 @@ pub struct Request {
     /// The name of the RPC call
     pub method: String,
     /// Parameters to the RPC call
-    pub params: Vec<Json>,
+    pub params: Json,
     /// Identifier for this Request, which should appear in the response
     pub id: Json,
     /// jsonrpc field, MUST be "2.0"

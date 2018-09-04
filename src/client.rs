@@ -66,7 +66,7 @@ impl Client {
     }
 
     /// Builds a request
-    pub fn build_request(&self, name: String, params: Vec<Json>) -> Request {
+    pub fn build_request(&self, name: String, params: Json) -> Request {
         let mut nonce = self.nonce.lock().unwrap();
         *nonce += 1;
         Request {

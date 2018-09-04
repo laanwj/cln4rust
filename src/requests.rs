@@ -13,3 +13,8 @@
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 // Structures representing requests to API calls
+
+/// 'getinfo' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct GetInfo {
+}

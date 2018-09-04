@@ -13,6 +13,8 @@
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 // Structures representing responses to API calls
+
+/// structure for network addresses
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct NetworkAddress {
     #[serde(rename="type")]
@@ -21,6 +23,7 @@ pub struct NetworkAddress {
     pub port: String,
 }
 
+/// 'getinfo' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetInfo {
     pub id: String,
