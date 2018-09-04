@@ -60,10 +60,58 @@ pub struct FeeRates {
     pub onchain_fee_estimates: Option<FeeRatesOnchain>,
 }
 
+/// Sub-structure for channel in 'listpeers'
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Channel {
+    pub state: String,
+    pub owner: Option<String>,
+    pub short_channel_id: String,
+    pub channel_id: String,
+    pub funding_txid: String,
+    pub msatoshi_to_us: i64,
+    pub msatoshi_to_us_min: i64,
+    pub msatoshi_to_us_max: i64,
+    pub msatoshi_total: i64,
+    pub dust_limit_satoshis: i64,
+    pub max_htlc_value_in_flight_msat: u64, // this exceeds what fits into i64
+    pub their_channel_reserve_satoshis: i64,
+    pub our_channel_reserve_satoshis: i64,
+    pub spendable_msatoshi: i64,
+    pub htlc_minimum_msat: i64,
+    pub their_to_self_delay: i64,
+    pub our_to_self_delay: i64,
+    pub max_accepted_htlcs: i64,
+    pub status: Vec<String>,
+    pub in_payments_offered: i64,
+    pub in_msatoshi_offered: i64,
+    pub in_payments_fulfilled: i64,
+    pub in_msatoshi_fulfilled: i64,
+    pub out_payments_offered: i64,
+    pub out_msatoshi_offered: i64,
+    pub out_payments_fulfilled: i64,
+    pub out_msatoshi_fulfilled: i64,
+}
+
+/// Sub-structure for log entry in 'listpeers'
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Log {
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub time: String,
+    pub source: String,
+    pub log: String,
+}
+
 /// Sub-structure for peer in 'listpeers'
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Peer {
     pub id: String,
+    pub connected: bool,
+    pub netaddr: Option<Vec<String>>,
+    pub local_features: Option<String>,
+    pub global_features: Option<String>,
+    pub channels: Vec<Channel>,
+    pub log: Option<Vec<Log>>,
 }
 
 /// 'listpeers' command
