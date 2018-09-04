@@ -86,6 +86,16 @@ impl LightningRPC {
         )
     }
 
+    /// Create an invoice for {msatoshi} with {label} and {description} with
+    /// optional {expiry} seconds (default 1 hour)
+    pub fn delinvoice(
+        &mut self,
+        label: String,
+        status: String,
+    ) -> Result<responses::DelInvoice, Error> {
+        self.call("delinvoice", requests::DelInvoice { label, status })
+    }
+
     /// Decode {bolt11}, using {description} if necessary
     pub fn decodepay(
         &mut self,

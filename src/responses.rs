@@ -148,6 +148,9 @@ pub struct Invoice {
     pub bolt11: String,
 }
 
+/// 'delinvoice' command
+pub type DelInvoice = ListInvoice;
+
 /// 'decodepay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodePay {

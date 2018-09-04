@@ -47,6 +47,13 @@ pub struct Invoice {
     pub expiry: Option<i64>,
 }
 
+/// 'delinvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct DelInvoice {
+    pub label: String,
+    pub status: String,
+}
+
 /// 'decodepay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodePay {
