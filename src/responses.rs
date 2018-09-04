@@ -120,3 +120,22 @@ pub struct Peer {
 pub struct ListPeers {
     pub peers: Vec<Peer>,
 }
+
+/// Sub-structure for invoices in 'listinvoices'
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Invoice {
+    pub label: String,
+    pub bolt11: String,
+    pub payment_hash: String,
+    pub msatoshi: i64,
+    pub status: String,
+    pub expires_at: i64,
+    pub pay_index: Option<i64>,
+    pub paid_at: Option<i64>,
+}
+
+/// 'listinvoices' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListInvoices {
+    pub invoices: Vec<Invoice>,
+}

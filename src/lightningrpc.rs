@@ -57,4 +57,12 @@ impl LightningRPC {
     ) -> Result<responses::ListPeers, Error> {
         self.call("listpeers", requests::ListPeers { id, level })
     }
+
+    /// Show invoice {label} (or all, if no {label))
+    pub fn listinvoices(
+        &mut self,
+        label: Option<String>,
+    ) -> Result<responses::ListInvoices, Error> {
+        self.call("listinvoices", requests::ListInvoices { label })
+    }
 }

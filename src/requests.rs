@@ -31,3 +31,9 @@ pub struct ListPeers {
     pub id: Option<String>,
     pub level: Option<String>,
 }
+
+/// 'listinvoices' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListInvoices {
+    pub label: Option<String>,
+}
