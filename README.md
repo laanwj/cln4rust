@@ -21,6 +21,43 @@ See [examples](examples/) directory for more usage examples.
 Not all calls supported by c-clightning have been implemented on the high-level interface
 `LightningRPC` yet. Contributions are welcome!
 
+Currently implemented:
+
+- `getinfo`
+- `feerates`
+- `listpeers`
+- `listinvoices`
+- `invoice`
+- `delinvoice`
+- `decodepay`
+- `connect`
+- `disconnect`
+
+TODO:
+
+- `listnodes`
+- `getroute`
+- `listchannels`
+- `delexpiredinvoice`
+- `autocleaninvoice`
+- `waitanyinvoice`
+- `waitinvoice`
+- `help`
+- `stop`
+- `getlog`
+- `fundchannel`
+- `listconfigs`
+- `sendpay`
+- `waitsendpay`
+- `listpayments`
+- `pay`
+- `close`
+- `ping`
+- `withdraw`
+- `newaddr`
+- `listfunds`
+- potentially `dev-*`
+
 # Credits
 
 This library is based on Andrew Poelstra's [rust-jsonrpc](https://github.com/apoelstra/rust-jsonrpc).
