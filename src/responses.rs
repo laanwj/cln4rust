@@ -12,7 +12,8 @@
 // along with this software.
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
-// Structures representing responses to API calls
+#![allow(missing_docs)]
+//! Structures representing responses to API calls
 
 /// structure for network addresses
 #[derive(Debug, Clone, Deserialize, Serialize)]

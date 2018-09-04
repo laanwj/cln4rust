@@ -2,7 +2,7 @@
 
 [![Status](https://travis-ci.org/laanwj/rust-clightning-rpc.png?branch=master)](https://travis-ci.org/laanwj/rust-clightning-rpc)
 
-This provides an interface from rust to the [c-lightning](https://github.com/ElementsProject/lightning) daemon.
+This crate provides an interface from rust to the [c-lightning](https://github.com/ElementsProject/lightning) daemon through RPC.
 
 ```rust
 extern crate clightningrpc;

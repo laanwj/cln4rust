@@ -12,7 +12,8 @@
 // along with this software.
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
-// Structures representing requests to API calls
+//! Structures representing requests to API calls
+#![allow(missing_docs)]
 
 /// 'getinfo' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
