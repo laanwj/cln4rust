@@ -151,6 +151,14 @@ pub struct Invoice {
 /// 'delinvoice' command
 pub type DelInvoice = ListInvoice;
 
+/// 'delexpiredinvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct DelExpiredInvoice {}
+
+/// 'autocleaninvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct AutoCleanInvoice {}
+
 /// 'waitanyinvoice' command
 pub type WaitAnyInvoice = ListInvoice;
 

@@ -54,6 +54,19 @@ pub struct DelInvoice {
     pub status: String,
 }
 
+/// 'delexpiredinvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct DelExpiredInvoice {
+    pub maxexpirytime: Option<i64>,
+}
+
+/// 'autocleaninvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct AutoCleanInvoice {
+    pub cycle_seconds: Option<i64>,
+    pub expired_by: Option<i64>,
+}
+
 /// 'waitanyinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct WaitAnyInvoice {

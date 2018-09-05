@@ -29,6 +29,8 @@ Currently implemented:
 - `listinvoices`
 - `invoice`
 - `delinvoice`
+- `delexpiredinvoice`
+- `autocleaninvoice`
 - `waitanyinvoice`
 - `waitinvoice`
 - `pay`
@@ -43,8 +45,6 @@ TODO:
 
 - `listnodes`
 - `listchannels`
-- `delexpiredinvoice`
-- `autocleaninvoice`
 - `help`
 - `getlog`
 - `fundchannel`
@@ -72,7 +72,7 @@ TODO:
 
   `data` could be parsed into a structure, but this depends on the kind of error
 
-- API is inconvenient when there are a lot of optional arguments, this is awful:
+- API is inconvenient when there are a lot of optional arguments, for example `pay` is awful:
 
 ```
 let pay_result = client_from.pay(invoice.bolt11, None, None, None, None, None, None, None);
@@ -83,6 +83,11 @@ number of arguments (?), nor named ones. This also give a lack of
 extenisibility in case upstream `lightningd` adds more arguments in the future.
 Not sure how to handle this, a 'builder pattern' has been suggested but I'm not
 sure how to build a good API around this. If anyone has suggestions please let me know!
+
+# Style guidelines
+
+- Four spaces
+- Call `rustfmt src/*.rs` before committing
 
 # Credits
 

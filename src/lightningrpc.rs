@@ -96,6 +96,35 @@ impl LightningRPC {
         self.call("delinvoice", requests::DelInvoice { label, status })
     }
 
+    /// Delete all expired invoices that expired as of given {maxexpirytime} (a UNIX epoch time),
+    /// or all expired invoices if not specified
+    pub fn delexpiredinvoice(
+        &mut self,
+        maxexpirytime: Option<i64>,
+    ) -> Result<responses::DelExpiredInvoice, Error> {
+        self.call(
+            "delexpiredinvoice",
+            requests::DelExpiredInvoice { maxexpirytime },
+        )
+    }
+
+    /// Set up autoclean of expired invoices. Perform cleanup every {cycle_seconds} (default 3600),
+    /// or disable autoclean if 0. Clean up expired invoices that have expired for {expired_by}
+    /// seconds (default 86400).
+    pub fn autocleaninvoice(
+        &mut self,
+        cycle_seconds: Option<i64>,
+        expired_by: Option<i64>,
+    ) -> Result<responses::AutoCleanInvoice, Error> {
+        self.call(
+            "autocleaninvoice",
+            requests::AutoCleanInvoice {
+                cycle_seconds,
+                expired_by,
+            },
+        )
+    }
+
     /// Wait for the next invoice to be paid, after {lastpay_index}
     /// (if supplied)
     pub fn waitanyinvoice(
