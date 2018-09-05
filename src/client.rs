@@ -33,6 +33,7 @@ use error::Error;
 pub struct Client {
     sockpath: PathBuf,
     nonce: Arc<Mutex<u64>>,
+    stream: UnixStream,
 }
 
 /// Filter out top-level parameters with value None, this is used for handling optional
@@ -53,20 +54,19 @@ impl Client {
         Client {
             sockpath: sockpath.as_ref().to_path_buf(),
             nonce: Arc::new(Mutex::new(0)),
+            stream: UnixStream::connect(&sockpath).unwrap(),
         }
     }
 
     /// Sends a request to a client
-    pub fn send_request(&self, request: &Request) -> Result<Response, Error> {
+    pub fn send_request(&mut self, request: &Request) -> Result<Response, Error> {
         // Build request
         let request_raw = Json::from_serialize(request)?.to_bytes();
 
         // Setup connection
-        let mut stream = UnixStream::connect(&self.sockpath)?;
+        self.stream.write_all(&request_raw)?;
 
-        stream.write_all(&request_raw)?;
-
-        let response: Response = Json::from_reader(&mut stream)?.into_deserialize()?;
+        let response: Response = Json::from_reader(&mut self.stream)?.into_deserialize()?;
         if response.jsonrpc != None && response.jsonrpc != Some(From::from("2.0")) {
             return Err(Error::VersionMismatch);
         }
