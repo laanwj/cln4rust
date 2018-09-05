@@ -7,11 +7,13 @@ This crate provides an interface from rust to the [c-lightning](https://github.c
 
 ```rust
 extern crate clightningrpc;
-
+use std::env;
 use clightningrpc::LightningRPC;
 
 fn main() {
-    let mut client = LightningRPC::new("/home/user/.lightning/lightning-rpc".to_string());
+    let mut sock = env::home_dir().unwrap();
+    sock.push(".lightning/lightning-rpc");
+    let mut client = LightningRPC::new(&sock);
 
     println!("getinfo result: {:?}", client.getinfo().unwrap());
 }

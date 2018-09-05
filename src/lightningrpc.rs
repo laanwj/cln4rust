@@ -67,7 +67,8 @@ impl LightningRPC {
         self.call("getinfo", requests::GetInfo {})
     }
 
-    /// Supply feerate estimates manually.
+    /// Return feerate estimates, either satoshi-per-kw ({style} perkw) or satoshi-per-kb ({style}
+    /// perkb).
     pub fn feerates(&mut self, style: String) -> Result<responses::FeeRates, Error> {
         self.call(
             "feerates",
