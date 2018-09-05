@@ -74,6 +74,18 @@ pub struct DecodePay {
     pub description: Option<String>,
 }
 
+/// 'getroute' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct GetRoute {
+    pub id: String,
+    pub msatoshi: i64,
+    pub riskfactor: f64,
+    pub cltv: Option<i64>,
+    pub fromid: Option<String>,
+    pub fuzzpercent: Option<f64>,
+    pub seed: Option<String>,
+}
+
 /// 'connect' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Connect {

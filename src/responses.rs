@@ -151,7 +151,7 @@ pub struct Invoice {
 /// 'delinvoice' command
 pub type DelInvoice = ListInvoice;
 
-/// Sub-structure for route in 'pay'
+/// Sub-structure for route in 'pay' and 'getroute'
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RouteItem {
     pub id: String,
@@ -204,6 +204,12 @@ pub struct DecodePay {
     pub min_final_cltv_expiry: i64,
     pub payment_hash: String,
     pub signature: String,
+}
+
+/// 'getroute' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct GetRoute {
+    pub route: Vec<RouteItem>,
 }
 
 /// 'connect' command

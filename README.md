@@ -31,6 +31,7 @@ Currently implemented:
 - `delinvoice`
 - `pay`
 - `decodepay`
+- `getroute`
 - `connect`
 - `disconnect`
 - `stop`
@@ -38,7 +39,6 @@ Currently implemented:
 TODO:
 
 - `listnodes`
-- `getroute`
 - `listchannels`
 - `delexpiredinvoice`
 - `autocleaninvoice`

@@ -148,6 +148,34 @@ impl LightningRPC {
         )
     }
 
+    /// Show route to {id} for {msatoshi}, using {riskfactor} and optional {cltv} (default 9). If
+    /// specified search from {fromid} otherwise use this node as source. Randomize the route with
+    /// up to {fuzzpercent} (0.0 -> 100.0, default 5.0) using {seed} as an arbitrary-size string
+    /// seed.
+    pub fn getroute(
+        &mut self,
+        id: String,
+        msatoshi: i64,
+        riskfactor: f64,
+        cltv: Option<i64>,
+        fromid: Option<String>,
+        fuzzpercent: Option<f64>,
+        seed: Option<String>,
+    ) -> Result<responses::GetRoute, Error> {
+        self.call(
+            "getroute",
+            requests::GetRoute {
+                id,
+                msatoshi,
+                riskfactor,
+                cltv,
+                fromid,
+                fuzzpercent,
+                seed,
+            },
+        )
+    }
+
     /// Connect to {id} at {host} (which can end in ':port' if not default). {id} can also be of
     /// the form id@host
     pub fn connect(
