@@ -37,13 +37,16 @@ pub struct Client {
 
 /// Filter out top-level parameters with value None, this is used for handling optional
 /// parameters correctly as c-lightning expects.
+///
+/// This function panics if passed Json isn't a json object.
 fn filter_nones(params: Json) -> Json {
-    let mut rv: Vec<(String, Json)> = Vec::new();
-    for (k, v) in params.object().unwrap() {
-        if let None = v.null() {
-            rv.push((k.clone(), v.clone()));
-        }
-    }
+    let rv = params
+        .object()
+        .unwrap()
+        .iter()
+        .filter(|(_, v)| v.null().is_none())
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<Vec<_>>();
     Json::from(rv)
 }
 
