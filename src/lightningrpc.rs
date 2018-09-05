@@ -50,6 +50,36 @@ impl LightningRPC {
         )
     }
 
+    /// Show node {id} (or all, if no {id}), in our local network view
+    pub fn listnodes(&mut self, id: Option<String>) -> Result<responses::ListNodes, Error> {
+        self.call("listnodes", requests::ListNodes { id })
+    }
+
+    /// Show channel {short_channel_id} (or all known channels, if no {short_channel_id})
+    pub fn listchannels(
+        &mut self,
+        short_channel_id: Option<String>,
+    ) -> Result<responses::ListChannels, Error> {
+        self.call("listchannels", requests::ListChannels { short_channel_id })
+    }
+
+    /// List available commands, or give verbose help on one command.
+    pub fn help(&mut self, command: Option<String>) -> Result<responses::Help, Error> {
+        self.call("help", requests::Help { command })
+    }
+
+    /// Show logs, with optional log {level} (info|unusual|debug|io)
+    pub fn getlog(&mut self, level: Option<String>) -> Result<responses::GetLog, Error> {
+        self.call("getlog", requests::GetLog { level })
+    }
+
+    /// List all configuration options, or with [config], just that one.
+    /// Because of the dynamic nature of the returned object, unlike the other methods, this
+    /// returns a HashMap (from String to Json) instead of a structure.
+    pub fn listconfigs(&mut self, config: Option<String>) -> Result<responses::ListConfigs, Error> {
+        self.call("listconfigs", requests::ListConfigs { config })
+    }
+
     /// Show current peers, if {level} is set, include {log}s"
     pub fn listpeers(
         &mut self,
@@ -328,6 +358,11 @@ impl LightningRPC {
                 pongbytes,
             },
         )
+    }
+
+    /// Show available funds from the internal wallet
+    pub fn listfunds(&mut self) -> Result<responses::ListFunds, Error> {
+        self.call("listfunds", requests::ListFunds {})
     }
 
     /// Send to {destination} address {satoshi} (or 'all') amount via Bitcoin transaction, at optional {feerate}

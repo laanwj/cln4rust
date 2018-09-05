@@ -27,6 +27,36 @@ pub struct FeeRates {
     pub style: String,
 }
 
+/// 'listnodes' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListNodes {
+    pub id: Option<String>,
+}
+
+/// 'listchannels' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListChannels {
+    pub short_channel_id: Option<String>,
+}
+
+/// 'help' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Help {
+    pub command: Option<String>,
+}
+
+/// 'getlog' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct GetLog {
+    pub level: Option<String>,
+}
+
+/// 'listconfigs' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListConfigs {
+    pub config: Option<String>,
+}
+
 /// 'listpeers' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ListPeers {
@@ -172,6 +202,10 @@ pub struct Ping {
     pub len: Option<i64>,
     pub pongbytes: Option<i64>,
 }
+
+/// 'listfunds' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListFunds {}
 
 /// 'withdraw' command
 #[derive(Debug, Clone, Deserialize, Serialize)]

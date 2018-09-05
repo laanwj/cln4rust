@@ -14,6 +14,8 @@
 //
 #![allow(missing_docs)]
 //! Structures representing responses to API calls
+use std::collections::HashMap;
+use strason::Json;
 
 use common;
 
@@ -62,6 +64,82 @@ pub struct FeeRates {
     pub perkw: Option<FeeRatesInner>,
     pub onchain_fee_estimates: Option<FeeRatesOnchain>,
 }
+
+/// Sub-structure for 'listnodes' items
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListNodesItem {
+    pub nodeid: String,
+    pub alias: Option<String>,
+    pub color: Option<String>,
+    pub last_timestamp: Option<i64>,
+    pub global_features: Option<String>,
+    pub addresses: Option<Vec<NetworkAddress>>,
+}
+
+/// 'listnodes' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListNodes {
+    pub nodes: Vec<ListNodesItem>,
+}
+
+/// Sub-structure for 'listchannels' item
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListChannelsItem {
+    pub source: String,
+    pub destination: String,
+    pub short_channel_id: String,
+    pub public: bool,
+    pub satoshis: i64,
+    pub flags: i64,
+    pub active: bool,
+    pub last_update: i64,
+    pub base_fee_millisatoshi: i64,
+    pub fee_per_millionth: i64,
+    pub delay: i64,
+}
+
+/// 'listchannels' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListChannels {
+    pub channels: Vec<ListChannelsItem>,
+}
+
+/// Sub-structure for 'help' item
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct HelpItem {
+    pub command: String,
+    pub description: String,
+}
+
+/// 'help' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Help {
+    pub help: Option<Vec<HelpItem>>,
+    pub verbose: Option<String>,
+}
+
+/// Sub-structure for 'getlog' item
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct LogEntry {
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub num_skipped: Option<i64>,
+    pub time: Option<String>,
+    pub source: Option<String>,
+    pub log: Option<String>,
+}
+
+/// 'getlog' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct GetLog {
+    pub created_at: String,
+    pub bytes_used: i64,
+    pub bytes_max: i64,
+    pub log: Vec<LogEntry>,
+}
+
+/// 'listconfigs' command
+pub type ListConfigs = HashMap<String, Json>;
 
 /// Sub-structure for channel in 'listpeers'
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -289,6 +367,33 @@ pub struct Close {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Ping {
     pub totlen: i64,
+}
+
+/// Sub-structure for 'listfunds' output
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListFundsOutput {
+    pub txid: String,
+    pub output: i64,
+    pub value: i64,
+    pub address: String,
+    pub status: String,
+}
+
+/// Sub-structure for 'listfunds' channel
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListFundsChannel {
+    pub peer_id: String,
+    pub short_channel_id: String,
+    pub channel_sat: i64,
+    pub channel_total_sat: i64,
+    pub funding_txid: String,
+}
+
+/// 'listfunds' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListFunds {
+    pub outputs: Vec<ListFundsOutput>,
+    pub channels: Vec<ListFundsChannel>,
 }
 
 /// 'withdraw' command

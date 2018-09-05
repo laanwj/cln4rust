@@ -18,13 +18,15 @@ fn main() {
 
 See [examples](examples/) directory for more usage examples.
 
-Not all calls supported by c-clightning have been implemented on the high-level interface
-`LightningRPC` yet. Contributions are welcome!
-
-Currently implemented:
+Currently implemented (this covers all non-dev commands as of c-lightning v0.6.1rc1):
 
 - `getinfo`
 - `feerates`
+- `listnodes`
+- `listchannels`
+- `help`
+- `getlog`
+- `listconfigs`
 - `listpeers`
 - `listinvoices`
 - `invoice`
@@ -44,6 +46,7 @@ Currently implemented:
 - `fundchannel`
 - `close`
 - `ping`
+- `listfunds`
 - `withdraw`
 - `newaddr`
 - `stop`
@@ -52,17 +55,9 @@ Currently implemented:
 
 - verify use of `i64` versus `u64` in API
 - `fundchannel`, `withdraw`: allow passing `all` for `satoshi`
-- implement all commands on high-level interface. TODO:
-    - `listnodes`
-    - `listchannels`
-    - `help`
-    - `getlog`
-    - `listconfigs`
-    - `listfunds`
-- potentially `dev-*`
 - document low and high level handling
 - document error handling
-- reproducible functional test that exercises against actual lightning instances
+- reproducible functional test that exercises against actual lightning instances (regtest?)
 - a better way to get at the data for failed payments
 
 ```
@@ -86,6 +81,8 @@ sure how to build a good API around this. If anyone has suggestions please let m
 - the API could make more use of enums where the possible values are known; for example the
   `addresstype` parameter to `newaddr`, but also in returned structures. This has to be weighted
   agains flexibility, though, in case the API is extended later.
+
+- decide on `&str` versus `String` on high-level API (but at least make sure it is consistent)
 
 # Style guidelines
 
