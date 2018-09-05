@@ -96,6 +96,20 @@ impl LightningRPC {
         self.call("delinvoice", requests::DelInvoice { label, status })
     }
 
+    /// Wait for the next invoice to be paid, after {lastpay_index}
+    /// (if supplied)
+    pub fn waitanyinvoice(
+        &mut self,
+        lastpay_index: Option<i64>,
+    ) -> Result<responses::WaitAnyInvoice, Error> {
+        self.call("waitanyinvoice", requests::WaitAnyInvoice { lastpay_index })
+    }
+
+    /// Wait for an incoming payment matching the invoice with {label}
+    pub fn waitinvoice(&mut self, label: String) -> Result<responses::WaitInvoice, Error> {
+        self.call("waitinvoice", requests::WaitInvoice { label })
+    }
+
     /// Send payment specified by {bolt11} with optional {msatoshi} (if and only if {bolt11} does
     /// not have amount)
     /// {description} (required if {bolt11} uses description hash)

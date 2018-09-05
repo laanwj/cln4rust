@@ -29,6 +29,8 @@ Currently implemented:
 - `listinvoices`
 - `invoice`
 - `delinvoice`
+- `waitanyinvoice`
+- `waitinvoice`
 - `pay`
 - `listpayments`
 - `decodepay`
@@ -43,8 +45,6 @@ TODO:
 - `listchannels`
 - `delexpiredinvoice`
 - `autocleaninvoice`
-- `waitanyinvoice`
-- `waitinvoice`
 - `help`
 - `getlog`
 - `fundchannel`

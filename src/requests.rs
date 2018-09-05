@@ -54,6 +54,18 @@ pub struct DelInvoice {
     pub status: String,
 }
 
+/// 'waitanyinvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct WaitAnyInvoice {
+    pub lastpay_index: Option<i64>,
+}
+
+/// 'waitinvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct WaitInvoice {
+    pub label: String,
+}
+
 /// 'pay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Pay {

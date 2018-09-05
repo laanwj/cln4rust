@@ -151,6 +151,12 @@ pub struct Invoice {
 /// 'delinvoice' command
 pub type DelInvoice = ListInvoice;
 
+/// 'waitanyinvoice' command
+pub type WaitAnyInvoice = ListInvoice;
+
+/// 'waitinvoice' command
+pub type WaitInvoice = ListInvoice;
+
 /// Sub-structure for route in 'pay' and 'getroute'
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RouteItem {
