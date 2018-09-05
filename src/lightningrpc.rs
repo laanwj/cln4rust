@@ -14,6 +14,25 @@ pub struct LightningRPC {
     client: client::Client,
 }
 
+/// Optional arguments for pay() request
+#[derive(Debug, Clone, Default)]
+pub struct PayOptions {
+    /// {msatoshi} (if and only if {bolt11} does not have amount)
+    pub msatoshi: Option<i64>,
+    /// {description} (required if {bolt11} uses description hash)
+    pub description: Option<String>,
+    /// {riskfactor} (default 1.0)
+    pub riskfactor: Option<f64>,
+    /// {maxfeepercent} (default 0.5) the maximum acceptable fee as a percentage (e.g. 0.5 => 0.5%)
+    pub maxfeepercent: Option<f64>,
+    /// {exemptfee} (default 5000 msat) disables the maxfeepercent check for fees below the threshold
+    pub exemptfee: Option<i64>,
+    /// {retry_for} (default 60) the integer number of seconds before we stop retrying
+    pub retry_for: Option<i64>,
+    /// {maxdelay} (default 500) the maximum number of blocks we allow the funds to possibly get locked
+    pub maxdelay: Option<i64>,
+}
+
 impl LightningRPC {
     /// Create a new connection from a UNIX socket path
     pub fn new(sockname: String) -> LightningRPC {
@@ -170,39 +189,24 @@ impl LightningRPC {
         self.call("waitinvoice", requests::WaitInvoice { label })
     }
 
-    /// Send payment specified by {bolt11} with optional {msatoshi} (if and only if {bolt11} does
-    /// not have amount)
-    /// {description} (required if {bolt11} uses description hash)
-    /// {riskfactor} (default 1.0)
-    /// {maxfeepercent} (default 0.5) the maximum acceptable fee as a percentage (e.g. 0.5 =>
-    /// 0.5%),
-    /// {exemptfee} (default 5000 msat) disables the maxfeepercent check for fees below the
-    /// threshold,
-    /// {retry_for} (default 60) the integer number of seconds before we stop retrying, and
-    /// {maxdelay} (default 500) the maximum number of blocks we allow the funds to possibly get
-    /// locked
-    pub fn pay(
-        &mut self,
-        bolt11: String,
-        msatoshi: Option<i64>,
-        description: Option<String>,
-        riskfactor: Option<f64>,
-        maxfeepercent: Option<f64>,
-        exemptfee: Option<i64>,
-        retry_for: Option<i64>,
-        maxdelay: Option<i64>,
-    ) -> Result<responses::Pay, Error> {
+    /// Send payment specified by {bolt11}. Options can be specified in an {options} structure, or
+    /// use  to pass .
+    /// # Arguments
+    ///
+    /// * `bolt11` - A string that holds the payment information in bolt11 format
+    /// * `options` - Options for this payment. Use Default::default() to not pass any options.
+    pub fn pay(&mut self, bolt11: String, options: PayOptions) -> Result<responses::Pay, Error> {
         self.call(
             "pay",
             requests::Pay {
-                bolt11,
-                msatoshi,
-                description,
-                riskfactor,
-                maxfeepercent,
-                exemptfee,
-                retry_for,
-                maxdelay,
+                bolt11: bolt11,
+                msatoshi: options.msatoshi,
+                description: options.description,
+                riskfactor: options.riskfactor,
+                maxfeepercent: options.maxfeepercent,
+                exemptfee: options.exemptfee,
+                retry_for: options.retry_for,
+                maxdelay: options.maxdelay,
             },
         )
     }
