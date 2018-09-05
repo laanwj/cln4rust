@@ -68,11 +68,11 @@ impl LightningRPC {
     }
 
     /// Supply feerate estimates manually.
-    pub fn feerates(&mut self, style: &str) -> Result<responses::FeeRates, Error> {
+    pub fn feerates(&mut self, style: String) -> Result<responses::FeeRates, Error> {
         self.call(
             "feerates",
             requests::FeeRates {
-                style: style.to_string(),
+                style: style,
             },
         )
     }
