@@ -51,6 +51,10 @@ Currently implemented (this covers all non-dev commands as of c-lightning v0.6.1
 - `newaddr`
 - `stop`
 
+Be aware that the API (of rust-clighting-rpc, but also that of c-lightning
+itself) is not finalized. This means that it may change from version to version and break your
+compile, sorry!
+
 # To do
 
 - verify use of `i64` versus `u64` in API
