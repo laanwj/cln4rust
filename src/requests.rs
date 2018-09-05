@@ -149,6 +149,30 @@ pub struct Disconnect {
     pub id: String,
 }
 
+/// 'fundchannel' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FundChannel {
+    pub id: String,
+    pub satoshi: i64,
+    pub feerate: Option<i64>,
+}
+
+/// 'close' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Close {
+    pub id: String,
+    pub force: Option<bool>,
+    pub timeout: Option<i64>,
+}
+
+/// 'ping' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Ping {
+    pub peerid: String,
+    pub len: Option<i64>,
+    pub pongbytes: Option<i64>,
+}
+
 /// 'stop' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Stop {}

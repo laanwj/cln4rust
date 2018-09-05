@@ -41,6 +41,9 @@ Currently implemented:
 - `getroute`
 - `connect`
 - `disconnect`
+- `fundchannel`
+- `close`
+- `ping`
 - `stop`
 
 TODO:
@@ -49,10 +52,7 @@ TODO:
 - `listchannels`
 - `help`
 - `getlog`
-- `fundchannel`
 - `listconfigs`
-- `close`
-- `ping`
 - `withdraw`
 - `newaddr`
 - `listfunds`
@@ -60,6 +60,8 @@ TODO:
 
 # To do
 
+- verify use of `i64` versus `u64` in API
+- `fundchannel`: allow passing `all` for amount
 - implement all commands on high-level interface
 - document low and high level handling
 - document error handling

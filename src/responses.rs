@@ -268,5 +268,28 @@ pub struct Connect {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Disconnect {}
 
+/// 'fundchannel' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FundChannel {
+    pub tx: String,
+    pub txid: String,
+    pub channel_id: String,
+}
+
+/// 'close' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Close {
+    pub tx: String,
+    pub txid: String,
+    #[serde(rename = "type")]
+    pub type_: String,
+}
+
+/// 'ping' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Ping {
+    pub totlen: i64,
+}
+
 /// 'stop' command
 pub type Stop = String;

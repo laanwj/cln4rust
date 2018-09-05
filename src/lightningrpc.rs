@@ -284,6 +284,52 @@ impl LightningRPC {
         self.call("disconnect", requests::Disconnect { id })
     }
 
+    /// Fund channel with {id} using {satoshi} (or 'all') satoshis, at optional {feerate}
+    pub fn fundchannel(
+        &mut self,
+        id: String,
+        satoshi: i64,
+        feerate: Option<i64>,
+    ) -> Result<responses::FundChannel, Error> {
+        self.call(
+            "fundchannel",
+            requests::FundChannel {
+                id,
+                satoshi,
+                feerate,
+            },
+        )
+    }
+
+    /// Close the channel with {id} (either peer ID, channel ID, or short channel ID). If {force}
+    /// (default false) is true, force a unilateral close after {timeout} seconds (default 30),
+    /// otherwise just schedule a mutual close later and fail after timing out.
+    pub fn close(
+        &mut self,
+        id: String,
+        force: Option<bool>,
+        timeout: Option<i64>,
+    ) -> Result<responses::Close, Error> {
+        self.call("close", requests::Close { id, force, timeout })
+    }
+
+    /// Send {peerid} a ping of length {len} (default 128) asking for {pongbytes} (default 128)
+    pub fn ping(
+        &mut self,
+        peerid: String,
+        len: Option<i64>,
+        pongbytes: Option<i64>,
+    ) -> Result<responses::Ping, Error> {
+        self.call(
+            "ping",
+            requests::Ping {
+                peerid,
+                len,
+                pongbytes,
+            },
+        )
+    }
+
     /// Shut down the lightningd process
     pub fn stop(&mut self) -> Result<responses::Stop, Error> {
         self.call("stop", requests::Stop {})
