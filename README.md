@@ -1,6 +1,7 @@
 # Rust c-lightning client
 
 [![Status](https://travis-ci.org/laanwj/rust-clightning-rpc.png?branch=master)](https://travis-ci.org/laanwj/rust-clightning-rpc)
+[![Crates.io](https://img.shields.io/crates/v/clightningrpc.svg)](https://crates.io/crates/clightningrpc)
 
 This crate provides an interface from rust to the [c-lightning](https://github.com/ElementsProject/lightning) daemon through RPC.
 
