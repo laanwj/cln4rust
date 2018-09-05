@@ -1,4 +1,6 @@
 //! High-level interface to c-lightning RPC
+use std::path::Path;
+
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use strason::Json;
@@ -40,7 +42,7 @@ impl LightningRPC {
     ///
     /// * `sockname` - Name of UNIX socket to connect to, by default this will be
     /// `.lightning/lightning-rpc` in the home directory of the user running lightningd.
-    pub fn new(sockname: String) -> LightningRPC {
+    pub fn new(sockname: &Path) -> LightningRPC {
         LightningRPC {
             client: client::Client::new(sockname),
         }

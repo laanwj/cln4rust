@@ -21,6 +21,7 @@
 
 use std::io::Write;
 use std::os::unix::net::UnixStream;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use strason::Json;
@@ -30,7 +31,7 @@ use error::Error;
 
 /// A handle to a remote JSONRPC server
 pub struct Client {
-    sockname: String,
+    sockname: PathBuf,
     nonce: Arc<Mutex<u64>>,
 }
 
@@ -48,9 +49,9 @@ fn filter_nones(params: Json) -> Json {
 
 impl Client {
     /// Creates a new client
-    pub fn new(sockname: String) -> Client {
+    pub fn new(sockname: &Path) -> Client {
         Client {
-            sockname: sockname,
+            sockname: sockname.to_path_buf(),
             nonce: Arc::new(Mutex::new(0)),
         }
     }
