@@ -40,6 +40,8 @@ pub mod responses;
 use strason::Json;
 // Re-export error type
 pub use error::Error;
+// Re-export high-level connection type
+pub use lightningrpc::LightningRPC;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 /// A JSONRPC request object

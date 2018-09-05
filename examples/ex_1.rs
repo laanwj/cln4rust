@@ -1,6 +1,6 @@
 extern crate clightningrpc;
 
-use clightningrpc::lightningrpc::LightningRPC;
+use clightningrpc::LightningRPC;
 
 fn main() {
     let mut client = LightningRPC::new("/home/user/.lightning/lightning-rpc".to_string());

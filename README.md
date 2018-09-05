@@ -7,7 +7,7 @@ This crate provides an interface from rust to the [c-lightning](https://github.c
 ```rust
 extern crate clightningrpc;
 
-use clightningrpc::lightningrpc::LightningRPC;
+use clightningrpc::LightningRPC;
 
 fn main() {
     let mut client = LightningRPC::new("/home/user/.lightning/lightning-rpc".to_string());
