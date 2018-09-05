@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn sanity() {
-        let client = Client::new("/tmp/socket/localhost".to_owned());
+        let client = Client::new(&PathBuf::from("/tmp/socket/localhost"));
         assert_eq!(client.last_nonce(), 0);
         let req1 =
             client.build_request("test".to_owned(), Json::from(Vec::<(String, Json)>::new()));
