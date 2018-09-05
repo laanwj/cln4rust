@@ -49,9 +49,9 @@ fn filter_nones(params: Json) -> Json {
 
 impl Client {
     /// Creates a new client
-    pub fn new(sockname: &Path) -> Client {
+    pub fn new<P: AsRef<Path>>(sockname: P) -> Client {
         Client {
-            sockname: sockname.to_path_buf(),
+            sockname: sockname.as_ref().to_path_buf(),
             nonce: Arc::new(Mutex::new(0)),
         }
     }

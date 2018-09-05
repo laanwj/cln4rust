@@ -43,7 +43,7 @@ impl LightningRPC {
     /// * `sockname` - Path of UNIX socket to connect to, by default lightningd will create a
     /// socket named `.lightning/lightning-rpc` in the home directory of the user running
     /// lightningd.
-    pub fn new(sockname: &Path) -> LightningRPC {
+    pub fn new<P: AsRef<Path>>(sockname: P) -> LightningRPC {
         LightningRPC {
             client: client::Client::new(sockname),
         }
