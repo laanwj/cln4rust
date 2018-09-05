@@ -330,6 +330,28 @@ impl LightningRPC {
         )
     }
 
+    /// Send to {destination} address {satoshi} (or 'all') amount via Bitcoin transaction, at optional {feerate}
+    pub fn withdraw(
+        &mut self,
+        destination: String,
+        satoshi: i64,
+        feerate: Option<i64>,
+    ) -> Result<responses::Withdraw, Error> {
+        self.call(
+            "withdraw",
+            requests::Withdraw {
+                destination,
+                satoshi,
+                feerate,
+            },
+        )
+    }
+
+    /// Get a new {bech32, p2sh-segwit} address to fund a channel (default is bech32)
+    pub fn newaddr(&mut self, addresstype: Option<String>) -> Result<responses::NewAddr, Error> {
+        self.call("newaddr", requests::NewAddr { addresstype })
+    }
+
     /// Shut down the lightningd process
     pub fn stop(&mut self) -> Result<responses::Stop, Error> {
         self.call("stop", requests::Stop {})

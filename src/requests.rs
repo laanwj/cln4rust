@@ -173,6 +173,20 @@ pub struct Ping {
     pub pongbytes: Option<i64>,
 }
 
+/// 'withdraw' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Withdraw {
+    pub destination: String,
+    pub satoshi: i64,
+    pub feerate: Option<i64>,
+}
+
+/// 'newaddr' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct NewAddr {
+    pub addresstype: Option<String>,
+}
+
 /// 'stop' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Stop {}

@@ -291,5 +291,18 @@ pub struct Ping {
     pub totlen: i64,
 }
 
+/// 'withdraw' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Withdraw {
+    pub tx: String,
+    pub txid: String,
+}
+
+/// 'newaddr' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct NewAddr {
+    pub address: String,
+}
+
 /// 'stop' command
 pub type Stop = String;

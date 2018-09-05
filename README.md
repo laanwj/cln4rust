@@ -44,25 +44,22 @@ Currently implemented:
 - `fundchannel`
 - `close`
 - `ping`
-- `stop`
-
-TODO:
-
-- `listnodes`
-- `listchannels`
-- `help`
-- `getlog`
-- `listconfigs`
 - `withdraw`
 - `newaddr`
-- `listfunds`
-- potentially `dev-*`
+- `stop`
 
 # To do
 
 - verify use of `i64` versus `u64` in API
-- `fundchannel`: allow passing `all` for amount
-- implement all commands on high-level interface
+- `fundchannel`, `withdraw`: allow passing `all` for `satoshi`
+- implement all commands on high-level interface. TODO:
+    - `listnodes`
+    - `listchannels`
+    - `help`
+    - `getlog`
+    - `listconfigs`
+    - `listfunds`
+- potentially `dev-*`
 - document low and high level handling
 - document error handling
 - reproducible functional test that exercises against actual lightning instances
@@ -85,6 +82,10 @@ number of arguments (?), nor named ones. This also give a lack of
 extenisibility in case upstream `lightningd` adds more arguments in the future.
 Not sure how to handle this, a 'builder pattern' has been suggested but I'm not
 sure how to build a good API around this. If anyone has suggestions please let me know!
+
+- the API could make more use of enums where the possible values are known; for example the
+  `addresstype` parameter to `newaddr`, but also in returned structures. This has to be weighted
+  agains flexibility, though, in case the API is extended later.
 
 # Style guidelines
 
