@@ -32,6 +32,7 @@ Currently implemented:
 - `decodepay`
 - `connect`
 - `disconnect`
+- `stop`
 
 TODO:
 
@@ -43,7 +44,6 @@ TODO:
 - `waitanyinvoice`
 - `waitinvoice`
 - `help`
-- `stop`
 - `getlog`
 - `fundchannel`
 - `listconfigs`

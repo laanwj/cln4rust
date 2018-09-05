@@ -125,4 +125,9 @@ impl LightningRPC {
     pub fn disconnect(&mut self, id: String) -> Result<responses::Disconnect, Error> {
         self.call("disconnect", requests::Disconnect { id })
     }
+
+    /// Shut down the lightningd process
+    pub fn stop(&mut self) -> Result<responses::Stop, Error> {
+        self.call("stop", requests::Stop {})
+    }
 }

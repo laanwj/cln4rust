@@ -174,3 +174,6 @@ pub struct Connect {
 /// 'disconnect' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Disconnect {}
+
+/// 'stop' command
+pub type Stop = String;
