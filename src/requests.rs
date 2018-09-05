@@ -67,6 +67,13 @@ pub struct Pay {
     pub maxdelay: Option<i64>,
 }
 
+/// 'listpayments' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListPayments {
+    pub bolt11: Option<String>,
+    pub payment_hash: Option<String>,
+}
+
 /// 'decodepay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodePay {

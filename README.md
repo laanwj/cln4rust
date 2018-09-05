@@ -30,6 +30,7 @@ Currently implemented:
 - `invoice`
 - `delinvoice`
 - `pay`
+- `listpayments`
 - `decodepay`
 - `getroute`
 - `connect`
@@ -50,7 +51,6 @@ TODO:
 - `listconfigs`
 - `sendpay`
 - `waitsendpay`
-- `listpayments`
 - `close`
 - `ping`
 - `withdraw`

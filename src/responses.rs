@@ -192,6 +192,25 @@ pub struct Pay {
     pub failures: Vec<FailureItem>,
 }
 
+/// Sub-structure for payments in 'listpayments'
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListPaymentsItem {
+    pub id: i64,
+    pub payment_hash: String,
+    pub destination: String,
+    pub msatoshi: i64,
+    pub msatoshi_sent: i64,
+    pub created_at: i64,
+    pub status: String,
+    pub payment_preimage: Option<String>,
+}
+
+/// 'listpayments' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListPayments {
+    pub payments: Vec<ListPaymentsItem>,
+}
+
 /// 'decodepay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodePay {
