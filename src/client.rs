@@ -31,7 +31,7 @@ use error::Error;
 
 /// A handle to a remote JSONRPC server
 pub struct Client {
-    sockname: PathBuf,
+    sockpath: PathBuf,
     nonce: Arc<Mutex<u64>>,
 }
 
@@ -49,9 +49,9 @@ fn filter_nones(params: Json) -> Json {
 
 impl Client {
     /// Creates a new client
-    pub fn new(sockname: &Path) -> Client {
+    pub fn new<P: AsRef<Path>>(sockpath: P) -> Client {
         Client {
-            sockname: sockname.to_path_buf(),
+            sockpath: sockpath.as_ref().to_path_buf(),
             nonce: Arc::new(Mutex::new(0)),
         }
     }
@@ -62,7 +62,7 @@ impl Client {
         let request_raw = Json::from_serialize(request)?.to_bytes();
 
         // Setup connection
-        let mut stream = UnixStream::connect(&self.sockname)?;
+        let mut stream = UnixStream::connect(&self.sockpath)?;
 
         stream.write_all(&request_raw)?;
 
@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn sanity() {
-        let client = Client::new(&PathBuf::from("/tmp/socket/localhost"));
+        let client = Client::new("/tmp/socket/localhost");
         assert_eq!(client.last_nonce(), 0);
         let req1 =
             client.build_request("test".to_owned(), Json::from(Vec::<(String, Json)>::new()));
