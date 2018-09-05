@@ -76,7 +76,7 @@ compile, sorry!
 
 - the API could make more use of enums where the possible values are known; for example the
   `addresstype` parameter to `newaddr`, but also in returned structures. This has to be weighted
-  agains flexibility, though, in case the API is extended later.
+  against flexibility, though, in case the API is extended later.
 
 - decide on `&str` versus `String` on high-level API (but at least make sure it is consistent)
 
