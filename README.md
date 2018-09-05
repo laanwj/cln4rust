@@ -18,6 +18,7 @@ fn main() {
 ```
 
 See [examples](examples/) directory for more usage examples.
+API documentation for the lastest version can be found on [docs.rs](https://docs.rs/clightningrpc/latest/clightningrpc/).
 
 Currently implemented (this covers all non-dev commands as of c-lightning v0.6.1rc1):
 
