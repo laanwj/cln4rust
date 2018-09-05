@@ -13,7 +13,7 @@
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 
-//! # Client support
+//! Client support
 //!
 //! Support for connecting to JSONRPC servers over UNIX socets, sending requests,
 //! and parsing responses

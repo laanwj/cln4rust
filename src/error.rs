@@ -12,7 +12,7 @@
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 
-//! # Error handling
+//! Error handling
 //!
 //! Some useful methods for creating Error objects
 //!
