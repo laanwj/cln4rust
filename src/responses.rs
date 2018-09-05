@@ -15,6 +15,8 @@
 #![allow(missing_docs)]
 //! Structures representing responses to API calls
 
+use common;
+
 /// structure for network addresses
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct NetworkAddress {
@@ -165,15 +167,6 @@ pub type WaitAnyInvoice = ListInvoice;
 /// 'waitinvoice' command
 pub type WaitInvoice = ListInvoice;
 
-/// Sub-structure for route in 'pay' and 'getroute'
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct RouteItem {
-    pub id: String,
-    pub channel: String,
-    pub msatoshi: i64,
-    pub delay: i64,
-}
-
 /// Sub-structure for failure in 'pay'
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FailureItem {
@@ -185,7 +178,7 @@ pub struct FailureItem {
     pub erring_node: String,
     pub erring_channel: String,
     pub channel_update: Option<String>,
-    pub route: Vec<RouteItem>,
+    pub route: Vec<common::RouteItem>,
 }
 
 /// 'pay' command
@@ -202,11 +195,27 @@ pub struct Pay {
     pub description: String,
     pub getroute_tries: i64,
     pub sendpay_tries: i64,
-    pub route: Vec<RouteItem>,
+    pub route: Vec<common::RouteItem>,
     pub failures: Vec<FailureItem>,
 }
 
-/// Sub-structure for payments in 'listpayments'
+/// 'sendpay' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SendPay {
+    pub message: Option<String>,
+
+    pub id: i64,
+    pub payment_hash: String,
+    pub destination: String,
+    pub msatoshi: i64,
+    pub msatoshi_sent: i64,
+    pub created_at: i64,
+    pub status: String,
+    pub payment_preimage: Option<String>,
+    pub description: Option<String>,
+}
+
+/// Sub-structure for payments in 'listpayments' and 'waitsendpay'
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ListPaymentsItem {
     pub id: i64,
@@ -217,7 +226,11 @@ pub struct ListPaymentsItem {
     pub created_at: i64,
     pub status: String,
     pub payment_preimage: Option<String>,
+    pub description: Option<String>,
 }
+
+/// 'waitsendpay' command
+pub type WaitSendPay = ListPaymentsItem;
 
 /// 'listpayments' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -242,7 +255,7 @@ pub struct DecodePay {
 /// 'getroute' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetRoute {
-    pub route: Vec<RouteItem>,
+    pub route: Vec<common::RouteItem>,
 }
 
 /// 'connect' command

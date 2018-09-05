@@ -32,6 +32,7 @@ extern crate serde_derive;
 extern crate strason;
 
 pub mod client;
+pub mod common;
 pub mod error;
 pub mod lightningrpc;
 pub mod requests;

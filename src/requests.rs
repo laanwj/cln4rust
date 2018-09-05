@@ -15,6 +15,8 @@
 //! Structures representing requests to API calls
 #![allow(missing_docs)]
 
+use common;
+
 /// 'getinfo' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetInfo {}
@@ -90,6 +92,22 @@ pub struct Pay {
     pub exemptfee: Option<i64>,
     pub retry_for: Option<i64>,
     pub maxdelay: Option<i64>,
+}
+
+/// 'sendpay' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SendPay {
+    pub route: Vec<common::RouteItem>,
+    pub payment_hash: String,
+    pub description: Option<String>,
+    pub msatoshi: Option<i64>,
+}
+
+/// 'waitsendpay' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct WaitSendPay {
+    pub payment_hash: String,
+    pub timeout: i64,
 }
 
 /// 'listpayments' command

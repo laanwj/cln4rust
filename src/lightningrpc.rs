@@ -4,6 +4,7 @@ use serde::Serialize;
 use strason::Json;
 
 use client;
+use common;
 use error::Error;
 use requests;
 use responses;
@@ -172,6 +173,40 @@ impl LightningRPC {
                 exemptfee,
                 retry_for,
                 maxdelay,
+            },
+        )
+    }
+
+    /// Send along {route} in return for preimage of {payment_hash}, with optional {description}
+    pub fn sendpay(
+        &mut self,
+        route: Vec<common::RouteItem>,
+        payment_hash: String,
+        description: Option<String>,
+        msatoshi: Option<i64>,
+    ) -> Result<responses::SendPay, Error> {
+        self.call(
+            "sendpay",
+            requests::SendPay {
+                route,
+                payment_hash,
+                description,
+                msatoshi,
+            },
+        )
+    }
+
+    /// Wait for payment attempt on {payment_hash} to succeed or fail, but only up to {timeout} seconds.
+    pub fn waitsendpay(
+        &mut self,
+        payment_hash: String,
+        timeout: i64,
+    ) -> Result<responses::WaitSendPay, Error> {
+        self.call(
+            "waitsendpay",
+            requests::WaitSendPay {
+                payment_hash,
+                timeout,
             },
         )
     }

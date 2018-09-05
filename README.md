@@ -34,6 +34,8 @@ Currently implemented:
 - `waitanyinvoice`
 - `waitinvoice`
 - `pay`
+- `sendpay`
+- `waitsendpay`
 - `listpayments`
 - `decodepay`
 - `getroute`
@@ -49,8 +51,6 @@ TODO:
 - `getlog`
 - `fundchannel`
 - `listconfigs`
-- `sendpay`
-- `waitsendpay`
 - `close`
 - `ping`
 - `withdraw`
