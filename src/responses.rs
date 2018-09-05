@@ -151,6 +151,47 @@ pub struct Invoice {
 /// 'delinvoice' command
 pub type DelInvoice = ListInvoice;
 
+/// Sub-structure for route in 'pay'
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct RouteItem {
+    pub id: String,
+    pub channel: String,
+    pub msatoshi: i64,
+    pub delay: i64,
+}
+
+/// Sub-structure for failure in 'pay'
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FailureItem {
+    pub message: String,
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub erring_index: i64,
+    pub failcode: i64,
+    pub erring_node: String,
+    pub erring_channel: String,
+    pub channel_update: Option<String>,
+    pub route: Vec<RouteItem>,
+}
+
+/// 'pay' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Pay {
+    pub id: i64,
+    pub payment_hash: String,
+    pub destination: String,
+    pub msatoshi: i64,
+    pub msatoshi_sent: i64,
+    pub created_at: i64,
+    pub status: String,
+    pub payment_preimage: String,
+    pub description: String,
+    pub getroute_tries: i64,
+    pub sendpay_tries: i64,
+    pub route: Vec<RouteItem>,
+    pub failures: Vec<FailureItem>,
+}
+
 /// 'decodepay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodePay {

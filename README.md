@@ -29,6 +29,7 @@ Currently implemented:
 - `listinvoices`
 - `invoice`
 - `delinvoice`
+- `pay`
 - `decodepay`
 - `connect`
 - `disconnect`
@@ -50,7 +51,6 @@ TODO:
 - `sendpay`
 - `waitsendpay`
 - `listpayments`
-- `pay`
 - `close`
 - `ping`
 - `withdraw`

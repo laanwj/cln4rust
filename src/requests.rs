@@ -54,6 +54,19 @@ pub struct DelInvoice {
     pub status: String,
 }
 
+/// 'pay' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Pay {
+    pub bolt11: String,
+    pub msatoshi: Option<i64>,
+    pub description: Option<String>,
+    pub riskfactor: Option<f64>,
+    pub maxfeepercent: Option<f64>,
+    pub exemptfee: Option<i64>,
+    pub retry_for: Option<i64>,
+    pub maxdelay: Option<i64>,
+}
+
 /// 'decodepay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodePay {
