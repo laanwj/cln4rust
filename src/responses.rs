@@ -146,7 +146,7 @@ pub type ListConfigs = HashMap<String, Json>;
 pub struct Channel {
     pub state: String,
     pub owner: Option<String>,
-    pub short_channel_id: String,
+    pub short_channel_id: Option<String>,
     pub channel_id: String,
     pub funding_txid: String,
     pub msatoshi_to_us: i64,
@@ -383,7 +383,7 @@ pub struct ListFundsOutput {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ListFundsChannel {
     pub peer_id: String,
-    pub short_channel_id: String,
+    pub short_channel_id: Option<String>,
     pub channel_sat: i64,
     pub channel_total_sat: i64,
     pub funding_txid: String,
