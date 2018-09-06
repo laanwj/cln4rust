@@ -58,30 +58,11 @@ Be aware that the API (of rust-clighting-rpc, but also that of c-lightning
 itself) is not finalized. This means that it may change from version to version and break your
 compile, sorry!
 
-# To do
-
-- verify use of `i64` versus `u64` in API
-- document low and high level handling
-- document error handling
-- reproducible functional test that exercises against actual lightning instances (regtest?)
-- a better way to get at the data for failed payments
-
-```
-"code" : 205, "message" : "Could not find a route", "data" : ...
-```
-
-  `data` could be parsed into a structure, but this depends on the kind of error
-
-- the API could make more use of enums where the possible values are known; for example the
-  `addresstype` parameter to `newaddr`, but also in returned structures. This has to be weighted
-  against flexibility, though, in case the API is extended later.
-
-- decide on `&str` versus `String` on high-level API (but at least make sure it is consistent)
-
-# Style guidelines
+# Contributing guidelines
 
 - Four spaces
-- Call `rustfmt src/*.rs` before committing
+- Call `rustfmt src/lib.rs examples/*.rs` before committing
+- If you can, GPG-sign at least your top commit when filing a PR
 
 # Credits
 

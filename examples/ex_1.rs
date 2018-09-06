@@ -13,6 +13,10 @@ fn main() {
     println!("getinfo result: {:?}", client.getinfo().unwrap());
 
     for style in &["perkb", "perkw"] {
-        println!("feerates {}: {:?}", style, client.feerates(style.to_string()).unwrap());
+        println!(
+            "feerates {}: {:?}",
+            style,
+            client.feerates(style.to_string()).unwrap()
+        );
     }
 }
