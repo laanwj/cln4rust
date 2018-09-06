@@ -61,7 +61,6 @@ compile, sorry!
 # To do
 
 - verify use of `i64` versus `u64` in API
-- `fundchannel`, `withdraw`: allow passing `all` for `satoshi`
 - document low and high level handling
 - document error handling
 - reproducible functional test that exercises against actual lightning instances (regtest?)

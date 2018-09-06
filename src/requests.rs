@@ -14,6 +14,7 @@
 //
 //! Structures representing requests to API calls
 #![allow(missing_docs)]
+use serde::{Serialize, Serializer};
 
 use common;
 
@@ -179,11 +180,30 @@ pub struct Disconnect {
     pub id: String,
 }
 
+/// enum type that can either hold an integer amount, or All
+#[derive(Debug, Clone)]
+pub enum AmountOrAll {
+    All,
+    Amount(i64),
+}
+
+impl Serialize for AmountOrAll {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match &self {
+            AmountOrAll::Amount(a) => serializer.serialize_i64(*a),
+            AmountOrAll::All => serializer.serialize_str("all"),
+        }
+    }
+}
+
 /// 'fundchannel' command
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct FundChannel {
     pub id: String,
-    pub satoshi: i64,
+    pub satoshi: AmountOrAll,
     pub feerate: Option<i64>,
 }
 
@@ -208,10 +228,10 @@ pub struct Ping {
 pub struct ListFunds {}
 
 /// 'withdraw' command
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Withdraw {
     pub destination: String,
-    pub satoshi: i64,
+    pub satoshi: AmountOrAll,
     pub feerate: Option<i64>,
 }
 
@@ -224,3 +244,33 @@ pub struct NewAddr {
 /// 'stop' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Stop {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use strason::Json;
+
+    #[test]
+    fn fundchannel() {
+        // Tests AmountOrAll as well as basic JSON serialization
+        let result = Json::from_serialize(FundChannel {
+            id: "12345".to_string(),
+            satoshi: AmountOrAll::Amount(123456),
+            feerate: None,
+        }).unwrap();
+        assert_eq!(
+            result.to_string(),
+            r#"{"id": "12345", "satoshi": 123456, "feerate": null}"#
+        );
+
+        let result = Json::from_serialize(FundChannel {
+            id: "12345".to_string(),
+            satoshi: AmountOrAll::All,
+            feerate: Some(123),
+        }).unwrap();
+        assert_eq!(
+            result.to_string(),
+            r#"{"id": "12345", "satoshi": "all", "feerate": 123}"#
+        );
+    }
+}

@@ -70,12 +70,7 @@ impl LightningRPC {
     /// Return feerate estimates, either satoshi-per-kw ({style} perkw) or satoshi-per-kb ({style}
     /// perkb).
     pub fn feerates(&mut self, style: String) -> Result<responses::FeeRates, Error> {
-        self.call(
-            "feerates",
-            requests::FeeRates {
-                style: style,
-            },
-        )
+        self.call("feerates", requests::FeeRates { style: style })
     }
 
     /// Show node {id} (or all, if no {id}), in our local network view.
@@ -327,11 +322,18 @@ impl LightningRPC {
         self.call("disconnect", requests::Disconnect { id })
     }
 
-    /// Fund channel with {id} using {satoshi} (or 'all') satoshis, at optional {feerate}.
+    /// Fund a new channel with another lightning node.
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - Id of node to fund a channel to
+    /// * `satoshi` - either `AmountOrAll::Amount(n)` for a given amount in satoshi units, or
+    /// `AmountOrAll::All` to spend all available funds
+    /// * `feerate` - optional feerate to use for Bitcoin transaction
     pub fn fundchannel(
         &mut self,
         id: String,
-        satoshi: i64,
+        satoshi: requests::AmountOrAll,
         feerate: Option<i64>,
     ) -> Result<responses::FundChannel, Error> {
         self.call(
@@ -378,11 +380,18 @@ impl LightningRPC {
         self.call("listfunds", requests::ListFunds {})
     }
 
-    /// Send to {destination} address {satoshi} (or 'all') amount via Bitcoin transaction, at optional {feerate}.
+    /// Send to destination address via Bitcoin transaction.
+    ///
+    /// # Arguments
+    ///
+    /// * `destination` - Bitcoin address to send to
+    /// * `satoshi` - either `AmountOrAll::Amount(n)` for a given amount in satoshi units, or
+    /// `AmountOrAll::All` to spend all available funds
+    /// * `feerate` - optional feerate to use for Bitcoin transaction
     pub fn withdraw(
         &mut self,
         destination: String,
-        satoshi: i64,
+        satoshi: requests::AmountOrAll,
         feerate: Option<i64>,
     ) -> Result<responses::Withdraw, Error> {
         self.call(
