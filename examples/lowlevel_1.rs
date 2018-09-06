@@ -8,8 +8,7 @@ use strason::Json;
 use clightningrpc::{client, requests, responses};
 
 fn main() {
-    let mut sock = env::home_dir().unwrap();
-    sock.push(".lightning/lightning-rpc");
+    let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");
     println!("Using socket {}", sock.display());
     let client = client::Client::new(&sock);
     let params = Json::from_serialize(requests::GetInfo {}).unwrap();

@@ -11,15 +11,14 @@ use std::env;
 use clightningrpc::LightningRPC;
 
 fn main() {
-    let mut sock = env::home_dir().unwrap();
-    sock.push(".lightning/lightning-rpc");
+    let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");
     let mut client = LightningRPC::new(&sock);
 
     println!("getinfo result: {:?}", client.getinfo().unwrap());
 }
 ```
 
-See [examples](examples/) directory for more usage examples.
+See [examples](examples/) directory for more usage examples. To build and run an example do `cargo run --example ex_1`.
 API documentation for the lastest version can be found on [docs.rs](https://docs.rs/clightningrpc/latest/clightningrpc/).
 
 Currently implemented (this covers all non-dev commands as of c-lightning v0.6.1rc1):

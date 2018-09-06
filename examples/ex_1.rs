@@ -5,8 +5,7 @@ use std::env;
 use clightningrpc::LightningRPC;
 
 fn main() {
-    let mut sock = env::home_dir().unwrap();
-    sock.push(".lightning/lightning-rpc");
+    let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");
     println!("Using socket {}", sock.display());
 
     let mut client = LightningRPC::new(&sock);
