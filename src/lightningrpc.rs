@@ -12,6 +12,7 @@ use requests;
 use responses;
 
 /// Structure providing a high-level interface to the c-lightning daemon RPC
+#[derive(Debug)]
 pub struct LightningRPC {
     client: client::Client,
 }

@@ -25,6 +25,7 @@
 #![crate_type = "dylib"]
 #![crate_name = "clightningrpc"]
 // Coding conventions
+#![deny(missing_debug_implementations)]
 #![deny(non_upper_case_globals)]
 #![deny(non_camel_case_types)]
 #![deny(non_snake_case)]

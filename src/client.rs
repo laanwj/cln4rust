@@ -30,6 +30,7 @@ use super::{Request, Response};
 use error::Error;
 
 /// A handle to a remote JSONRPC server
+#[derive(Debug)]
 pub struct Client {
     sockpath: PathBuf,
     nonce: Arc<Mutex<u64>>,
