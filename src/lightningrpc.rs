@@ -362,14 +362,14 @@ impl LightningRPC {
     /// Send {peerid} a ping of length {len} (default 128) asking for {pongbytes} (default 128).
     pub fn ping(
         &mut self,
-        peerid: String,
+        id: String,
         len: Option<u64>,
         pongbytes: Option<u64>,
     ) -> Result<responses::Ping, Error> {
         self.call(
             "ping",
             requests::Ping {
-                peerid,
+                id,
                 len,
                 pongbytes,
             },

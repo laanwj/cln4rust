@@ -218,7 +218,7 @@ pub struct Close {
 /// 'ping' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Ping {
-    pub peerid: String,
+    pub id: String,
     pub len: Option<u64>,
     pub pongbytes: Option<u64>,
 }
