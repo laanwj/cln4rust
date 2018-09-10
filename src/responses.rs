@@ -37,24 +37,24 @@ pub struct GetInfo {
     pub address: Vec<NetworkAddress>,
     pub binding: Vec<NetworkAddress>,
     pub version: String,
-    pub blockheight: i64,
+    pub blockheight: u64,
     pub network: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FeeRatesInner {
-    pub urgent: i64,
-    pub normal: i64,
-    pub slow: i64,
-    pub min_acceptable: i64,
-    pub max_acceptable: i64,
+    pub urgent: u64,
+    pub normal: u64,
+    pub slow: u64,
+    pub min_acceptable: u64,
+    pub max_acceptable: u64,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FeeRatesOnchain {
-    pub opening_channel_satoshis: i64,
-    pub mutual_close_satoshis: i64,
-    pub unilateral_close_satoshis: i64,
+    pub opening_channel_satoshis: u64,
+    pub mutual_close_satoshis: u64,
+    pub unilateral_close_satoshis: u64,
 }
 
 /// 'feerates' command
@@ -71,7 +71,7 @@ pub struct ListNodesItem {
     pub nodeid: String,
     pub alias: Option<String>,
     pub color: Option<String>,
-    pub last_timestamp: Option<i64>,
+    pub last_timestamp: Option<u64>,
     pub global_features: Option<String>,
     pub addresses: Option<Vec<NetworkAddress>>,
 }
@@ -89,13 +89,13 @@ pub struct ListChannelsItem {
     pub destination: String,
     pub short_channel_id: String,
     pub public: bool,
-    pub satoshis: i64,
-    pub flags: i64,
+    pub satoshis: u64,
+    pub flags: u64,
     pub active: bool,
-    pub last_update: i64,
-    pub base_fee_millisatoshi: i64,
-    pub fee_per_millionth: i64,
-    pub delay: i64,
+    pub last_update: u64,
+    pub base_fee_millisatoshi: u64,
+    pub fee_per_millionth: u64,
+    pub delay: u64,
 }
 
 /// 'listchannels' command
@@ -123,7 +123,7 @@ pub struct Help {
 pub struct LogEntry {
     #[serde(rename = "type")]
     pub type_: String,
-    pub num_skipped: Option<i64>,
+    pub num_skipped: Option<u64>,
     pub time: Option<String>,
     pub source: Option<String>,
     pub log: Option<String>,
@@ -133,8 +133,8 @@ pub struct LogEntry {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetLog {
     pub created_at: String,
-    pub bytes_used: i64,
-    pub bytes_max: i64,
+    pub bytes_used: u64,
+    pub bytes_max: u64,
     pub log: Vec<LogEntry>,
 }
 
@@ -149,28 +149,28 @@ pub struct Channel {
     pub short_channel_id: Option<String>,
     pub channel_id: String,
     pub funding_txid: String,
-    pub msatoshi_to_us: i64,
-    pub msatoshi_to_us_min: i64,
-    pub msatoshi_to_us_max: i64,
-    pub msatoshi_total: i64,
-    pub dust_limit_satoshis: i64,
-    pub max_htlc_value_in_flight_msat: u64, // this exceeds what fits into i64
-    pub their_channel_reserve_satoshis: i64,
-    pub our_channel_reserve_satoshis: i64,
-    pub spendable_msatoshi: i64,
-    pub htlc_minimum_msat: i64,
-    pub their_to_self_delay: i64,
-    pub our_to_self_delay: i64,
-    pub max_accepted_htlcs: i64,
+    pub msatoshi_to_us: u64,
+    pub msatoshi_to_us_min: u64,
+    pub msatoshi_to_us_max: u64,
+    pub msatoshi_total: u64,
+    pub dust_limit_satoshis: u64,
+    pub max_htlc_value_in_flight_msat: u64, // this exceeds what fits into u64
+    pub their_channel_reserve_satoshis: u64,
+    pub our_channel_reserve_satoshis: u64,
+    pub spendable_msatoshi: u64,
+    pub htlc_minimum_msat: u64,
+    pub their_to_self_delay: u64,
+    pub our_to_self_delay: u64,
+    pub max_accepted_htlcs: u64,
     pub status: Vec<String>,
-    pub in_payments_offered: i64,
-    pub in_msatoshi_offered: i64,
-    pub in_payments_fulfilled: i64,
-    pub in_msatoshi_fulfilled: i64,
-    pub out_payments_offered: i64,
-    pub out_msatoshi_offered: i64,
-    pub out_payments_fulfilled: i64,
-    pub out_msatoshi_fulfilled: i64,
+    pub in_payments_offered: u64,
+    pub in_msatoshi_offered: u64,
+    pub in_payments_fulfilled: u64,
+    pub in_msatoshi_fulfilled: u64,
+    pub out_payments_offered: u64,
+    pub out_msatoshi_offered: u64,
+    pub out_payments_fulfilled: u64,
+    pub out_msatoshi_fulfilled: u64,
 }
 
 /// Sub-structure for log entry in 'listpeers'
@@ -207,11 +207,11 @@ pub struct ListInvoice {
     pub label: String,
     pub bolt11: String,
     pub payment_hash: String,
-    pub msatoshi: i64,
+    pub msatoshi: u64,
     pub status: String,
-    pub expires_at: i64,
-    pub pay_index: Option<i64>,
-    pub paid_at: Option<i64>,
+    pub expires_at: u64,
+    pub pay_index: Option<u64>,
+    pub paid_at: Option<u64>,
 }
 
 /// 'listinvoices' command
@@ -224,7 +224,7 @@ pub struct ListInvoices {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Invoice {
     pub payment_hash: String,
-    pub expires_at: i64,
+    pub expires_at: u64,
     pub bolt11: String,
 }
 
@@ -251,8 +251,8 @@ pub struct FailureItem {
     pub message: String,
     #[serde(rename = "type")]
     pub type_: String,
-    pub erring_index: i64,
-    pub failcode: i64,
+    pub erring_index: u64,
+    pub failcode: u64,
     pub erring_node: String,
     pub erring_channel: String,
     pub channel_update: Option<String>,
@@ -262,17 +262,17 @@ pub struct FailureItem {
 /// 'pay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Pay {
-    pub id: i64,
+    pub id: u64,
     pub payment_hash: String,
     pub destination: String,
-    pub msatoshi: i64,
-    pub msatoshi_sent: i64,
-    pub created_at: i64,
+    pub msatoshi: u64,
+    pub msatoshi_sent: u64,
+    pub created_at: u64,
     pub status: String,
     pub payment_preimage: String,
     pub description: String,
-    pub getroute_tries: i64,
-    pub sendpay_tries: i64,
+    pub getroute_tries: u64,
+    pub sendpay_tries: u64,
     pub route: Vec<common::RouteItem>,
     pub failures: Vec<FailureItem>,
 }
@@ -282,12 +282,12 @@ pub struct Pay {
 pub struct SendPay {
     pub message: Option<String>,
 
-    pub id: i64,
+    pub id: u64,
     pub payment_hash: String,
     pub destination: String,
-    pub msatoshi: i64,
-    pub msatoshi_sent: i64,
-    pub created_at: i64,
+    pub msatoshi: u64,
+    pub msatoshi_sent: u64,
+    pub created_at: u64,
     pub status: String,
     pub payment_preimage: Option<String>,
     pub description: Option<String>,
@@ -296,12 +296,12 @@ pub struct SendPay {
 /// Sub-structure for payments in 'listpayments' and 'waitsendpay'
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ListPaymentsItem {
-    pub id: i64,
+    pub id: u64,
     pub payment_hash: String,
     pub destination: String,
-    pub msatoshi: i64,
-    pub msatoshi_sent: i64,
-    pub created_at: i64,
+    pub msatoshi: u64,
+    pub msatoshi_sent: u64,
+    pub created_at: u64,
     pub status: String,
     pub payment_preimage: Option<String>,
     pub description: Option<String>,
@@ -320,12 +320,12 @@ pub struct ListPayments {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodePay {
     pub currency: String,
-    pub created_at: i64,
-    pub expiry: i64,
+    pub created_at: u64,
+    pub expiry: u64,
     pub payee: String,
-    pub msatoshi: i64,
+    pub msatoshi: u64,
     pub description: String,
-    pub min_final_cltv_expiry: i64,
+    pub min_final_cltv_expiry: u64,
     pub payment_hash: String,
     pub signature: String,
 }
@@ -366,15 +366,15 @@ pub struct Close {
 /// 'ping' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Ping {
-    pub totlen: i64,
+    pub totlen: u64,
 }
 
 /// Sub-structure for 'listfunds' output
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ListFundsOutput {
     pub txid: String,
-    pub output: i64,
-    pub value: i64,
+    pub output: u64,
+    pub value: u64,
     pub address: String,
     pub status: String,
 }
@@ -384,8 +384,8 @@ pub struct ListFundsOutput {
 pub struct ListFundsChannel {
     pub peer_id: String,
     pub short_channel_id: Option<String>,
-    pub channel_sat: i64,
-    pub channel_total_sat: i64,
+    pub channel_sat: u64,
+    pub channel_total_sat: u64,
     pub funding_txid: String,
 }
 

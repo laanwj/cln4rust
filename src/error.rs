@@ -159,9 +159,9 @@ pub struct RpcError {
 
 #[cfg(test)]
 mod tests {
-    use Response;
-    use strason::Json;
     use super::*;
+    use strason::Json;
+    use Response;
 
     /// Standard error responses, as described at at
     /// http://www.jsonrpc.org/specification#error_object

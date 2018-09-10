@@ -21,7 +21,7 @@ pub struct LightningRPC {
 #[derive(Debug, Clone, Default)]
 pub struct PayOptions {
     /// {msatoshi} (if and only if {bolt11} does not have amount)
-    pub msatoshi: Option<i64>,
+    pub msatoshi: Option<u64>,
     /// {description} (required if {bolt11} uses description hash)
     pub description: Option<String>,
     /// {riskfactor} (default 1.0)
@@ -29,11 +29,11 @@ pub struct PayOptions {
     /// {maxfeepercent} (default 0.5) the maximum acceptable fee as a percentage (e.g. 0.5 => 0.5%)
     pub maxfeepercent: Option<f64>,
     /// {exemptfee} (default 5000 msat) disables the maxfeepercent check for fees below the threshold
-    pub exemptfee: Option<i64>,
+    pub exemptfee: Option<u64>,
     /// {retry_for} (default 60) the integer number of seconds before we stop retrying
-    pub retry_for: Option<i64>,
+    pub retry_for: Option<u64>,
     /// {maxdelay} (default 500) the maximum number of blocks we allow the funds to possibly get locked
-    pub maxdelay: Option<i64>,
+    pub maxdelay: Option<u64>,
 }
 
 impl LightningRPC {
@@ -125,10 +125,10 @@ impl LightningRPC {
     /// optional {expiry} seconds (default 1 hour).
     pub fn invoice(
         &mut self,
-        msatoshi: i64,
+        msatoshi: u64,
         label: String,
         description: String,
-        expiry: Option<i64>,
+        expiry: Option<u64>,
     ) -> Result<responses::Invoice, Error> {
         self.call(
             "invoice",
@@ -155,7 +155,7 @@ impl LightningRPC {
     /// or all expired invoices if not specified.
     pub fn delexpiredinvoice(
         &mut self,
-        maxexpirytime: Option<i64>,
+        maxexpirytime: Option<u64>,
     ) -> Result<responses::DelExpiredInvoice, Error> {
         self.call(
             "delexpiredinvoice",
@@ -168,8 +168,8 @@ impl LightningRPC {
     /// seconds (default 86400).
     pub fn autocleaninvoice(
         &mut self,
-        cycle_seconds: Option<i64>,
-        expired_by: Option<i64>,
+        cycle_seconds: Option<u64>,
+        expired_by: Option<u64>,
     ) -> Result<responses::AutoCleanInvoice, Error> {
         self.call(
             "autocleaninvoice",
@@ -184,7 +184,7 @@ impl LightningRPC {
     /// (if supplied)
     pub fn waitanyinvoice(
         &mut self,
-        lastpay_index: Option<i64>,
+        lastpay_index: Option<u64>,
     ) -> Result<responses::WaitAnyInvoice, Error> {
         self.call("waitanyinvoice", requests::WaitAnyInvoice { lastpay_index })
     }
@@ -222,7 +222,7 @@ impl LightningRPC {
         route: Vec<common::RouteItem>,
         payment_hash: String,
         description: Option<String>,
-        msatoshi: Option<i64>,
+        msatoshi: Option<u64>,
     ) -> Result<responses::SendPay, Error> {
         self.call(
             "sendpay",
@@ -239,7 +239,7 @@ impl LightningRPC {
     pub fn waitsendpay(
         &mut self,
         payment_hash: String,
-        timeout: i64,
+        timeout: u64,
     ) -> Result<responses::WaitSendPay, Error> {
         self.call(
             "waitsendpay",
@@ -287,9 +287,9 @@ impl LightningRPC {
     pub fn getroute(
         &mut self,
         id: String,
-        msatoshi: i64,
+        msatoshi: u64,
         riskfactor: f64,
-        cltv: Option<i64>,
+        cltv: Option<u64>,
         fromid: Option<String>,
         fuzzpercent: Option<f64>,
         seed: Option<String>,
@@ -335,7 +335,7 @@ impl LightningRPC {
         &mut self,
         id: String,
         satoshi: requests::AmountOrAll,
-        feerate: Option<i64>,
+        feerate: Option<u64>,
     ) -> Result<responses::FundChannel, Error> {
         self.call(
             "fundchannel",
@@ -354,7 +354,7 @@ impl LightningRPC {
         &mut self,
         id: String,
         force: Option<bool>,
-        timeout: Option<i64>,
+        timeout: Option<u64>,
     ) -> Result<responses::Close, Error> {
         self.call("close", requests::Close { id, force, timeout })
     }
@@ -363,8 +363,8 @@ impl LightningRPC {
     pub fn ping(
         &mut self,
         peerid: String,
-        len: Option<i64>,
-        pongbytes: Option<i64>,
+        len: Option<u64>,
+        pongbytes: Option<u64>,
     ) -> Result<responses::Ping, Error> {
         self.call(
             "ping",
@@ -393,7 +393,7 @@ impl LightningRPC {
         &mut self,
         destination: String,
         satoshi: requests::AmountOrAll,
-        feerate: Option<i64>,
+        feerate: Option<u64>,
     ) -> Result<responses::Withdraw, Error> {
         self.call(
             "withdraw",

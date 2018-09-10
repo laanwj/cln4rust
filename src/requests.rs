@@ -74,10 +74,10 @@ pub struct ListInvoices {
 /// 'invoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Invoice {
-    pub msatoshi: i64,
+    pub msatoshi: u64,
     pub label: String,
     pub description: String,
-    pub expiry: Option<i64>,
+    pub expiry: Option<u64>,
 }
 
 /// 'delinvoice' command
@@ -90,20 +90,20 @@ pub struct DelInvoice {
 /// 'delexpiredinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DelExpiredInvoice {
-    pub maxexpirytime: Option<i64>,
+    pub maxexpirytime: Option<u64>,
 }
 
 /// 'autocleaninvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AutoCleanInvoice {
-    pub cycle_seconds: Option<i64>,
-    pub expired_by: Option<i64>,
+    pub cycle_seconds: Option<u64>,
+    pub expired_by: Option<u64>,
 }
 
 /// 'waitanyinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct WaitAnyInvoice {
-    pub lastpay_index: Option<i64>,
+    pub lastpay_index: Option<u64>,
 }
 
 /// 'waitinvoice' command
@@ -116,13 +116,13 @@ pub struct WaitInvoice {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Pay {
     pub bolt11: String,
-    pub msatoshi: Option<i64>,
+    pub msatoshi: Option<u64>,
     pub description: Option<String>,
     pub riskfactor: Option<f64>,
     pub maxfeepercent: Option<f64>,
-    pub exemptfee: Option<i64>,
-    pub retry_for: Option<i64>,
-    pub maxdelay: Option<i64>,
+    pub exemptfee: Option<u64>,
+    pub retry_for: Option<u64>,
+    pub maxdelay: Option<u64>,
 }
 
 /// 'sendpay' command
@@ -131,14 +131,14 @@ pub struct SendPay {
     pub route: Vec<common::RouteItem>,
     pub payment_hash: String,
     pub description: Option<String>,
-    pub msatoshi: Option<i64>,
+    pub msatoshi: Option<u64>,
 }
 
 /// 'waitsendpay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct WaitSendPay {
     pub payment_hash: String,
-    pub timeout: i64,
+    pub timeout: u64,
 }
 
 /// 'listpayments' command
@@ -159,9 +159,9 @@ pub struct DecodePay {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetRoute {
     pub id: String,
-    pub msatoshi: i64,
+    pub msatoshi: u64,
     pub riskfactor: f64,
-    pub cltv: Option<i64>,
+    pub cltv: Option<u64>,
     pub fromid: Option<String>,
     pub fuzzpercent: Option<f64>,
     pub seed: Option<String>,
@@ -184,7 +184,7 @@ pub struct Disconnect {
 #[derive(Debug, Clone)]
 pub enum AmountOrAll {
     All,
-    Amount(i64),
+    Amount(u64),
 }
 
 impl Serialize for AmountOrAll {
@@ -193,7 +193,7 @@ impl Serialize for AmountOrAll {
         S: Serializer,
     {
         match &self {
-            AmountOrAll::Amount(a) => serializer.serialize_i64(*a),
+            AmountOrAll::Amount(a) => serializer.serialize_u64(*a),
             AmountOrAll::All => serializer.serialize_str("all"),
         }
     }
@@ -204,7 +204,7 @@ impl Serialize for AmountOrAll {
 pub struct FundChannel {
     pub id: String,
     pub satoshi: AmountOrAll,
-    pub feerate: Option<i64>,
+    pub feerate: Option<u64>,
 }
 
 /// 'close' command
@@ -212,15 +212,15 @@ pub struct FundChannel {
 pub struct Close {
     pub id: String,
     pub force: Option<bool>,
-    pub timeout: Option<i64>,
+    pub timeout: Option<u64>,
 }
 
 /// 'ping' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Ping {
     pub peerid: String,
-    pub len: Option<i64>,
-    pub pongbytes: Option<i64>,
+    pub len: Option<u64>,
+    pub pongbytes: Option<u64>,
 }
 
 /// 'listfunds' command
@@ -232,7 +232,7 @@ pub struct ListFunds {}
 pub struct Withdraw {
     pub destination: String,
     pub satoshi: AmountOrAll,
-    pub feerate: Option<i64>,
+    pub feerate: Option<u64>,
 }
 
 /// 'newaddr' command
