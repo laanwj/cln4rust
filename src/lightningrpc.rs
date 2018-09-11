@@ -371,14 +371,7 @@ impl LightningRPC {
         len: Option<u64>,
         pongbytes: Option<u64>,
     ) -> Result<responses::Ping, Error> {
-        self.call(
-            "ping",
-            requests::Ping {
-                id,
-                len,
-                pongbytes,
-            },
-        )
+        self.call("ping", requests::Ping { id, len, pongbytes })
     }
 
     /// Show available funds from the internal wallet.
