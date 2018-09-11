@@ -23,6 +23,7 @@ use std::io::Write;
 use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use strason::Json;
 
@@ -34,6 +35,7 @@ use error::Error;
 pub struct Client {
     sockpath: PathBuf,
     nonce: Arc<Mutex<u64>>,
+    timeout: Option<Duration>,
 }
 
 /// Filter out top-level parameters with value None, this is used for handling optional
@@ -57,7 +59,13 @@ impl Client {
         Client {
             sockpath: sockpath.as_ref().to_path_buf(),
             nonce: Arc::new(Mutex::new(0)),
+            timeout: None,
         }
+    }
+
+    /// Set an optional timeout for requests
+    pub fn set_timeout(&mut self, timeout: Option<Duration>) {
+        self.timeout = timeout;
     }
 
     /// Sends a request to a client
@@ -67,6 +75,8 @@ impl Client {
 
         // Setup connection
         let mut stream = UnixStream::connect(&self.sockpath)?;
+        stream.set_read_timeout(self.timeout)?;
+        stream.set_write_timeout(self.timeout)?;
 
         stream.write_all(&request_raw)?;
 

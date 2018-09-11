@@ -50,6 +50,11 @@ impl LightningRPC {
         }
     }
 
+    /// Get reference to the low-level client connection
+    pub fn client(&mut self) -> &mut client::Client {
+        &mut self.client
+    }
+
     /// Generic call function for RPC calls.
     fn call<T: Serialize, U: DeserializeOwned>(
         &mut self,
