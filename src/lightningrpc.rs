@@ -51,13 +51,13 @@ impl LightningRPC {
     }
 
     /// Get reference to the low-level client connection
-    pub fn client(&mut self) -> &mut client::Client {
-        &mut self.client
+    pub fn client(&self) -> &client::Client {
+        &self.client
     }
 
     /// Generic call function for RPC calls.
     fn call<T: Serialize, U: DeserializeOwned>(
-        &mut self,
+        &self,
         method: &str,
         input: T,
     ) -> Result<U, Error> {
@@ -69,49 +69,49 @@ impl LightningRPC {
     }
 
     /// Show information about this node.
-    pub fn getinfo(&mut self) -> Result<responses::GetInfo, Error> {
+    pub fn getinfo(&self) -> Result<responses::GetInfo, Error> {
         self.call("getinfo", requests::GetInfo {})
     }
 
     /// Return feerate estimates, either satoshi-per-kw ({style} perkw) or satoshi-per-kb ({style}
     /// perkb).
-    pub fn feerates(&mut self, style: &str) -> Result<responses::FeeRates, Error> {
+    pub fn feerates(&self, style: &str) -> Result<responses::FeeRates, Error> {
         self.call("feerates", requests::FeeRates { style: style })
     }
 
     /// Show node {id} (or all, if no {id}), in our local network view.
-    pub fn listnodes(&mut self, id: Option<&str>) -> Result<responses::ListNodes, Error> {
+    pub fn listnodes(&self, id: Option<&str>) -> Result<responses::ListNodes, Error> {
         self.call("listnodes", requests::ListNodes { id })
     }
 
     /// Show channel {short_channel_id} (or all known channels, if no {short_channel_id}).
     pub fn listchannels(
-        &mut self,
+        &self,
         short_channel_id: Option<&str>,
     ) -> Result<responses::ListChannels, Error> {
         self.call("listchannels", requests::ListChannels { short_channel_id })
     }
 
     /// List available commands, or give verbose help on one command.
-    pub fn help(&mut self, command: Option<&str>) -> Result<responses::Help, Error> {
+    pub fn help(&self, command: Option<&str>) -> Result<responses::Help, Error> {
         self.call("help", requests::Help { command })
     }
 
     /// Show logs, with optional log {level} (info|unusual|debug|io).
-    pub fn getlog(&mut self, level: Option<&str>) -> Result<responses::GetLog, Error> {
+    pub fn getlog(&self, level: Option<&str>) -> Result<responses::GetLog, Error> {
         self.call("getlog", requests::GetLog { level })
     }
 
     /// List all configuration options, or with [config], just that one.
     /// Because of the dynamic nature of the returned object, unlike the other methods, this
     /// returns a HashMap (from &str to Json) instead of a structure.
-    pub fn listconfigs(&mut self, config: Option<&str>) -> Result<responses::ListConfigs, Error> {
+    pub fn listconfigs(&self, config: Option<&str>) -> Result<responses::ListConfigs, Error> {
         self.call("listconfigs", requests::ListConfigs { config })
     }
 
     /// Show current peers, if {level} is set, include {log}s.
     pub fn listpeers(
-        &mut self,
+        &self,
         id: Option<&str>,
         level: Option<&str>,
     ) -> Result<responses::ListPeers, Error> {
@@ -120,7 +120,7 @@ impl LightningRPC {
 
     /// Show invoice {label} (or all, if no {label)).
     pub fn listinvoices(
-        &mut self,
+        &self,
         label: Option<&str>,
     ) -> Result<responses::ListInvoices, Error> {
         self.call("listinvoices", requests::ListInvoices { label })
@@ -129,7 +129,7 @@ impl LightningRPC {
     /// Create an invoice for {msatoshi} with {label} and {description} with
     /// optional {expiry} seconds (default 1 hour).
     pub fn invoice(
-        &mut self,
+        &self,
         msatoshi: u64,
         label: &str,
         description: &str,
@@ -149,7 +149,7 @@ impl LightningRPC {
     /// Create an invoice for {msatoshi} with {label} and {description} with
     /// optional {expiry} seconds (default 1 hour).
     pub fn delinvoice(
-        &mut self,
+        &self,
         label: &str,
         status: &str,
     ) -> Result<responses::DelInvoice, Error> {
@@ -159,7 +159,7 @@ impl LightningRPC {
     /// Delete all expired invoices that expired as of given {maxexpirytime} (a UNIX epoch time),
     /// or all expired invoices if not specified.
     pub fn delexpiredinvoice(
-        &mut self,
+        &self,
         maxexpirytime: Option<u64>,
     ) -> Result<responses::DelExpiredInvoice, Error> {
         self.call(
@@ -172,7 +172,7 @@ impl LightningRPC {
     /// or disable autoclean if 0. Clean up expired invoices that have expired for {expired_by}
     /// seconds (default 86400).
     pub fn autocleaninvoice(
-        &mut self,
+        &self,
         cycle_seconds: Option<u64>,
         expired_by: Option<u64>,
     ) -> Result<responses::AutoCleanInvoice, Error> {
@@ -188,14 +188,14 @@ impl LightningRPC {
     /// Wait for the next invoice to be paid, after {lastpay_index}.
     /// (if supplied)
     pub fn waitanyinvoice(
-        &mut self,
+        &self,
         lastpay_index: Option<u64>,
     ) -> Result<responses::WaitAnyInvoice, Error> {
         self.call("waitanyinvoice", requests::WaitAnyInvoice { lastpay_index })
     }
 
     /// Wait for an incoming payment matching the invoice with {label}.
-    pub fn waitinvoice(&mut self, label: &str) -> Result<responses::WaitInvoice, Error> {
+    pub fn waitinvoice(&self, label: &str) -> Result<responses::WaitInvoice, Error> {
         self.call("waitinvoice", requests::WaitInvoice { label })
     }
 
@@ -205,7 +205,7 @@ impl LightningRPC {
     ///
     /// * `bolt11` - A string that holds the payment information in bolt11 format.
     /// * `options` - Options for this payment. Use `Default::default()` to not pass any options.
-    pub fn pay(&mut self, bolt11: &str, options: PayOptions) -> Result<responses::Pay, Error> {
+    pub fn pay(&self, bolt11: &str, options: PayOptions) -> Result<responses::Pay, Error> {
         self.call(
             "pay",
             requests::Pay {
@@ -223,7 +223,7 @@ impl LightningRPC {
 
     /// Send along {route} in return for preimage of {payment_hash}, with optional {description}.
     pub fn sendpay(
-        &mut self,
+        &self,
         route: Vec<common::RouteItem>,
         payment_hash: &str,
         description: Option<&str>,
@@ -242,7 +242,7 @@ impl LightningRPC {
 
     /// Wait for payment attempt on {payment_hash} to succeed or fail, but only up to {timeout} seconds.
     pub fn waitsendpay(
-        &mut self,
+        &self,
         payment_hash: &str,
         timeout: u64,
     ) -> Result<responses::WaitSendPay, Error> {
@@ -257,7 +257,7 @@ impl LightningRPC {
 
     /// Show outgoing payments.
     pub fn listpayments(
-        &mut self,
+        &self,
         bolt11: Option<&str>,
         payment_hash: Option<&str>,
     ) -> Result<responses::ListPayments, Error> {
@@ -272,7 +272,7 @@ impl LightningRPC {
 
     /// Decode {bolt11}, using {description} if necessary.
     pub fn decodepay(
-        &mut self,
+        &self,
         bolt11: &str,
         description: Option<&str>,
     ) -> Result<responses::DecodePay, Error> {
@@ -290,7 +290,7 @@ impl LightningRPC {
     /// up to {fuzzpercent} (0.0 -> 100.0, default 5.0) using {seed} as an arbitrary-size string
     /// seed.
     pub fn getroute(
-        &mut self,
+        &self,
         id: &str,
         msatoshi: u64,
         riskfactor: f64,
@@ -316,7 +316,7 @@ impl LightningRPC {
     /// Connect to {id} at {host} (which can end in ':port' if not default). {id} can also be of
     /// the form id@host.
     pub fn connect(
-        &mut self,
+        &self,
         id: &str,
         host: Option<&str>,
     ) -> Result<responses::Connect, Error> {
@@ -324,7 +324,7 @@ impl LightningRPC {
     }
 
     /// Disconnect from peer with {peer_id}.
-    pub fn disconnect(&mut self, id: &str) -> Result<responses::Disconnect, Error> {
+    pub fn disconnect(&self, id: &str) -> Result<responses::Disconnect, Error> {
         self.call("disconnect", requests::Disconnect { id })
     }
 
@@ -337,7 +337,7 @@ impl LightningRPC {
     /// `AmountOrAll::All` to spend all available funds
     /// * `feerate` - optional feerate to use for Bitcoin transaction
     pub fn fundchannel(
-        &mut self,
+        &self,
         id: &str,
         satoshi: requests::AmountOrAll,
         feerate: Option<u64>,
@@ -356,7 +356,7 @@ impl LightningRPC {
     /// (default false) is true, force a unilateral close after {timeout} seconds (default 30),
     /// otherwise just schedule a mutual close later and fail after timing out.
     pub fn close(
-        &mut self,
+        &self,
         id: &str,
         force: Option<bool>,
         timeout: Option<u64>,
@@ -366,7 +366,7 @@ impl LightningRPC {
 
     /// Send {peerid} a ping of length {len} (default 128) asking for {pongbytes} (default 128).
     pub fn ping(
-        &mut self,
+        &self,
         id: &str,
         len: Option<u64>,
         pongbytes: Option<u64>,
@@ -375,7 +375,7 @@ impl LightningRPC {
     }
 
     /// Show available funds from the internal wallet.
-    pub fn listfunds(&mut self) -> Result<responses::ListFunds, Error> {
+    pub fn listfunds(&self) -> Result<responses::ListFunds, Error> {
         self.call("listfunds", requests::ListFunds {})
     }
 
@@ -388,7 +388,7 @@ impl LightningRPC {
     /// `AmountOrAll::All` to spend all available funds
     /// * `feerate` - optional feerate to use for Bitcoin transaction
     pub fn withdraw(
-        &mut self,
+        &self,
         destination: &str,
         satoshi: requests::AmountOrAll,
         feerate: Option<u64>,
@@ -404,12 +404,12 @@ impl LightningRPC {
     }
 
     /// Get a new {bech32, p2sh-segwit} address to fund a channel (default is bech32).
-    pub fn newaddr(&mut self, addresstype: Option<&str>) -> Result<responses::NewAddr, Error> {
+    pub fn newaddr(&self, addresstype: Option<&str>) -> Result<responses::NewAddr, Error> {
         self.call("newaddr", requests::NewAddr { addresstype })
     }
 
     /// Shut down the lightningd process.
-    pub fn stop(&mut self) -> Result<responses::Stop, Error> {
+    pub fn stop(&self) -> Result<responses::Stop, Error> {
         self.call("stop", requests::Stop {})
     }
 }

@@ -8,7 +8,7 @@ fn main() {
     let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");
     println!("Using socket {}", sock.display());
 
-    let mut client = LightningRPC::new(&sock);
+    let client = LightningRPC::new(&sock);
 
     println!("getinfo result: {:?}", client.getinfo().unwrap());
 
