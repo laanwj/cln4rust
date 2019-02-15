@@ -13,7 +13,7 @@ fn main() {
     let client = client::Client::new(&sock);
     for style in &["perkb", "perkw"] {
         let params = Json::from_serialize(requests::FeeRates {
-            style: style.to_string(),
+            style: style,
         }).unwrap();
         let request = client.build_request("feerates".to_string(), params);
         match client

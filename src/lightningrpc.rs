@@ -19,11 +19,11 @@ pub struct LightningRPC {
 
 /// Optional arguments for pay() request
 #[derive(Debug, Clone, Default)]
-pub struct PayOptions {
+pub struct PayOptions<'f> {
     /// {msatoshi} (if and only if {bolt11} does not have amount)
     pub msatoshi: Option<u64>,
     /// {description} (required if {bolt11} uses description hash)
-    pub description: Option<String>,
+    pub description: Option<&'f str>,
     /// {riskfactor} (default 1.0)
     pub riskfactor: Option<f64>,
     /// {maxfeepercent} (default 0.5) the maximum acceptable fee as a percentage (e.g. 0.5 => 0.5%)
@@ -75,45 +75,45 @@ impl LightningRPC {
 
     /// Return feerate estimates, either satoshi-per-kw ({style} perkw) or satoshi-per-kb ({style}
     /// perkb).
-    pub fn feerates(&mut self, style: String) -> Result<responses::FeeRates, Error> {
+    pub fn feerates(&mut self, style: &str) -> Result<responses::FeeRates, Error> {
         self.call("feerates", requests::FeeRates { style: style })
     }
 
     /// Show node {id} (or all, if no {id}), in our local network view.
-    pub fn listnodes(&mut self, id: Option<String>) -> Result<responses::ListNodes, Error> {
+    pub fn listnodes(&mut self, id: Option<&str>) -> Result<responses::ListNodes, Error> {
         self.call("listnodes", requests::ListNodes { id })
     }
 
     /// Show channel {short_channel_id} (or all known channels, if no {short_channel_id}).
     pub fn listchannels(
         &mut self,
-        short_channel_id: Option<String>,
+        short_channel_id: Option<&str>,
     ) -> Result<responses::ListChannels, Error> {
         self.call("listchannels", requests::ListChannels { short_channel_id })
     }
 
     /// List available commands, or give verbose help on one command.
-    pub fn help(&mut self, command: Option<String>) -> Result<responses::Help, Error> {
+    pub fn help(&mut self, command: Option<&str>) -> Result<responses::Help, Error> {
         self.call("help", requests::Help { command })
     }
 
     /// Show logs, with optional log {level} (info|unusual|debug|io).
-    pub fn getlog(&mut self, level: Option<String>) -> Result<responses::GetLog, Error> {
+    pub fn getlog(&mut self, level: Option<&str>) -> Result<responses::GetLog, Error> {
         self.call("getlog", requests::GetLog { level })
     }
 
     /// List all configuration options, or with [config], just that one.
     /// Because of the dynamic nature of the returned object, unlike the other methods, this
-    /// returns a HashMap (from String to Json) instead of a structure.
-    pub fn listconfigs(&mut self, config: Option<String>) -> Result<responses::ListConfigs, Error> {
+    /// returns a HashMap (from &str to Json) instead of a structure.
+    pub fn listconfigs(&mut self, config: Option<&str>) -> Result<responses::ListConfigs, Error> {
         self.call("listconfigs", requests::ListConfigs { config })
     }
 
     /// Show current peers, if {level} is set, include {log}s.
     pub fn listpeers(
         &mut self,
-        id: Option<String>,
-        level: Option<String>,
+        id: Option<&str>,
+        level: Option<&str>,
     ) -> Result<responses::ListPeers, Error> {
         self.call("listpeers", requests::ListPeers { id, level })
     }
@@ -121,7 +121,7 @@ impl LightningRPC {
     /// Show invoice {label} (or all, if no {label)).
     pub fn listinvoices(
         &mut self,
-        label: Option<String>,
+        label: Option<&str>,
     ) -> Result<responses::ListInvoices, Error> {
         self.call("listinvoices", requests::ListInvoices { label })
     }
@@ -131,8 +131,8 @@ impl LightningRPC {
     pub fn invoice(
         &mut self,
         msatoshi: u64,
-        label: String,
-        description: String,
+        label: &str,
+        description: &str,
         expiry: Option<u64>,
     ) -> Result<responses::Invoice, Error> {
         self.call(
@@ -150,8 +150,8 @@ impl LightningRPC {
     /// optional {expiry} seconds (default 1 hour).
     pub fn delinvoice(
         &mut self,
-        label: String,
-        status: String,
+        label: &str,
+        status: &str,
     ) -> Result<responses::DelInvoice, Error> {
         self.call("delinvoice", requests::DelInvoice { label, status })
     }
@@ -195,7 +195,7 @@ impl LightningRPC {
     }
 
     /// Wait for an incoming payment matching the invoice with {label}.
-    pub fn waitinvoice(&mut self, label: String) -> Result<responses::WaitInvoice, Error> {
+    pub fn waitinvoice(&mut self, label: &str) -> Result<responses::WaitInvoice, Error> {
         self.call("waitinvoice", requests::WaitInvoice { label })
     }
 
@@ -205,7 +205,7 @@ impl LightningRPC {
     ///
     /// * `bolt11` - A string that holds the payment information in bolt11 format.
     /// * `options` - Options for this payment. Use `Default::default()` to not pass any options.
-    pub fn pay(&mut self, bolt11: String, options: PayOptions) -> Result<responses::Pay, Error> {
+    pub fn pay(&mut self, bolt11: &str, options: PayOptions) -> Result<responses::Pay, Error> {
         self.call(
             "pay",
             requests::Pay {
@@ -225,8 +225,8 @@ impl LightningRPC {
     pub fn sendpay(
         &mut self,
         route: Vec<common::RouteItem>,
-        payment_hash: String,
-        description: Option<String>,
+        payment_hash: &str,
+        description: Option<&str>,
         msatoshi: Option<u64>,
     ) -> Result<responses::SendPay, Error> {
         self.call(
@@ -243,7 +243,7 @@ impl LightningRPC {
     /// Wait for payment attempt on {payment_hash} to succeed or fail, but only up to {timeout} seconds.
     pub fn waitsendpay(
         &mut self,
-        payment_hash: String,
+        payment_hash: &str,
         timeout: u64,
     ) -> Result<responses::WaitSendPay, Error> {
         self.call(
@@ -258,8 +258,8 @@ impl LightningRPC {
     /// Show outgoing payments.
     pub fn listpayments(
         &mut self,
-        bolt11: Option<String>,
-        payment_hash: Option<String>,
+        bolt11: Option<&str>,
+        payment_hash: Option<&str>,
     ) -> Result<responses::ListPayments, Error> {
         self.call(
             "listpayments",
@@ -273,8 +273,8 @@ impl LightningRPC {
     /// Decode {bolt11}, using {description} if necessary.
     pub fn decodepay(
         &mut self,
-        bolt11: String,
-        description: Option<String>,
+        bolt11: &str,
+        description: Option<&str>,
     ) -> Result<responses::DecodePay, Error> {
         self.call(
             "decodepay",
@@ -291,13 +291,13 @@ impl LightningRPC {
     /// seed.
     pub fn getroute(
         &mut self,
-        id: String,
+        id: &str,
         msatoshi: u64,
         riskfactor: f64,
         cltv: Option<u64>,
-        fromid: Option<String>,
+        fromid: Option<&str>,
         fuzzpercent: Option<f64>,
-        seed: Option<String>,
+        seed: Option<&str>,
     ) -> Result<responses::GetRoute, Error> {
         self.call(
             "getroute",
@@ -317,14 +317,14 @@ impl LightningRPC {
     /// the form id@host.
     pub fn connect(
         &mut self,
-        id: String,
-        host: Option<String>,
+        id: &str,
+        host: Option<&str>,
     ) -> Result<responses::Connect, Error> {
         self.call("connect", requests::Connect { id, host })
     }
 
     /// Disconnect from peer with {peer_id}.
-    pub fn disconnect(&mut self, id: String) -> Result<responses::Disconnect, Error> {
+    pub fn disconnect(&mut self, id: &str) -> Result<responses::Disconnect, Error> {
         self.call("disconnect", requests::Disconnect { id })
     }
 
@@ -338,7 +338,7 @@ impl LightningRPC {
     /// * `feerate` - optional feerate to use for Bitcoin transaction
     pub fn fundchannel(
         &mut self,
-        id: String,
+        id: &str,
         satoshi: requests::AmountOrAll,
         feerate: Option<u64>,
     ) -> Result<responses::FundChannel, Error> {
@@ -357,7 +357,7 @@ impl LightningRPC {
     /// otherwise just schedule a mutual close later and fail after timing out.
     pub fn close(
         &mut self,
-        id: String,
+        id: &str,
         force: Option<bool>,
         timeout: Option<u64>,
     ) -> Result<responses::Close, Error> {
@@ -367,7 +367,7 @@ impl LightningRPC {
     /// Send {peerid} a ping of length {len} (default 128) asking for {pongbytes} (default 128).
     pub fn ping(
         &mut self,
-        id: String,
+        id: &str,
         len: Option<u64>,
         pongbytes: Option<u64>,
     ) -> Result<responses::Ping, Error> {
@@ -389,7 +389,7 @@ impl LightningRPC {
     /// * `feerate` - optional feerate to use for Bitcoin transaction
     pub fn withdraw(
         &mut self,
-        destination: String,
+        destination: &str,
         satoshi: requests::AmountOrAll,
         feerate: Option<u64>,
     ) -> Result<responses::Withdraw, Error> {
@@ -404,7 +404,7 @@ impl LightningRPC {
     }
 
     /// Get a new {bech32, p2sh-segwit} address to fund a channel (default is bech32).
-    pub fn newaddr(&mut self, addresstype: Option<String>) -> Result<responses::NewAddr, Error> {
+    pub fn newaddr(&mut self, addresstype: Option<&str>) -> Result<responses::NewAddr, Error> {
         self.call("newaddr", requests::NewAddr { addresstype })
     }
 

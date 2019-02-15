@@ -22,69 +22,69 @@ use common;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetInfo {}
 
-/// 'feerates' command
+/// 'aeerates' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct FeeRates {
-    pub style: String,
+pub struct FeeRates<'a> {
+    pub style: &'a str,
 }
 
 /// 'listnodes' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListNodes {
-    pub id: Option<String>,
+pub struct ListNodes<'a> {
+    pub id: Option<&'a str>,
 }
 
 /// 'listchannels' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListChannels {
-    pub short_channel_id: Option<String>,
+pub struct ListChannels<'a> {
+    pub short_channel_id: Option<&'a str>,
 }
 
 /// 'help' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Help {
-    pub command: Option<String>,
+pub struct Help<'a> {
+    pub command: Option<&'a str>,
 }
 
 /// 'getlog' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct GetLog {
-    pub level: Option<String>,
+pub struct GetLog<'a> {
+    pub level: Option<&'a str>,
 }
 
 /// 'listconfigs' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListConfigs {
-    pub config: Option<String>,
+pub struct ListConfigs<'a> {
+    pub config: Option<&'a str>,
 }
 
 /// 'listpeers' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListPeers {
-    pub id: Option<String>,
-    pub level: Option<String>,
+pub struct ListPeers<'a> {
+    pub id: Option<&'a str>,
+    pub level: Option<&'a str>,
 }
 
 /// 'listinvoices' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListInvoices {
-    pub label: Option<String>,
+pub struct ListInvoices<'a> {
+    pub label: Option<&'a str>,
 }
 
 /// 'invoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Invoice {
+pub struct Invoice<'a> {
     pub msatoshi: u64,
-    pub label: String,
-    pub description: String,
+    pub label: &'a str,
+    pub description: &'a str,
     pub expiry: Option<u64>,
 }
 
 /// 'delinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct DelInvoice {
-    pub label: String,
-    pub status: String,
+pub struct DelInvoice<'a> {
+    pub label: &'a str,
+    pub status: &'a str,
 }
 
 /// 'delexpiredinvoice' command
@@ -108,16 +108,16 @@ pub struct WaitAnyInvoice {
 
 /// 'waitinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct WaitInvoice {
-    pub label: String,
+pub struct WaitInvoice<'a> {
+    pub label: &'a str,
 }
 
 /// 'pay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Pay {
-    pub bolt11: String,
+pub struct Pay<'a> {
+    pub bolt11: &'a str,
     pub msatoshi: Option<u64>,
-    pub description: Option<String>,
+    pub description: Option<&'a str>,
     pub riskfactor: Option<f64>,
     pub maxfeepercent: Option<f64>,
     pub exemptfee: Option<u64>,
@@ -127,57 +127,57 @@ pub struct Pay {
 
 /// 'sendpay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct SendPay {
+pub struct SendPay<'a> {
     pub route: Vec<common::RouteItem>,
-    pub payment_hash: String,
-    pub description: Option<String>,
+    pub payment_hash: &'a str,
+    pub description: Option<&'a str>,
     pub msatoshi: Option<u64>,
 }
 
 /// 'waitsendpay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct WaitSendPay {
-    pub payment_hash: String,
+pub struct WaitSendPay<'a> {
+    pub payment_hash: &'a str,
     pub timeout: u64,
 }
 
 /// 'listpayments' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListPayments {
-    pub bolt11: Option<String>,
-    pub payment_hash: Option<String>,
+pub struct ListPayments<'a> {
+    pub bolt11: Option<&'a str>,
+    pub payment_hash: Option<&'a str>,
 }
 
 /// 'decodepay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct DecodePay {
-    pub bolt11: String,
-    pub description: Option<String>,
+pub struct DecodePay<'a> {
+    pub bolt11: &'a str,
+    pub description: Option<&'a str>,
 }
 
 /// 'getroute' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct GetRoute {
-    pub id: String,
+pub struct GetRoute<'a> {
+    pub id: &'a str,
     pub msatoshi: u64,
     pub riskfactor: f64,
     pub cltv: Option<u64>,
-    pub fromid: Option<String>,
+    pub fromid: Option<&'a str>,
     pub fuzzpercent: Option<f64>,
-    pub seed: Option<String>,
+    pub seed: Option<&'a str>,
 }
 
 /// 'connect' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Connect {
-    pub id: String,
-    pub host: Option<String>,
+pub struct Connect<'a> {
+    pub id: &'a str,
+    pub host: Option<&'a str>,
 }
 
 /// 'disconnect' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Disconnect {
-    pub id: String,
+pub struct Disconnect<'a> {
+    pub id: &'a str,
 }
 
 /// enum type that can either hold an integer amount, or All
@@ -199,26 +199,26 @@ impl Serialize for AmountOrAll {
     }
 }
 
-/// 'fundchannel' command
+/// 'aundchannel' command
 #[derive(Debug, Clone, Serialize)]
-pub struct FundChannel {
-    pub id: String,
+pub struct FundChannel<'a> {
+    pub id: &'a str,
     pub satoshi: AmountOrAll,
     pub feerate: Option<u64>,
 }
 
 /// 'close' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Close {
-    pub id: String,
+pub struct Close<'a> {
+    pub id: &'a str,
     pub force: Option<bool>,
     pub timeout: Option<u64>,
 }
 
 /// 'ping' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Ping {
-    pub id: String,
+pub struct Ping<'a> {
+    pub id: &'a str,
     pub len: Option<u64>,
     pub pongbytes: Option<u64>,
 }
@@ -229,16 +229,16 @@ pub struct ListFunds {}
 
 /// 'withdraw' command
 #[derive(Debug, Clone, Serialize)]
-pub struct Withdraw {
-    pub destination: String,
+pub struct Withdraw<'a> {
+    pub destination: &'a str,
     pub satoshi: AmountOrAll,
     pub feerate: Option<u64>,
 }
 
 /// 'newaddr' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct NewAddr {
-    pub addresstype: Option<String>,
+pub struct NewAddr<'a> {
+    pub addresstype: Option<&'a str>,
 }
 
 /// 'stop' command
@@ -254,7 +254,7 @@ mod tests {
     fn fundchannel() {
         // Tests AmountOrAll as well as basic JSON serialization
         let result = Json::from_serialize(FundChannel {
-            id: "12345".to_string(),
+            id: "12345",
             satoshi: AmountOrAll::Amount(123456),
             feerate: None,
         }).unwrap();
@@ -264,7 +264,7 @@ mod tests {
         );
 
         let result = Json::from_serialize(FundChannel {
-            id: "12345".to_string(),
+            id: "12345",
             satoshi: AmountOrAll::All,
             feerate: Some(123),
         }).unwrap();

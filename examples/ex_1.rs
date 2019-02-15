@@ -16,7 +16,7 @@ fn main() {
         println!(
             "feerates {}: {:?}",
             style,
-            client.feerates(style.to_string()).unwrap()
+            client.feerates(style).unwrap()
         );
     }
 }
