@@ -15,16 +15,30 @@
 #![allow(missing_docs)]
 //! Structures representing responses to API calls
 use std::collections::HashMap;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 use common;
 
 /// structure for network addresses
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct NetworkAddress {
-    #[serde(rename = "type")]
-    pub type_: String,
-    pub address: String,
-    pub port: u16,
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum NetworkAddress {
+    Ipv4 {
+        address: Ipv4Addr,
+        port: u16,
+    },
+    Ipv6 {
+        address: Ipv6Addr,
+        port: u16,
+    },
+    Torv2 {
+        address: String,
+        port: u16,
+    },
+    Torv3 {
+        address: String,
+        port: u16,
+    },
 }
 
 /// 'getinfo' command
