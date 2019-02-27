@@ -1,9 +1,6 @@
 extern crate clightningrpc;
-extern crate strason;
 
 use std::env;
-
-use strason::Json;
 
 use clightningrpc::{client, requests, responses};
 
@@ -11,11 +8,11 @@ fn main() {
     let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");
     println!("Using socket {}", sock.display());
     let client = client::Client::new(&sock);
-    let params = Json::from_serialize(requests::GetInfo {}).unwrap();
-    let request = client.build_request("getinfo".to_string(), params);
+    let method = "getinfo";
+    let params = requests::GetInfo {};
     match client
-        .send_request(&request)
-        .and_then(|res| res.into_result::<responses::GetInfo>())
+        .send_request(method, params)
+        .and_then(|res: clightningrpc::Response<responses::GetInfo>| res.into_result())
     {
         Ok(d) => {
             println!("Ok! {:?}", d);

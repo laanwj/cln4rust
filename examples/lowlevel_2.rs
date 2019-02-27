@@ -1,9 +1,7 @@
 extern crate clightningrpc;
-extern crate strason;
+extern crate serde_json;
 
 use std::env;
-
-use strason::Json;
 
 use clightningrpc::{client, requests, responses};
 
@@ -12,13 +10,14 @@ fn main() {
     println!("Using socket {}", sock.display());
     let client = client::Client::new(&sock);
     for style in &["perkb", "perkw"] {
-        let params = Json::from_serialize(requests::FeeRates {
+        let method = "feerates";
+        let params = requests::FeeRates {
             style: style,
-        }).unwrap();
-        let request = client.build_request("feerates".to_string(), params);
+        };
+
         match client
-            .send_request(&request)
-            .and_then(|res| res.into_result::<responses::FeeRates>())
+            .send_request(method, params)
+            .and_then(|res: clightningrpc::Response<responses::FeeRates>| res.into_result())
         {
             Ok(d) => {
                 println!("Ok! {:?}", d);

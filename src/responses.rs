@@ -15,7 +15,6 @@
 #![allow(missing_docs)]
 //! Structures representing responses to API calls
 use std::collections::HashMap;
-use strason::Json;
 
 use common;
 
@@ -25,7 +24,7 @@ pub struct NetworkAddress {
     #[serde(rename = "type")]
     pub type_: String,
     pub address: String,
-    pub port: String,
+    pub port: u16,
 }
 
 /// 'getinfo' command
@@ -139,7 +138,7 @@ pub struct GetLog {
 }
 
 /// 'listconfigs' command
-pub type ListConfigs = HashMap<String, Json>;
+pub type ListConfigs = HashMap<String, serde_json::Value>;
 
 /// Sub-structure for channel in 'listpeers'
 #[derive(Debug, Clone, Deserialize, Serialize)]

@@ -3,7 +3,6 @@ use std::path::Path;
 
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use strason::Json;
 
 use client;
 use common;
@@ -61,11 +60,9 @@ impl LightningRPC {
         method: &str,
         input: T,
     ) -> Result<U, Error> {
-        let params = Json::from_serialize(input)?;
-        let request = self.client.build_request(method.to_string(), params);
         self.client
-            .send_request(&request)
-            .and_then(|res| res.into_result::<U>())
+            .send_request(method, input)
+            .and_then(|res| res.into_result())
     }
 
     /// Show information about this node.
