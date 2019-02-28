@@ -222,8 +222,8 @@ impl Serialize for AmountOrAll {
     where
         S: Serializer,
     {
-        match &self {
-            AmountOrAll::Amount(a) => serializer.serialize_u64(*a),
+        match *self {
+            AmountOrAll::Amount(a) => serializer.serialize_u64(a),
             AmountOrAll::All => serializer.serialize_str("all"),
         }
     }

@@ -14,6 +14,7 @@
 //
 #![allow(missing_docs)]
 //! Structures representing responses to API calls
+use serde_json;
 use std::collections::HashMap;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
