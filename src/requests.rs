@@ -22,162 +22,192 @@ use common;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetInfo {}
 
-/// 'feerates' command
+/// 'aeerates' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct FeeRates {
-    pub style: String,
+pub struct FeeRates<'a> {
+    pub style: &'a str,
 }
 
 /// 'listnodes' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListNodes {
-    pub id: Option<String>,
+pub struct ListNodes<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<&'a str>,
 }
 
 /// 'listchannels' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListChannels {
-    pub short_channel_id: Option<String>,
+pub struct ListChannels<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub short_channel_id: Option<&'a str>,
 }
 
 /// 'help' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Help {
-    pub command: Option<String>,
+pub struct Help<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub command: Option<&'a str>,
 }
 
 /// 'getlog' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct GetLog {
-    pub level: Option<String>,
+pub struct GetLog<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub level: Option<&'a str>,
 }
 
 /// 'listconfigs' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListConfigs {
-    pub config: Option<String>,
+pub struct ListConfigs<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub config: Option<&'a str>,
 }
 
 /// 'listpeers' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListPeers {
-    pub id: Option<String>,
-    pub level: Option<String>,
+pub struct ListPeers<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub level: Option<&'a str>,
 }
 
 /// 'listinvoices' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListInvoices {
-    pub label: Option<String>,
+pub struct ListInvoices<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<&'a str>,
 }
 
 /// 'invoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Invoice {
+pub struct Invoice<'a> {
     pub msatoshi: u64,
-    pub label: String,
-    pub description: String,
+    pub label: &'a str,
+    pub description: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub expiry: Option<u64>,
 }
 
 /// 'delinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct DelInvoice {
-    pub label: String,
-    pub status: String,
+pub struct DelInvoice<'a> {
+    pub label: &'a str,
+    pub status: &'a str,
 }
 
 /// 'delexpiredinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DelExpiredInvoice {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub maxexpirytime: Option<u64>,
 }
 
 /// 'autocleaninvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AutoCleanInvoice {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cycle_seconds: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub expired_by: Option<u64>,
 }
 
 /// 'waitanyinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct WaitAnyInvoice {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub lastpay_index: Option<u64>,
 }
 
 /// 'waitinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct WaitInvoice {
-    pub label: String,
+pub struct WaitInvoice<'a> {
+    pub label: &'a str,
 }
 
 /// 'pay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Pay {
-    pub bolt11: String,
+pub struct Pay<'a> {
+    pub bolt11: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub msatoshi: Option<u64>,
-    pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub riskfactor: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub maxfeepercent: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub exemptfee: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub retry_for: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub maxdelay: Option<u64>,
 }
 
 /// 'sendpay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct SendPay {
+pub struct SendPay<'a> {
     pub route: Vec<common::RouteItem>,
-    pub payment_hash: String,
-    pub description: Option<String>,
+    pub payment_hash: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub msatoshi: Option<u64>,
 }
 
 /// 'waitsendpay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct WaitSendPay {
-    pub payment_hash: String,
+pub struct WaitSendPay<'a> {
+    pub payment_hash: &'a str,
     pub timeout: u64,
 }
 
 /// 'listpayments' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListPayments {
-    pub bolt11: Option<String>,
-    pub payment_hash: Option<String>,
+pub struct ListPayments<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bolt11: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payment_hash: Option<&'a str>,
 }
 
 /// 'decodepay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct DecodePay {
-    pub bolt11: String,
-    pub description: Option<String>,
+pub struct DecodePay<'a> {
+    pub bolt11: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<&'a str>,
 }
 
 /// 'getroute' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct GetRoute {
-    pub id: String,
+pub struct GetRoute<'a> {
+    pub id: &'a str,
     pub msatoshi: u64,
     pub riskfactor: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cltv: Option<u64>,
-    pub fromid: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fromid: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub fuzzpercent: Option<f64>,
-    pub seed: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub seed: Option<&'a str>,
 }
 
 /// 'connect' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Connect {
-    pub id: String,
-    pub host: Option<String>,
+pub struct Connect<'a> {
+    pub id: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub host: Option<&'a str>,
 }
 
 /// 'disconnect' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Disconnect {
-    pub id: String,
+pub struct Disconnect<'a> {
+    pub id: &'a str,
 }
 
 /// enum type that can either hold an integer amount, or All
@@ -192,34 +222,39 @@ impl Serialize for AmountOrAll {
     where
         S: Serializer,
     {
-        match &self {
-            AmountOrAll::Amount(a) => serializer.serialize_u64(*a),
+        match *self {
+            AmountOrAll::Amount(a) => serializer.serialize_u64(a),
             AmountOrAll::All => serializer.serialize_str("all"),
         }
     }
 }
 
-/// 'fundchannel' command
+/// 'aundchannel' command
 #[derive(Debug, Clone, Serialize)]
-pub struct FundChannel {
-    pub id: String,
+pub struct FundChannel<'a> {
+    pub id: &'a str,
     pub satoshi: AmountOrAll,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub feerate: Option<u64>,
 }
 
 /// 'close' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Close {
-    pub id: String,
+pub struct Close<'a> {
+    pub id: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub force: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout: Option<u64>,
 }
 
 /// 'ping' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Ping {
-    pub id: String,
+pub struct Ping<'a> {
+    pub id: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub len: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub pongbytes: Option<u64>,
 }
 
@@ -229,48 +264,20 @@ pub struct ListFunds {}
 
 /// 'withdraw' command
 #[derive(Debug, Clone, Serialize)]
-pub struct Withdraw {
-    pub destination: String,
+pub struct Withdraw<'a> {
+    pub destination: &'a str,
     pub satoshi: AmountOrAll,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub feerate: Option<u64>,
 }
 
 /// 'newaddr' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct NewAddr {
-    pub addresstype: Option<String>,
+pub struct NewAddr<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub addresstype: Option<&'a str>,
 }
 
 /// 'stop' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Stop {}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use strason::Json;
-
-    #[test]
-    fn fundchannel() {
-        // Tests AmountOrAll as well as basic JSON serialization
-        let result = Json::from_serialize(FundChannel {
-            id: "12345".to_string(),
-            satoshi: AmountOrAll::Amount(123456),
-            feerate: None,
-        }).unwrap();
-        assert_eq!(
-            result.to_string(),
-            r#"{"id": "12345", "satoshi": 123456, "feerate": null}"#
-        );
-
-        let result = Json::from_serialize(FundChannel {
-            id: "12345".to_string(),
-            satoshi: AmountOrAll::All,
-            feerate: Some(123),
-        }).unwrap();
-        assert_eq!(
-            result.to_string(),
-            r#"{"id": "12345", "satoshi": "all", "feerate": 123}"#
-        );
-    }
-}

@@ -14,18 +14,32 @@
 //
 #![allow(missing_docs)]
 //! Structures representing responses to API calls
+use serde_json;
 use std::collections::HashMap;
-use strason::Json;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 use common;
 
 /// structure for network addresses
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct NetworkAddress {
-    #[serde(rename = "type")]
-    pub type_: String,
-    pub address: String,
-    pub port: String,
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum NetworkAddress {
+    Ipv4 {
+        address: Ipv4Addr,
+        port: u16,
+    },
+    Ipv6 {
+        address: Ipv6Addr,
+        port: u16,
+    },
+    Torv2 {
+        address: String,
+        port: u16,
+    },
+    Torv3 {
+        address: String,
+        port: u16,
+    },
 }
 
 /// 'getinfo' command
@@ -139,7 +153,7 @@ pub struct GetLog {
 }
 
 /// 'listconfigs' command
-pub type ListConfigs = HashMap<String, Json>;
+pub type ListConfigs = HashMap<String, serde_json::Value>;
 
 /// Sub-structure for channel in 'listpeers'
 #[derive(Debug, Clone, Deserialize, Serialize)]
