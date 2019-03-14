@@ -50,8 +50,8 @@ impl LightningRPC {
     }
 
     /// Get reference to the low-level client connection
-    pub fn client(&self) -> &client::Client {
-        &self.client
+    pub fn client(&mut self) -> &mut client::Client {
+        &mut self.client
     }
 
     /// Generic call function for RPC calls.
@@ -408,5 +408,17 @@ impl LightningRPC {
     /// Shut down the lightningd process.
     pub fn stop(&self) -> Result<responses::Stop, Error> {
         self.call("stop", requests::Stop {})
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn set_timeout() {
+        use crate::LightningRPC;
+        use std::time::Duration;
+
+        let mut lightning = LightningRPC::new("/test");
+        lightning.client().set_timeout(Some(Duration::from_millis(100)));
     }
 }
