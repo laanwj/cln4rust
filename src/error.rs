@@ -120,25 +120,17 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Error::Json(ref e) => write!(f, "JSON decode error: {}", e),
+            Error::Io(ref e) => write!(f, "IO error response: {}", e),
             Error::Rpc(ref r) => write!(f, "RPC error response: {:?}", r),
-            _ => f.write_str(error::Error::description(self)),
+            Error::NoErrorOrResult => write!(f, "Malformed RPC response"),
+            Error::NonceMismatch => write!(f, "Nonce of response did not match nonce of request"),
+            Error::VersionMismatch => write!(f, "`jsonrpc` field set to non-\"2.0\""),
         }
     }
 }
 
 impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Json(_) => "JSON decode error",
-            Error::Io(_) => "IO error response",
-            Error::Rpc(_) => "RPC error response",
-            Error::NoErrorOrResult => "Malformed RPC response",
-            Error::NonceMismatch => "Nonce of response did not match nonce of request",
-            Error::VersionMismatch => "`jsonrpc` field set to non-\"2.0\"",
-        }
-    }
-
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
             Error::Json(ref e) => Some(e),
             _ => None,
