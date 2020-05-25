@@ -8,6 +8,7 @@ repository = "https://github.com/laanwj/rust-clightning-rpc.git"
 description = "Crate that provides an RPC binding from rust code to the c-lightning daemon"
 keywords = [ "protocol", "rpc", "lightning", "bitcoin" ]
 readme = "README.md"
+edition = "2018"
 
 [dependencies]
 serde = "1"

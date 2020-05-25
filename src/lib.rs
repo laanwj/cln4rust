@@ -45,9 +45,9 @@ pub mod requests;
 pub mod responses;
 
 // Re-export error type
-pub use error::Error;
+pub use crate::error::Error;
 // Re-export high-level connection type
-pub use lightningrpc::LightningRPC;
+pub use crate::lightningrpc::LightningRPC;
 
 use serde::Serialize;
 

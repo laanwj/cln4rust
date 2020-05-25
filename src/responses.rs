@@ -18,7 +18,7 @@ use serde_json;
 use std::collections::HashMap;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-use common;
+use crate::common;
 
 /// structure for network addresses
 #[derive(Debug, Clone, Deserialize, Serialize)]

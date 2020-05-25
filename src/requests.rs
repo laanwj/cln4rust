@@ -16,7 +16,7 @@
 #![allow(missing_docs)]
 use serde::{Serialize, Serializer};
 
-use common;
+use crate::common;
 
 /// 'getinfo' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
