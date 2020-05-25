@@ -44,6 +44,8 @@ pub mod lightningrpc;
 pub mod requests;
 pub mod responses;
 
+pub mod aio;
+
 // Re-export error type
 pub use crate::error::Error;
 // Re-export high-level connection type
