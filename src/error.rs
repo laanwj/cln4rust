@@ -133,6 +133,7 @@ impl error::Error for Error {
     fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
             Error::Json(ref e) => Some(e),
+            Error::Io(ref e) => Some(e),
             _ => None,
         }
     }

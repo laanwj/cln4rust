@@ -14,7 +14,7 @@
 
 //! Crate that provides an RPC binding from rust code to the c-lightning daemon
 //!
-//! This create provides both a high and a low-level interface.
+//! This crate provides both a high and a low-level interface.
 //! Most likely, you'll want to use the high-level interface through `LightningRPC`, as this is
 //! most convenient,
 //! but it is also possible to construct Request and Response objects manually and

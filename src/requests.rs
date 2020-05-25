@@ -22,7 +22,7 @@ use crate::common;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetInfo {}
 
-/// 'aeerates' command
+/// 'feerates' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FeeRates<'a> {
     pub style: &'a str,
