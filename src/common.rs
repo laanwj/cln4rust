@@ -10,8 +10,12 @@ use std::str::FromStr;
 pub struct RouteItem {
     pub id: String,
     pub channel: String,
-    pub msatoshi: i64,
+    pub direction: Option<u64>,
+    pub amount_msat: MSat,
     pub delay: i64,
+    pub style: Option<String>,
+    pub blinding: Option<String>,
+    pub enctlv: Option<String>,
 }
 
 /// Type-safe millisatoshi wrapper
