@@ -1,6 +1,6 @@
 [package]
 name = "clightningrpc"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Wladimir J. van der Laan <laanwj@gmail.com>"]
 license = "CC0-1.0"
 homepage = "https://github.com/laanwj/rust-clightning-rpc"
