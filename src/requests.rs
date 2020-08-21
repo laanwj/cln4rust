@@ -16,7 +16,7 @@
 #![allow(missing_docs)]
 use serde::{Serialize, Serializer};
 
-use common;
+use crate::common;
 
 /// 'getinfo' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -163,9 +163,9 @@ pub struct WaitSendPay<'a> {
     pub timeout: u64,
 }
 
-/// 'listpayments' command
+/// 'listsendpays' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ListPayments<'a> {
+pub struct ListSendPays<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bolt11: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]

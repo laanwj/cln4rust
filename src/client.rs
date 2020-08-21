@@ -28,7 +28,7 @@ use serde::de::DeserializeOwned;
 use serde_json::{Deserializer, to_writer};
 
 use super::{Request, Response};
-use error::Error;
+use crate::error::Error;
 
 /// A handle to a remote JSONRPC server
 #[derive(Debug)]

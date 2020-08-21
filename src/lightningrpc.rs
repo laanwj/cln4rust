@@ -4,11 +4,11 @@ use std::path::Path;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use client;
-use common;
-use error::Error;
-use requests;
-use responses;
+use crate::client;
+use crate::common;
+use crate::error::Error;
+use crate::requests;
+use crate::responses;
 
 /// Structure providing a high-level interface to the c-lightning daemon RPC
 #[derive(Debug)]
@@ -253,14 +253,14 @@ impl LightningRPC {
     }
 
     /// Show outgoing payments.
-    pub fn listpayments(
+    pub fn listsendpays(
         &self,
         bolt11: Option<&str>,
         payment_hash: Option<&str>,
-    ) -> Result<responses::ListPayments, Error> {
+    ) -> Result<responses::ListSendPays, Error> {
         self.call(
-            "listpayments",
-            requests::ListPayments {
+            "listsendpays",
+            requests::ListSendPays {
                 bolt11,
                 payment_hash,
             },
