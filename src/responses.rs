@@ -469,9 +469,14 @@ pub struct Ping {
 pub struct ListFundsOutput {
     pub txid: String,
     pub output: u64,
+    pub redeemscript: Option<String>,
+    pub scriptpubkey: Option<String>,
     pub amount_msat: MSat,
     pub address: String,
     pub status: String,
+    pub blockheight: Option<u64>,
+    pub reserved: bool,
+    pub reserved_to_block: Option<u64>,
 }
 
 /// Sub-structure for 'listfunds' channel
@@ -479,6 +484,7 @@ pub struct ListFundsOutput {
 pub struct ListFundsChannel {
     pub peer_id: String,
     pub connected: bool,
+    pub state: String,
     pub short_channel_id: Option<String>,
     pub our_amount_msat: MSat,
     pub amount_msat: MSat,
