@@ -11,9 +11,7 @@ fn main() {
     let client = client::Client::new(&sock);
     for style in &["perkb", "perkw"] {
         let method = "feerates";
-        let params = requests::FeeRates {
-            style: style,
-        };
+        let params = requests::FeeRates { style: style };
 
         match client
             .send_request(method, params)
