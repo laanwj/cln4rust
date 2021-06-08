@@ -25,22 +25,10 @@ use crate::common::MSat;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum NetworkAddress {
-    Ipv4 {
-        address: Ipv4Addr,
-        port: u16,
-    },
-    Ipv6 {
-        address: Ipv6Addr,
-        port: u16,
-    },
-    Torv2 {
-        address: String,
-        port: u16,
-    },
-    Torv3 {
-        address: String,
-        port: u16,
-    },
+    Ipv4 { address: Ipv4Addr, port: u16 },
+    Ipv6 { address: Ipv6Addr, port: u16 },
+    Torv2 { address: String, port: u16 },
+    Torv3 { address: String, port: u16 },
 }
 
 /// 'getinfo' command

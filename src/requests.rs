@@ -233,7 +233,7 @@ impl Serialize for AmountOrAll {
 #[derive(Debug, Clone, Serialize)]
 pub struct FundChannel<'a> {
     pub id: &'a str,
-    pub satoshi: AmountOrAll,
+    pub amount: AmountOrAll,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub feerate: Option<u64>,
 }
@@ -266,7 +266,7 @@ pub struct ListFunds {}
 #[derive(Debug, Clone, Serialize)]
 pub struct Withdraw<'a> {
     pub destination: &'a str,
-    pub satoshi: AmountOrAll,
+    pub amount: AmountOrAll,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub feerate: Option<u64>,
 }
