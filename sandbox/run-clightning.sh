@@ -9,17 +9,15 @@ lightningd --lightning-dir=$DIR/lightning_dir_two --log-file=$DIR/lightning_dir_
 # lightning-cli --lightning-dir=$DIR/lightning_dir_one getinfo > node_one.info
 # lightning-cli --lightning-dir=$DIR/lightning_dir_two getinfo > node_two.info
 
-for run in {1..50}; do
+for run in {1..2}; do
   address_two="$(lightning-cli --lightning-dir=$DIR/lightning_dir_two newaddr | jq -r '.bech32')"
-  bitcoin-cli -datadir=$DIR/bitcoin_dir -named sendtoaddress address="${address_two}" amount=1 fee_rate=1 > /dev/null
+  bitcoin-cli -datadir=$DIR/bitcoin_dir generatetoaddress 50 "${address_two}" > /dev/null
+done
+
+for run in {1..4}; do
   address="$(bitcoin-cli -datadir=$DIR/bitcoin_dir getnewaddress)"
   bitcoin-cli -datadir=$DIR/bitcoin_dir generatetoaddress 50 "${address}" > /dev/null
 done
 
-for run in {1..50}; do
-  address="$(bitcoin-cli -datadir=$DIR/bitcoin_dir getnewaddress)"
-  bitcoin-cli -datadir=$DIR/bitcoin_dir generatetoaddress 50 "${address}" > /dev/null
-done
-
-lightning-cli --lightning-dir=$DIR/lightning_dir_one listfunds
-lightning-cli --lightning-dir=$DIR/lightning_dir_two listfunds
+#lightning-cli --lightning-dir=$DIR/lightning_dir_one listfunds
+#lightning-cli --lightning-dir=$DIR/lightning_dir_two listfunds

@@ -5,6 +5,13 @@ use clightningrpc::responses::NetworkAddress;
 use clightningrpc::LightningRPC;
 use rstest::*;
 use std::path::Path;
+use std::{thread, time};
+
+// FIXME(vincenzopalazzo) Move this in a utils test
+fn wait_for(millisecond: u64) {
+    let ten_millis = time::Duration::from_millis(10);
+    thread::sleep(ten_millis);
+}
 
 #[fixture]
 pub fn lightningd() -> LightningRPC {
@@ -71,7 +78,8 @@ fn fundchannel_test_one(lightningd: LightningRPC, lightningd_second: LightningRP
     };
     let _ = lightningd.connect(&node_id, Some(&host)).unwrap();
     let fundchannel = lightningd
-        .fundchannel(&node_id, AmountOrAll::Amount(800), None)
+        .fundchannel(&node_id, AmountOrAll::Amount(100000), None)
         .unwrap();
     assert!(fundchannel.txid.chars().count() == 64);
+    let _ = lightningd.close(&node_id, None, None);
 }
