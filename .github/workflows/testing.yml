@@ -1,0 +1,18 @@
+name: Integration testing
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Integration testing
+        run: |
+          docker-compose up --exit-code-from rust_clightning_rpc --quiet-pull
+      - name: Upload lightning log
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          path: |
+            sandbox/node_one.log
+            sandbox/node_two.log
+          name: ${{ github.run_number }}

@@ -55,11 +55,7 @@ impl LightningRPC {
     }
 
     /// Generic call function for RPC calls.
-    fn call<T: Serialize, U: DeserializeOwned>(
-        &self,
-        method: &str,
-        input: T,
-    ) -> Result<U, Error> {
+    fn call<T: Serialize, U: DeserializeOwned>(&self, method: &str, input: T) -> Result<U, Error> {
         self.client
             .send_request(method, input)
             .and_then(|res| res.into_result())
@@ -116,10 +112,7 @@ impl LightningRPC {
     }
 
     /// Show invoice {label} (or all, if no {label)).
-    pub fn listinvoices(
-        &self,
-        label: Option<&str>,
-    ) -> Result<responses::ListInvoices, Error> {
+    pub fn listinvoices(&self, label: Option<&str>) -> Result<responses::ListInvoices, Error> {
         self.call("listinvoices", requests::ListInvoices { label })
     }
 
@@ -145,11 +138,7 @@ impl LightningRPC {
 
     /// Create an invoice for {msatoshi} with {label} and {description} with
     /// optional {expiry} seconds (default 1 hour).
-    pub fn delinvoice(
-        &self,
-        label: &str,
-        status: &str,
-    ) -> Result<responses::DelInvoice, Error> {
+    pub fn delinvoice(&self, label: &str, status: &str) -> Result<responses::DelInvoice, Error> {
         self.call("delinvoice", requests::DelInvoice { label, status })
     }
 
@@ -312,11 +301,7 @@ impl LightningRPC {
 
     /// Connect to {id} at {host} (which can end in ':port' if not default). {id} can also be of
     /// the form id@host.
-    pub fn connect(
-        &self,
-        id: &str,
-        host: Option<&str>,
-    ) -> Result<responses::Connect, Error> {
+    pub fn connect(&self, id: &str, host: Option<&str>) -> Result<responses::Connect, Error> {
         self.call("connect", requests::Connect { id, host })
     }
 
@@ -330,20 +315,20 @@ impl LightningRPC {
     /// # Arguments
     ///
     /// * `id` - Id of node to fund a channel to
-    /// * `satoshi` - either `AmountOrAll::Amount(n)` for a given amount in satoshi units, or
+    /// * `amount` - either `AmountOrAll::Amount(n)` for a given amount in satoshi units, or
     /// `AmountOrAll::All` to spend all available funds
     /// * `feerate` - optional feerate to use for Bitcoin transaction
     pub fn fundchannel(
         &self,
         id: &str,
-        satoshi: requests::AmountOrAll,
+        amount: requests::AmountOrAll,
         feerate: Option<u64>,
     ) -> Result<responses::FundChannel, Error> {
         self.call(
             "fundchannel",
             requests::FundChannel {
                 id,
-                satoshi,
+                amount,
                 feerate,
             },
         )
@@ -381,20 +366,20 @@ impl LightningRPC {
     /// # Arguments
     ///
     /// * `destination` - Bitcoin address to send to
-    /// * `satoshi` - either `AmountOrAll::Amount(n)` for a given amount in satoshi units, or
+    /// * `amount` - either `AmountOrAll::Amount(n)` for a given amount in satoshi units, or
     /// `AmountOrAll::All` to spend all available funds
     /// * `feerate` - optional feerate to use for Bitcoin transaction
     pub fn withdraw(
         &self,
         destination: &str,
-        satoshi: requests::AmountOrAll,
+        amount: requests::AmountOrAll,
         feerate: Option<u64>,
     ) -> Result<responses::Withdraw, Error> {
         self.call(
             "withdraw",
             requests::Withdraw {
                 destination,
-                satoshi,
+                amount,
                 feerate,
             },
         )
@@ -419,6 +404,8 @@ mod tests {
         use std::time::Duration;
 
         let mut lightning = LightningRPC::new("/test");
-        lightning.client().set_timeout(Some(Duration::from_millis(100)));
+        lightning
+            .client()
+            .set_timeout(Some(Duration::from_millis(100)));
     }
 }

@@ -23,9 +23,9 @@ use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use serde::Serialize;
 use serde::de::DeserializeOwned;
-use serde_json::{Deserializer, to_writer};
+use serde::Serialize;
+use serde_json::{to_writer, Deserializer};
 
 use super::{Request, Response};
 use crate::error::Error;
@@ -52,24 +52,35 @@ impl Client {
     }
 
     /// Sends a request to a client
-    pub fn send_request<S: Serialize, D: DeserializeOwned>(&self, method: &str, params: S) -> Result<Response<D>, Error> {
+    pub fn send_request<S: Serialize, D: DeserializeOwned>(
+        &self,
+        method: &str,
+        params: S,
+    ) -> Result<Response<D>, Error> {
         // Setup connection
         let mut stream = UnixStream::connect(&self.sockpath)?;
         stream.set_read_timeout(self.timeout)?;
         stream.set_write_timeout(self.timeout)?;
 
-        to_writer(&mut stream, &Request {
-            method,
-            params,
-            id: 0, // we always open a new connection, so we don't have to care about the nonce
-            jsonrpc: "2.0",
-        })?;
+        to_writer(
+            &mut stream,
+            &Request {
+                method,
+                params,
+                id: 0, // we always open a new connection, so we don't have to care about the nonce
+                jsonrpc: "2.0",
+            },
+        )?;
 
         let response: Response<D> = Deserializer::from_reader(&mut stream)
             .into_iter()
             .next()
             .map_or(Err(Error::NoErrorOrResult), |res| Ok(res?))?;
-        if response.jsonrpc.as_ref().map_or(false, |version| version != "2.0") {
+        if response
+            .jsonrpc
+            .as_ref()
+            .map_or(false, |version| version != "2.0")
+        {
             return Err(Error::VersionMismatch);
         }
 

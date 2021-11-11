@@ -25,22 +25,10 @@ use crate::common::MSat;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum NetworkAddress {
-    Ipv4 {
-        address: Ipv4Addr,
-        port: u16,
-    },
-    Ipv6 {
-        address: Ipv6Addr,
-        port: u16,
-    },
-    Torv2 {
-        address: String,
-        port: u16,
-    },
-    Torv3 {
-        address: String,
-        port: u16,
-    },
+    Ipv4 { address: Ipv4Addr, port: u16 },
+    Ipv6 { address: Ipv6Addr, port: u16 },
+    Torv2 { address: String, port: u16 },
+    Torv3 { address: String, port: u16 },
 }
 
 /// 'getinfo' command
@@ -469,9 +457,14 @@ pub struct Ping {
 pub struct ListFundsOutput {
     pub txid: String,
     pub output: u64,
+    pub redeemscript: Option<String>,
+    pub scriptpubkey: Option<String>,
     pub amount_msat: MSat,
     pub address: String,
     pub status: String,
+    pub blockheight: Option<u64>,
+    pub reserved: bool,
+    pub reserved_to_block: Option<u64>,
 }
 
 /// Sub-structure for 'listfunds' channel
@@ -479,6 +472,7 @@ pub struct ListFundsOutput {
 pub struct ListFundsChannel {
     pub peer_id: String,
     pub connected: bool,
+    pub state: String,
     pub short_channel_id: Option<String>,
     pub our_amount_msat: MSat,
     pub amount_msat: MSat,
