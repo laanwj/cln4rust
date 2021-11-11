@@ -314,19 +314,14 @@ pub struct FailureItem {
 /// 'pay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Pay {
-    pub id: u64,
     pub payment_hash: String,
     pub destination: String,
     pub msatoshi: u64,
     pub msatoshi_sent: u64,
-    pub created_at: u64,
+    pub created_at: f64,
     pub status: String,
     pub payment_preimage: String,
-    pub description: String,
-    pub getroute_tries: u64,
-    pub sendpay_tries: u64,
-    pub route: Vec<common::RouteItem>,
-    pub failures: Vec<FailureItem>,
+    pub parts: u64,
 }
 
 /// 'sendpay' command
