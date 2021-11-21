@@ -1,8 +1,34 @@
-# Rust c-lightning client
+<div align="center">
+  <h1>Rust c-lightning client</h1>
 
-[![Status](https://travis-ci.org/laanwj/rust-clightning-rpc.png?branch=master)](https://travis-ci.org/laanwj/rust-clightning-rpc)
-[![Crates.io](https://img.shields.io/crates/v/clightningrpc.svg)](https://crates.io/crates/clightningrpc)
-[![Docs.rs](https://docs.rs/clightningrpc/badge.svg)](https://docs.rs/clightningrpc/)
+  <p>
+    <strong>This crate provides an interface from rust to the c-lightning daemon through RPC.</strong>
+  </p>
+
+  <p>
+  </p>
+
+  <h4>
+    <a href="https://github.com/laanwj/rust-clightning-rpc">Project Homepage</a>
+  </h4>
+ 
+  <a href="https://github.com/laanwj/rust-clightning-rpc/actions">
+    <img alt="GitHub Workflow Status (branch)" src="https://img.shields.io/github/workflow/status/laanwj/rust-clightning-rpc/Integration%20testing/master?style=flat-square"/>
+  </a>
+  
+  <a href="https://crates.io/clightningrpc">
+    <img alt="Crates.io" src="https://img.shields.io/crates/v/clightningrpc?style=flat-square"/>
+  </a>
+  
+  <a href="https://crates.io/clightningrpc">
+    <img alt="Crates.io" src="https://img.shields.io/crates/d/clightningrpc?style=flat-square"/>
+  </a>
+  
+  <a href="https://docs.rs/clightningrpc">
+    <img alt="docs.rs" src="https://img.shields.io/docsrs/clightningrpc?style=flat-square"/>
+  </a>
+
+</div>
 
 This crate provides an interface from rust to the [c-lightning](https://github.com/ElementsProject/lightning) daemon through RPC.
 
