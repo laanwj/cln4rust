@@ -91,6 +91,13 @@ compile, sorry!
 - Call `rustfmt src/lib.rs examples/*.rs` before committing
 - If you can, GPG-sign at least your top commit when filing a PR
 
+# Supports
+
+If you want support this library consider to donate with the following methods
+
+- Lightning address: vincenzopalazzo@lntxbot.com
+- [Github donation](https://github.com/sponsors/vincenzopalazzo)
+
 # Credits
 
 This library is based on Andrew Poelstra's [rust-jsonrpc](https://github.com/apoelstra/rust-jsonrpc).
