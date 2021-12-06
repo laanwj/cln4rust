@@ -20,9 +20,6 @@
 //! but it is also possible to construct Request and Response objects manually and
 //! send them through the pipe.
 
-#![crate_type = "lib"]
-#![crate_type = "rlib"]
-#![crate_type = "dylib"]
 #![crate_name = "clightningrpc"]
 // Coding conventions
 #![deny(missing_debug_implementations)]
