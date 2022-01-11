@@ -1,3 +1,6 @@
+//! Rust Module that contains all the specific version
+//! for c-lightning JSON RPC 2.0 call
+
 // Rust JSON-RPC Library
 // Written in 2015 by
 //     Andrew Poelstra <apoelstra@wpsoftware.net>
