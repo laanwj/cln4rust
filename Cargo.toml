@@ -2,4 +2,5 @@
 members = [
         "rpc",
         "common",
+        "plugin",
 ]
