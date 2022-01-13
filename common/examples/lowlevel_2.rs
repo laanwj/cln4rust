@@ -1,10 +1,10 @@
-extern crate common;
+extern crate clightningrpc_common;
 extern crate serde_json;
 
 use std::collections::HashMap;
 use std::env;
 
-use common::{client, types};
+use clightningrpc_common::{client, types};
 
 fn main() {
     let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");

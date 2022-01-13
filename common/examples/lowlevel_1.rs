@@ -1,10 +1,10 @@
-extern crate common;
+extern crate clightningrpc_common;
 
 use serde::{Deserialize, Serialize};
 use std::env;
 
-use common::client;
-use common::types::Response;
+use clightningrpc_common::client;
+use clightningrpc_common::types::Response;
 
 /// Example of type definition
 #[derive(Debug, Clone, Deserialize, Serialize)]
