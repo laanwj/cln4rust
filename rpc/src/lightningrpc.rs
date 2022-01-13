@@ -4,8 +4,8 @@ use std::path::Path;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use common::client;
-use common::errors::Error;
+use clightningrpc_common::client;
+use clightningrpc_common::errors::Error;
 
 use crate::requests;
 use crate::responses;

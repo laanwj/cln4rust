@@ -14,7 +14,7 @@
 //
 //! Structures representing requests to API calls
 #![allow(missing_docs)]
-use serde::{Serialize, Serializer};
+use serde::{Deserialize, Serialize, Serializer};
 
 use crate::types;
 
