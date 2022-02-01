@@ -1,9 +1,10 @@
-extern crate clightningrpc;
+extern crate clightningrpc_common;
 extern crate serde_json;
 
+use std::collections::HashMap;
 use std::env;
 
-use clightningrpc::{client, requests, responses};
+use clightningrpc_common::{client, types};
 
 fn main() {
     let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");
@@ -11,11 +12,11 @@ fn main() {
     let client = client::Client::new(&sock);
     for style in &["perkb", "perkw"] {
         let method = "feerates";
-        let params = requests::FeeRates { style: style };
-
+        let mut params: HashMap<String, String> = HashMap::new();
+        params.insert("style".to_string(), style.to_string());
         match client
             .send_request(method, params)
-            .and_then(|res: clightningrpc::Response<responses::FeeRates>| res.into_result())
+            .and_then(|res: types::Response<HashMap<String, String>>| res.into_result())
         {
             Ok(d) => {
                 println!("Ok! {:?}", d);

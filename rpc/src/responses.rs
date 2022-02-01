@@ -14,12 +14,11 @@
 //
 #![allow(missing_docs)]
 //! Structures representing responses to API calls
-use serde_json;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-use crate::common;
-use crate::common::MSat;
+use crate::types::{MSat, RouteItem};
 
 /// structure for network addresses
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -296,7 +295,7 @@ pub struct FailureItem {
     pub erring_node: String,
     pub erring_channel: String,
     pub channel_update: Option<String>,
-    pub route: Vec<common::RouteItem>,
+    pub route: Vec<RouteItem>,
 }
 
 /// 'pay' command
@@ -415,7 +414,7 @@ pub struct DecodePay {
 /// 'getroute' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetRoute {
-    pub route: Vec<common::RouteItem>,
+    pub route: Vec<RouteItem>,
 }
 
 /// 'connect' command

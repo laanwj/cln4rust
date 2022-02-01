@@ -4,11 +4,12 @@ use std::path::Path;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use crate::client;
-use crate::common;
-use crate::error::Error;
+use clightningrpc_common::client;
+use clightningrpc_common::errors::Error;
+
 use crate::requests;
 use crate::responses;
+use crate::types::RouteItem;
 
 /// Structure providing a high-level interface to the c-lightning daemon RPC
 #[derive(Debug)]
@@ -210,7 +211,7 @@ impl LightningRPC {
     /// Send along {route} in return for preimage of {payment_hash}, with optional {description}.
     pub fn sendpay(
         &self,
-        route: Vec<common::RouteItem>,
+        route: Vec<RouteItem>,
         payment_hash: &str,
         description: Option<&str>,
         msatoshi: Option<u64>,

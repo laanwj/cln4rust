@@ -1,4 +1,5 @@
 [workspace]
 members = [
         "rpc",
+        "common",
 ]

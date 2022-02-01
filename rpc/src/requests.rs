@@ -14,9 +14,9 @@
 //
 //! Structures representing requests to API calls
 #![allow(missing_docs)]
-use serde::{Serialize, Serializer};
+use serde::{Deserialize, Serialize, Serializer};
 
-use crate::common;
+use crate::types;
 
 /// 'getinfo' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -148,7 +148,7 @@ pub struct Pay<'a> {
 /// 'sendpay' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct SendPay<'a> {
-    pub route: Vec<common::RouteItem>,
+    pub route: Vec<types::RouteItem>,
     pub payment_hash: &'a str,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,

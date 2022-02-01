@@ -8,9 +8,10 @@ use std::path::Path;
 use std::{thread, time};
 
 // FIXME(vincenzopalazzo) Move this in a utils test
+#[allow(dead_code)]
 fn wait_for(millisecond: u64) {
-    let ten_millis = time::Duration::from_millis(10);
-    thread::sleep(ten_millis);
+    let wait_time = time::Duration::from_millis(millisecond);
+    thread::sleep(wait_time);
 }
 
 #[fixture]
