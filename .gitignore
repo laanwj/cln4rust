@@ -6,3 +6,5 @@ Cargo.lock
 **/*.info
 
 github-merge.py
+
+.idea/

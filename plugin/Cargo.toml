@@ -1,5 +1,5 @@
 [package]
-name = "clightningrpc-plugin"
+name = "clightningrpc_plugin"
 version = "0.1.0"
 edition = "2021"
 
