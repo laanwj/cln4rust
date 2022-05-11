@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::errors::{Error, RpcError};
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// A JSONRPC request object
 pub struct Request<'f, T: Serialize> {
     /// The name of the RPC call

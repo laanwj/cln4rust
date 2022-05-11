@@ -11,3 +11,6 @@ fmt:
 
 check:
 	$(CC) test --all
+
+clean:
+	$(CC) clean
