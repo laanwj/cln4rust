@@ -3,6 +3,7 @@ members = [
         "rpc",
         "common",
         "plugin",
+        "plugin_macros",
 ]
 resolver = "2"
 
