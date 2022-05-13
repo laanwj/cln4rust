@@ -10,7 +10,7 @@ struct PluginState(());
 struct HelloRPC {}
 
 impl RPCMethod<PluginState> for HelloRPC {
-    fn call<'c>(&self, plugin: &mut Plugin<PluginState>, request: &'c Value) -> Value {
+    fn call<'c>(&self, _plugin: &mut Plugin<PluginState>, _request: &'c Value) -> Value {
         json!({
             "language": "Hello from rust"
         })

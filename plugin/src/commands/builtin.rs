@@ -3,7 +3,7 @@
 //!
 //! author: https://github.com/vincenzopalazzo
 use crate::commands::{
-    types::{InitConf, RPCMethodInfo},
+    types::{InitConf, RPCHookInfo, RPCMethodInfo},
     RPCMethod,
 };
 // FIXME: move this inside the common crater
@@ -28,9 +28,17 @@ impl<T: Clone> RPCMethod<T> for ManifestRPC {
             "rpcmethods",
             plugin.rpc_info.clone().into_iter().collect(),
         );
-        // TODO: fill later
-        add_vec::<String>(&mut response, "subscriptions", vec![]);
-        add_vec::<String>(&mut response, "hooks", vec![]);
+        add_vec::<String>(
+            &mut response,
+            "subscriptions",
+            plugin.rpc_nofitication.keys().cloned().collect(),
+        );
+        add_vec::<RPCHookInfo>(
+            &mut response,
+            "hooks",
+            plugin.hook_info.clone().into_iter().collect(),
+        );
+        // FIXME: adding possibility to register a plugin notification
         add_bool(&mut response, "dynamic", plugin.dynamic);
         response
     }

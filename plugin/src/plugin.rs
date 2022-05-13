@@ -3,7 +3,7 @@
 //! Unofficial API interface to develop plugin in Rust.
 use crate::commands::{
     builtin::{InitRPC, ManifestRPC},
-    types::RPCMethodInfo,
+    types::{RPCHookInfo, RPCMethodInfo},
     RPCMethod,
 };
 use crate::types::RpcOption;
@@ -30,6 +30,13 @@ where
     /// keep the info of the method in a separate list
     /// FIXME: move the RPCMethodInfo as key of the rpc_method map.
     pub rpc_info: HashSet<RPCMethodInfo>,
+    /// all the hook where the plugin is register during the configuration
+    pub rpc_hook: HashMap<String, Box<dyn RPCMethod<T>>>,
+    /// keep all the info about the hooks in a separate set.
+    /// FIXME: put the RPCHookInfo as key of the hash map.
+    pub hook_info: HashSet<RPCHookInfo>,
+    /// all the notification that the plugin is register on
+    pub rpc_nofitication: HashMap<String, Box<dyn RPCMethod<T>>>,
     /// mark a plugin as dynamic, in this way the plugin can be run
     /// from core lightning without stop the lightningd deamon
     pub dynamic: bool,
@@ -42,6 +49,9 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             option: HashSet::new(),
             rpc_method: HashMap::new(),
             rpc_info: HashSet::new(),
+            rpc_hook: HashMap::new(),
+            hook_info: HashSet::new(),
+            rpc_nofitication: HashMap::new(),
             dynamic,
         };
     }
@@ -96,12 +106,33 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         command.call(self, params)
     }
 
-    pub fn register_hook(&mut self) -> &mut Self {
-        todo!()
+    pub fn register_hook<F: 'static>(
+        &'a mut self,
+        hook_name: &str,
+        before: Option<Vec<String>>,
+        after: Option<Vec<String>>,
+        callback: F,
+    ) -> &mut Self
+    where
+        F: RPCMethod<T> + 'static,
+    {
+        self.rpc_hook
+            .insert(hook_name.to_owned(), Box::new(callback));
+        self.hook_info.insert(RPCHookInfo {
+            name: hook_name.to_owned(),
+            before,
+            after,
+        });
+        self
     }
 
-    pub fn register_notification(&mut self) -> &mut Self {
-        todo!()
+    pub fn register_notification<F: 'static>(&mut self, name: &str, callback: F) -> &mut Self
+    where
+        F: 'static + RPCMethod<T> + Clone,
+    {
+        self.rpc_nofitication
+            .insert(name.to_owned(), Box::new(callback));
+        self
     }
 
     pub fn start(&'a mut self) {

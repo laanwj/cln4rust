@@ -14,6 +14,13 @@ pub struct RPCMethodInfo {
     pub deprecated: bool,
 }
 
+#[derive(Clone, PartialEq, Eq, Hash, Serialize)]
+pub struct RPCHookInfo {
+    pub name: String,
+    pub before: Option<Vec<String>>,
+    pub after: Option<Vec<String>>,
+}
+
 #[derive(Deserialize)]
 pub struct InitConf {
     pub options: serde_json::Value,
