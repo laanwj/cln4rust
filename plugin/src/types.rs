@@ -1,5 +1,6 @@
 //! types
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Deserialize, Serialize, Clone, Eq, Hash, PartialEq)]
 pub struct RpcOption {
@@ -17,4 +18,18 @@ pub struct RpcOption {
     pub description: String,
     /// if the filed is deprecated
     pub deprecated: bool,
+}
+
+pub enum LogLevel {
+    Debug,
+    Info,
+}
+
+impl fmt::Display for LogLevel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            LogLevel::Debug => write!(f, "debug"),
+            LogLevel::Info => write!(f, "info"),
+        }
+    }
 }

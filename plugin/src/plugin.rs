@@ -1,18 +1,17 @@
 //! Core of the plugin API
 //!
 //! Unofficial API interface to develop plugin in Rust.
+use crate::commands::json_utils::{add_str, init_success_response};
 use crate::commands::{
     builtin::{InitRPC, ManifestRPC},
     types::{RPCHookInfo, RPCMethodInfo},
     RPCMethod,
 };
-use crate::types::RpcOption;
-
-use crate::commands::json_utils::init_success_response;
+use crate::types::{LogLevel, RpcOption};
 use clightningrpc_common::types::Request;
 use std::collections::{HashMap, HashSet};
-use std::io;
 use std::string::String;
+use std::{io, io::Write};
 
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -56,8 +55,16 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         };
     }
 
-    pub fn log(&self) -> &Self {
-        todo!()
+    pub fn log(&self, level: LogLevel, msg: &str) -> &Self {
+        let mut writer = io::stdout();
+        let mut log_req = init_success_response(40);
+        add_str(&mut log_req, "level", &level.to_string()[0..]);
+        add_str(&mut log_req, "message", msg);
+        writer
+            .write_all(serde_json::to_string(&log_req).unwrap().as_bytes())
+            .unwrap();
+        writer.flush().unwrap();
+        self
     }
 
     pub fn add_opt(
@@ -78,8 +85,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         self
     }
 
-    //TODO: adding the long description as parameter
-    // FIXME: see if with the macros the API can be improved
+    // FIXME: adding the long description as parameter
     pub fn add_rpc_method<F: 'static>(
         &'a mut self,
         name: &str,
@@ -136,7 +142,8 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     }
 
     pub fn start(&'a mut self) {
-        let writer = io::stdin();
+        let reader = io::stdin();
+        let mut writer = io::stdout();
         let mut buffer = String::new();
 
         self.rpc_method
@@ -147,7 +154,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         // problem for some input reader.
         // we need to parse the writer, and avoid this while loop
         loop {
-            let _ = writer.read_line(&mut buffer);
+            let _ = reader.read_line(&mut buffer);
             let req_str = buffer.to_string();
             if req_str.trim().is_empty() {
                 continue;
@@ -157,8 +164,10 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             let response = self.call_rpc_method(request.method, &request.params);
             let mut rpc_response = init_success_response(request.id);
             rpc_response["result"] = response;
-            // TODO: improve the stout writing!
-            println!("{}", serde_json::to_string(&rpc_response).unwrap());
+            writer
+                .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
+                .unwrap();
+            writer.flush().unwrap();
         }
     }
 }
