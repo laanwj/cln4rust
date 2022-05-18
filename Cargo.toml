@@ -2,4 +2,7 @@
 members = [
         "rpc",
         "common",
+        "plugin",
 ]
+resolver = "2"
+
