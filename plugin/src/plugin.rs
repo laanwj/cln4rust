@@ -5,7 +5,7 @@ use crate::commands::json_utils::{add_str, init_success_response};
 use crate::commands::{
     builtin::{InitRPC, ManifestRPC},
     types::{RPCHookInfo, RPCMethodInfo},
-    RPCMethod,
+    RPCCommand,
 };
 use crate::types::{LogLevel, RpcOption};
 use clightningrpc_common::types::Request;
@@ -25,17 +25,17 @@ where
     pub option: HashSet<RpcOption>,
     /// all the options rpc method that the
     /// plugin need to support, included the builtin rpc method.
-    pub rpc_method: HashMap<String, Box<dyn RPCMethod<T>>>,
+    pub rpc_method: HashMap<String, Box<dyn RPCCommand<T>>>,
     /// keep the info of the method in a separate list
     /// FIXME: move the RPCMethodInfo as key of the rpc_method map.
     pub rpc_info: HashSet<RPCMethodInfo>,
     /// all the hook where the plugin is register during the configuration
-    pub rpc_hook: HashMap<String, Box<dyn RPCMethod<T>>>,
+    pub rpc_hook: HashMap<String, Box<dyn RPCCommand<T>>>,
     /// keep all the info about the hooks in a separate set.
     /// FIXME: put the RPCHookInfo as key of the hash map.
     pub hook_info: HashSet<RPCHookInfo>,
     /// all the notification that the plugin is register on
-    pub rpc_nofitication: HashMap<String, Box<dyn RPCMethod<T>>>,
+    pub rpc_nofitication: HashMap<String, Box<dyn RPCCommand<T>>>,
     /// mark a plugin as dynamic, in this way the plugin can be run
     /// from core lightning without stop the lightningd deamon
     pub dynamic: bool,
@@ -94,7 +94,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         callback: F,
     ) -> &mut Self
     where
-        F: RPCMethod<T> + 'static,
+        F: RPCCommand<T> + 'static,
     {
         self.rpc_method.insert(name.to_owned(), Box::new(callback));
         self.rpc_info.insert(RPCMethodInfo {
@@ -120,7 +120,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         callback: F,
     ) -> &mut Self
     where
-        F: RPCMethod<T> + 'static,
+        F: RPCCommand<T> + 'static,
     {
         self.rpc_hook
             .insert(hook_name.to_owned(), Box::new(callback));
@@ -134,7 +134,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
 
     pub fn register_notification<F: 'static>(&mut self, name: &str, callback: F) -> &mut Self
     where
-        F: 'static + RPCMethod<T> + Clone,
+        F: 'static + RPCCommand<T> + Clone,
     {
         self.rpc_nofitication
             .insert(name.to_owned(), Box::new(callback));
