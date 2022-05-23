@@ -1,7 +1,15 @@
 [package]
 name = "clightningrpc-common"
-version = "0.1.0"
+version = "0.3.0-beta.1"
 edition = "2021"
+authors = ["Wladimir J. van der Laan <laanwj@gmail.com>", "Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
+license = "CC0-1.0"
+homepage = "https://github.com/laanwj/rust-clightning-rpc"
+repository = "https://github.com/laanwj/rust-clightning-rpc.git"
+description = "Crate that provides an RPC binding from rust code to the c-lightning daemon"
+keywords = [ "protocol", "rpc", "lightning", "bitcoin" ]
+readme = "README.md"
+
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
