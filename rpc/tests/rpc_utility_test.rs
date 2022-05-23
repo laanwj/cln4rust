@@ -84,3 +84,9 @@ fn fundchannel_test_one(lightningd: LightningRPC, lightningd_second: LightningRP
     assert!(fundchannel.txid.chars().count() == 64);
     let _ = lightningd.close(&node_id, None, None);
 }
+
+#[rstest]
+fn listinvoice_by_payment_hash_test_one(lightningd: LightningRPC) {
+    let listinvoice = lightningd.listinvoices(None, None, Some(""), None);
+    assert!(listinvoice.unwrap().invoices.is_empty());
+}

@@ -113,8 +113,22 @@ impl LightningRPC {
     }
 
     /// Show invoice {label} (or all, if no {label)).
-    pub fn listinvoices(&self, label: Option<&str>) -> Result<responses::ListInvoices, Error> {
-        self.call("listinvoices", requests::ListInvoices { label })
+    pub fn listinvoices(
+        &self,
+        label: Option<&str>,
+        invstring: Option<&str>,
+        payment_hash: Option<&str>,
+        offer_id: Option<&str>,
+    ) -> Result<responses::ListInvoices, Error> {
+        self.call(
+            "listinvoices",
+            requests::ListInvoices {
+                label,
+                invstring,
+                payment_hash,
+                offer_id,
+            },
+        )
     }
 
     /// Create an invoice for {msatoshi} with {label} and {description} with
