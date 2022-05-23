@@ -77,6 +77,12 @@ pub struct ListPeers<'a> {
 pub struct ListInvoices<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub invstring: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payment_hash: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub offer_id: Option<&'a str>,
 }
 
 /// 'invoice' command
