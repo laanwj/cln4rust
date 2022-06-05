@@ -3,6 +3,7 @@
 //! with less code.
 //!
 // author: https://github.com/vincenzopalazzo
+use convert_case::{Case, Casing};
 use darling::FromMeta;
 use proc_macro::TokenStream;
 use std::fmt;
@@ -11,7 +12,7 @@ use syn::{parse, parse_macro_input, AttributeArgs, Item, ItemFn};
 #[derive(FromMeta)]
 struct RPCMethodMacro {
     rpc_name: String,
-    _description: String,
+    description: String,
 }
 
 /// Method to generate the RPC call in a string
@@ -19,6 +20,7 @@ struct RPCMethodMacro {
 struct RPCCall {
     struct_name: String,
     fn_name: String,
+    description: String,
 }
 
 impl fmt::Display for RPCCall {
@@ -44,38 +46,43 @@ pub fn rpc_method(attr: TokenStream, item: TokenStream) -> TokenStream {
         Item::Fn(decl) => decl,
         _ => panic!("The macros is applied over a not function declaration"),
     };
-    let rpc_call = generate_method_call(&macro_args.rpc_name, fn_dec);
-    let res = generate_rpc_method(&macro_args, &item, &rpc_call)
-        .parse()
-        .unwrap();
+    let rpc_call = generate_method_call(&macro_args, fn_dec);
+    let res = generate_rpc_method(&item, &rpc_call).parse().unwrap();
     //println!("{}", res);
     res
 }
 
-fn generate_method_call(rpc_name: &String, fun_dec: ItemFn) -> RPCCall {
+fn generate_method_call(rpc: &RPCMethodMacro, fun_dec: ItemFn) -> RPCCall {
     RPCCall {
-        struct_name: rpc_name.to_string(),
+        struct_name: rpc.rpc_name.as_str().to_case(Case::Pascal),
         fn_name: fun_dec.sig.ident.to_string(),
+        description: rpc.description.to_string(),
     }
 }
 
 // Helper function to generate the RPC Generator over a generic type
 // to make sure that the user can use the plugin state to build the RPC method.
-fn generate_rpc_method(args: &RPCMethodMacro, item: &TokenStream, method_call: &RPCCall) -> String {
+fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
     format!(
         "
     use std::marker::PhantomData;
 
     #[derive(Clone, Default)]
     struct {}<T> {{
+      // keep the information added in the macros to
+      // help future macros to register the plugin.
+      description: String,
+      long_description: String,
       _phantom: Option<PhantomData<T>>
     }}
 
    impl<T> {}<T> {{
       pub fn new() -> Self {{
          {}::<T>{{
-             _phantom: None
-         }}
+             description: \"{}\".to_string(),
+             long_description: \"{}\".to_string(),
+             _phantom: None,
+          }}
       }}
 
       {}
@@ -83,17 +90,19 @@ fn generate_rpc_method(args: &RPCMethodMacro, item: &TokenStream, method_call: &
    }}
 
 
-    impl<T: Clone + 'static> RPCMethod<T> for {}<T> {{
+    impl<T: Clone + 'static> RPCCommand<T> for {}<T> {{
        fn call<'c>(&self, _plugin: &mut Plugin<T>, _request: &'c Value) -> Value {{
            {}
        }}
     }}
 ",
-        args.rpc_name,
-        args.rpc_name,
-        args.rpc_name,
+        method_call.struct_name,
+        method_call.struct_name,
+        method_call.struct_name,
+        method_call.description,
+        method_call.description,
         item.to_string(),
-        args.rpc_name,
+        method_call.struct_name,
         method_call.to_string(),
     )
     .to_owned()
