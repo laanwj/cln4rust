@@ -2,10 +2,11 @@
 //! function to allow the user of the API to write a plugin
 //! with less code.
 //!
-// author: https://github.com/vincenzopalazzo
+//! author: https://github.com/vincenzopalazzo
 use convert_case::{Case, Casing};
 use darling::FromMeta;
 use proc_macro::TokenStream;
+use quote::ToTokens;
 use std::fmt;
 use syn::{parse, parse_macro_input, AttributeArgs, Item, ItemFn};
 
@@ -18,14 +19,15 @@ struct RPCMethodMacro {
 /// Method to generate the RPC call in a string
 /// format
 struct RPCCall {
+    original_name: String,
     struct_name: String,
-    fn_name: String,
+    fn_body: String,
     description: String,
 }
 
 impl fmt::Display for RPCCall {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(formatter, "{}::<T>::{}()", self.struct_name, self.fn_name)
+        write!(formatter, "{}", self.fn_body)
     }
 }
 
@@ -54,8 +56,9 @@ pub fn rpc_method(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 fn generate_method_call(rpc: &RPCMethodMacro, fun_dec: ItemFn) -> RPCCall {
     RPCCall {
+        original_name: rpc.rpc_name.to_owned(),
         struct_name: rpc.rpc_name.as_str().to_case(Case::Pascal),
-        fn_name: fun_dec.sig.ident.to_string(),
+        fn_body: fun_dec.block.into_token_stream().to_string(),
         description: rpc.description.to_string(),
     }
 }
@@ -71,6 +74,7 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
     struct {}<T> {{
       // keep the information added in the macros to
       // help future macros to register the plugin.
+      name: String,
       description: String,
       long_description: String,
       _phantom: Option<PhantomData<T>>
@@ -79,6 +83,7 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
    impl<T> {}<T> {{
       pub fn new() -> Self {{
          {}::<T>{{
+             name: \"{}\".to_string(),
              description: \"{}\".to_string(),
              long_description: \"{}\".to_string(),
              _phantom: None,
@@ -99,6 +104,7 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
         method_call.struct_name,
         method_call.struct_name,
         method_call.struct_name,
+        method_call.original_name,
         method_call.description,
         method_call.description,
         item.to_string(),
