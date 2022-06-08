@@ -113,3 +113,22 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
     )
     .to_owned()
 }
+
+#[proc_macro]
+pub fn add_plugin_rpc(items: TokenStream) -> TokenStream {
+    let input = items.into_iter().collect::<Vec<_>>();
+    // FIXME: improve parsing
+    assert_eq!(input.len(), 3);
+    format!(
+        "use clightningrpc_plugin::add_rpc;
+    add_rpc!({}, {});",
+        input[0],
+        input[2]
+            .to_string()
+            .replace("\"", "")
+            .as_str()
+            .to_case(Case::Pascal)
+    )
+    .parse()
+    .unwrap()
+}

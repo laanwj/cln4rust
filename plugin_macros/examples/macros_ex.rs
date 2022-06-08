@@ -1,6 +1,6 @@
 //! plugin macros usage example.
 extern crate plugin_macros;
-use plugin_macros::rpc_method;
+use plugin_macros::{add_plugin_rpc, rpc_method};
 use serde_json::{json, Value};
 
 use clightningrpc_plugin::add_rpc;
@@ -28,5 +28,6 @@ fn main() {
 
     // The macros helper that will help to add an rpc method
     add_rpc!(plugin, Foo);
+    add_plugin_rpc!(plugin, "foo");
     plugin.start();
 }
