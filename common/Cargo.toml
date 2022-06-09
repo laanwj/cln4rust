@@ -6,7 +6,7 @@ authors = ["Wladimir J. van der Laan <laanwj@gmail.com>", "Vincenzo Palazzo <vin
 license = "CC0-1.0"
 homepage = "https://github.com/laanwj/rust-clightning-rpc"
 repository = "https://github.com/laanwj/rust-clightning-rpc.git"
-description = "Crate that provides an RPC binding from rust code to the c-lightning daemon"
+description = "Crate that provides an Generic RPC binding from rust code to the core lightning daemon"
 keywords = [ "protocol", "rpc", "lightning", "bitcoin" ]
 readme = "README.md"
 
