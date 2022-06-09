@@ -17,7 +17,7 @@
   </a>
   
   <a href="https://crates.io/clightningrpc">
-    <img alt="Crates.io" src="https://img.shields.io/crates/v/clightningrpc?style=flat-square"/>
+    <img alt="Crates.io" src="https://img.shields.io/crates/v/clightningrpc-common?style=flat-square">
   </a>
   
   <a href="https://crates.io/clightningrpc">
