@@ -1,6 +1,6 @@
 //! plugin macros usage example.
-extern crate plugin_macros;
-use plugin_macros::{add_plugin_rpc, rpc_method};
+extern crate clightningrpc_plugin_macros;
+use clightningrpc_plugin_macros::{add_plugin_rpc, rpc_method};
 use serde_json::{json, Value};
 
 use clightningrpc_plugin::add_rpc;
