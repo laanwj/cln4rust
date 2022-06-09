@@ -9,7 +9,7 @@ macro_rules! add_rpc {
         let rpc = $method::new();
         $plugin.add_rpc_method(
             rpc.name.as_str(),
-            rpc.description.as_str(),
+            rpc.usage.as_str(),
             rpc.description.as_str(),
             rpc.clone(),
         );

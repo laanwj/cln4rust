@@ -21,13 +21,13 @@ pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Value {
 }
 
 fn main() {
+    // as fist step you need to make a new plugin instance
+    // more docs about Plugin struct is provided under the clightning_plugin crate
     let mut plugin = Plugin::new((), true);
 
-    // The normal way to add a rpc method inside the plugin
-    plugin.add_rpc_method("foo_original", "", "", Foo::new());
-
-    // The macros helper that will help to add an rpc method
-    add_rpc!(plugin, Foo);
+    // The macros helper that help to register a RPC method with the name
+    // without worry about all the rules of the library
     add_plugin_rpc!(plugin, "foo");
+
     plugin.start();
 }

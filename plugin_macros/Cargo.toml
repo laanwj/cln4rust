@@ -2,6 +2,13 @@
 name = "plugin_macros"
 version = "0.1.0"
 edition = "2021"
+authors = ["Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
+license = "CC0-1.0"
+homepage = "https://github.com/laanwj/rust-clightning-rpc"
+repository = "https://github.com/laanwj/rust-clightning-rpc.git"
+description = "Crate that provides an procedural macros implementation to make easy to develop a plugin developer to build a plugin"
+keywords = [ "plugin", "cln", "protocol", "rpc", "lightning", "bitcoin" ]
+readme = "README.md"
 
 [lib]
 proc-macro = true
