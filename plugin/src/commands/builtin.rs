@@ -14,6 +14,7 @@ use crate::types::RpcOption;
 use serde_json::Value;
 
 #[derive(Clone)]
+/// Type to define the manifest method and its attributes, used during plugin initialization
 pub struct ManifestRPC {}
 
 impl<T: Clone> RPCCommand<T> for ManifestRPC {
@@ -46,6 +47,7 @@ impl<T: Clone> RPCCommand<T> for ManifestRPC {
 }
 
 #[derive(Clone)]
+/// Type to define the init method and its attributes, used in plugin
 pub struct InitRPC<T: 'static + Clone> {
     pub(crate) on_init: Option<&'static OnInit<T>>,
 }

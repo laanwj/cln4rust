@@ -1,11 +1,11 @@
-//! command types contains all the type that are important
-//! to implement the plugin library.
+//! contains types that are essential to implement the plugin library.
 //!
 //! author: https://github.com/vincenzopalazzo
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Eq, Hash, PartialEq, Serialize)]
+/// Type to define metadata for custom RPC Methods
 pub struct RPCMethodInfo {
     pub name: String,
     pub usage: String,
@@ -15,6 +15,7 @@ pub struct RPCMethodInfo {
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Serialize)]
+/// Type to define metadata for custom RPC Hooks
 pub struct RPCHookInfo {
     pub name: String,
     pub before: Option<Vec<String>>,
@@ -22,12 +23,14 @@ pub struct RPCHookInfo {
 }
 
 #[derive(Deserialize, Clone)]
+/// Type to define attributes for the plugin's init method
 pub struct InitConf {
     pub options: serde_json::Value,
     pub configuration: ConfFiled,
 }
 
 #[derive(Deserialize, Clone)]
+/// Type to define the configuration options for the plugin's init method
 pub struct ConfFiled {
     #[serde(rename = "lightning-dir")]
     pub lightning_dir: String,
@@ -43,6 +46,7 @@ pub struct ConfFiled {
 }
 
 #[derive(Deserialize, Clone)]
+/// Type to define the network information for the plugin's configuration
 pub struct ProxyInfo {
     #[serde(alias = "type")]
     pub tup: String,

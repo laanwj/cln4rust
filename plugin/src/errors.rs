@@ -1,8 +1,10 @@
-//! plugin error module implementation
+//! plugin error JSONRPCv2.0 compliant module implementation
 use serde::Serialize;
 use std::fmt;
 
 #[derive(Debug, Clone, Serialize)]
+/// Type defining JSONRPCv2.0 compliant plugin errors defined here
+/// https://www.jsonrpc.org/specification#error_object
 pub struct PluginError {
     code: i32,
     #[serde(rename = "message")]

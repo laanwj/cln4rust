@@ -78,11 +78,11 @@ impl error::Error for Error {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-/// A JSONRPC error object
+/// A JSONRPCv2.0 spec compilant error object
 pub struct RpcError {
     /// The integer identifier of the error
     pub code: i32,
-    /// A string describing the error
+    /// A string describing the error message
     pub message: String,
     /// Additional data specific to the error
     pub data: Option<serde_json::Value>,
