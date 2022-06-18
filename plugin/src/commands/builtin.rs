@@ -31,7 +31,7 @@ impl<T: Clone> RPCCommand<T> for ManifestRPC {
         add_vec::<String>(
             &mut response,
             "subscriptions",
-            plugin.rpc_nofitication.keys().cloned().collect(),
+            plugin.rpc_notification.keys().cloned().collect(),
         );
         add_vec::<RPCHookInfo>(
             &mut response,
