@@ -15,3 +15,12 @@ macro_rules! add_rpc {
         );
     };
 }
+
+/// register_notification - give the possibility to register a notification
+#[macro_export]
+macro_rules! register_notification {
+    ($plugin:expr, $notification:ident) => {
+        let callback = $notification::new();
+        $plugin.register_notification(callback.on_event.as_str(), callback.clone());
+    };
+}

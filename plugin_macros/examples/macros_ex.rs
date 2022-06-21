@@ -1,11 +1,14 @@
 //! plugin macros usage example.
 extern crate clightningrpc_plugin_macros;
-use clightningrpc_plugin_macros::{add_plugin_rpc, rpc_method};
+use clightningrpc_plugin_macros::{
+    add_plugin_rpc, notification, plugin_register_notification, rpc_method,
+};
 use serde_json::{json, Value};
 
-use clightningrpc_plugin::add_rpc;
 use clightningrpc_plugin::commands::RPCCommand;
 use clightningrpc_plugin::plugin::Plugin;
+use clightningrpc_plugin::types::LogLevel;
+use clightningrpc_plugin::{add_rpc, register_notification};
 
 #[rpc_method(
     rpc_name = "foo",
@@ -20,6 +23,11 @@ pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Value {
     json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request})
 }
 
+#[notification(on = "rpc_command")]
+fn on_rpc(_plugin: Plugin<()>, _request: Value) {
+    _plugin.log(LogLevel::Info, "received an RPC notification");
+}
+
 fn main() {
     // as fist step you need to make a new plugin instance
     // more docs about Plugin struct is provided under the clightning_plugin crate
@@ -28,6 +36,10 @@ fn main() {
     // The macros helper that help to register a RPC method with the name
     // without worry about all the rules of the library
     add_plugin_rpc!(plugin, "foo");
+
+    // the macros helper that help to register a notification with the
+    // event name without worry about the rules of the library :)
+    plugin_register_notification!(plugin, "rpc_command");
 
     plugin.start();
 }

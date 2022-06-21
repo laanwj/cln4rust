@@ -35,9 +35,9 @@ where
     /// FIXME: put the RPCHookInfo as key of the hash map.
     pub hook_info: HashSet<RPCHookInfo>,
     /// all the notification that the plugin is register on
-    pub rpc_nofitication: HashMap<String, Box<dyn RPCCommand<T>>>,
+    pub rpc_notification: HashMap<String, Box<dyn RPCCommand<T>>>,
     /// mark a plugin as dynamic, in this way the plugin can be run
-    /// from core lightning without stop the lightningd deamon
+    /// from core lightning without stop the lightningd daemon
     pub dynamic: bool,
 }
 
@@ -50,7 +50,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             rpc_info: HashSet::new(),
             rpc_hook: HashMap::new(),
             hook_info: HashSet::new(),
-            rpc_nofitication: HashMap::new(),
+            rpc_notification: HashMap::new(),
             dynamic,
         };
     }
@@ -112,6 +112,11 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         command.call(self, params)
     }
 
+    fn handle_notification(&'a mut self, name: &str, params: &serde_json::Value) {
+        let notification = self.rpc_notification.get(name).unwrap().clone();
+        notification.call(self, params);
+    }
+
     pub fn register_hook<F: 'static>(
         &'a mut self,
         hook_name: &str,
@@ -136,7 +141,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     where
         F: 'static + RPCCommand<T> + Clone,
     {
-        self.rpc_nofitication
+        self.rpc_notification
             .insert(name.to_owned(), Box::new(callback));
         self
     }
@@ -161,13 +166,20 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             }
             buffer.clear();
             let request: Request<serde_json::Value> = serde_json::from_str(&req_str).unwrap();
-            let response = self.call_rpc_method(request.method, &request.params);
-            let mut rpc_response = init_success_response(request.id);
-            rpc_response["result"] = response;
-            writer
-                .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
-                .unwrap();
-            writer.flush().unwrap();
+            if let Some(id) = request.id {
+                // whe the id is specified this is a RPC or Hook, so we need to return a response
+                let response = self.call_rpc_method(request.method, &request.params);
+                let mut rpc_response = init_success_response(id);
+                rpc_response["result"] = response;
+                writer
+                    .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
+                    .unwrap();
+                writer.flush().unwrap();
+            } else {
+                // in case of the id is None, we are receiving the notification, so the server is not
+                // interested in the answer.
+                self.handle_notification(request.method, &request.params);
+            }
         }
     }
 }

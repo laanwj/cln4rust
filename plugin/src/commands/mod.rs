@@ -6,6 +6,7 @@ pub mod json_utils;
 pub mod types;
 
 use serde_json;
+use serde_json::json;
 
 use super::plugin::Plugin;
 
@@ -15,8 +16,16 @@ use super::plugin::Plugin;
 /// in contrast, it is more complex but the plugin_macros package will help to simplify the API.
 pub trait RPCCommand<T: Clone>: RPCCommandClone<T> {
     /// call is a generic method that it is used to simulate the callback.
-    fn call<'c>(&self, plugin: &mut Plugin<T>, request: &'c serde_json::Value)
-        -> serde_json::Value;
+    fn call<'c>(
+        &self,
+        _plugin: &mut Plugin<T>,
+        _request: &'c serde_json::Value,
+    ) -> serde_json::Value {
+        json!({})
+    }
+
+    /// void call is a generic method that it is used to simulate a callback with a void return type
+    fn call_void<'c>(&self, _plugin: &mut Plugin<T>, _request: &'c serde_json::Value) {}
 }
 
 // Splitting RPCCommandClone into its own trait allows us to provide a blanket
