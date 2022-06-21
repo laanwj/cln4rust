@@ -22,3 +22,5 @@ serde_json = "1.0"
 clightningrpc-plugin = { path = "../plugin"}
 
 [dev-dependencies]
+rstest = "0.10.0"
+clightningrpc-common = { path = "../common" }

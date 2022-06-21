@@ -11,7 +11,7 @@ use clightningrpc_plugin::types::LogLevel;
 use clightningrpc_plugin::{add_rpc, register_notification};
 
 #[rpc_method(
-    rpc_name = "foo",
+    rpc_name = "foo_macro",
     description = "This is a simple and short description"
 )]
 pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Value {
@@ -35,7 +35,7 @@ fn main() {
 
     // The macros helper that help to register a RPC method with the name
     // without worry about all the rules of the library
-    add_plugin_rpc!(plugin, "foo");
+    add_plugin_rpc!(plugin, "foo_macro");
 
     // the macros helper that help to register a notification with the
     // event name without worry about the rules of the library :)
