@@ -25,6 +25,9 @@ jobs:
         with:
           command: check
 
+      - name: Run cargo test docs
+        run: cargo test --doc
+
   lints:
     name: Lints
     runs-on: ubuntu-latest
