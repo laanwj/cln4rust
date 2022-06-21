@@ -23,8 +23,8 @@ RUN add-apt-repository -u ppa:lightningnetwork/ppa
 RUN apt-get update  && apt-get install -y lightningd
 
 WORKDIR workdir
-#COPY sandbox .
-#COPY . /workdir/code
+COPY sandbox .
+COPY . /workdir/code
 
 #RUN ls -l
 # RUN chmod +x *.sh

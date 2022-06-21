@@ -2,8 +2,4 @@ version: "3.8"
 
 services:
   rust_clightning_rpc:
-    build:
-      .
-    volumes:
-      - ./sandbox/:/workdir
-      - ./:/workdir/code
+    build: .
