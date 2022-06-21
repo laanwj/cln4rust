@@ -26,7 +26,4 @@ WORKDIR workdir
 COPY sandbox .
 COPY . /workdir/code
 
-#RUN ls -l
-# RUN chmod +x *.sh
-
 CMD ["./entrypoint.sh"]
