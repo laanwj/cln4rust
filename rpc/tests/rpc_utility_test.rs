@@ -81,12 +81,12 @@ fn fundchannel_test_one(lightningd: LightningRPC, lightningd_second: LightningRP
     let fundchannel = lightningd
         .fundchannel(&node_id, AmountOrAll::Amount(100000), None)
         .unwrap();
-    assert!(fundchannel.txid.chars().count() == 64);
+    assert_eq!(fundchannel.txid.chars().count(), 64);
     let _ = lightningd.close(&node_id, None, None);
 }
 
 #[rstest]
 fn listinvoice_by_payment_hash_test_one(lightningd: LightningRPC) {
-    let listinvoice = lightningd.listinvoices(None, None, Some(""), None);
+    let listinvoice = lightningd.listinvoices(None, None, None, None);
     assert!(listinvoice.unwrap().invoices.is_empty());
 }

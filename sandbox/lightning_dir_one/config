@@ -13,5 +13,8 @@ bitcoin-rpcpassword=sandbox
 bitcoin-rpcport=18333
 log-level=debug
 
+plugin=/workdir/code/target/debug/examples/macros_ex
+plugin=/workdir/code/target/debug/examples/foo_plugin
+
 log-file=/workdir/node_one.log
 allow-deprecated-apis=false

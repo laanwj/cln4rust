@@ -54,8 +54,9 @@ impl fmt::Display for RPCCall {
 }
 
 /// procedural macros that can be used wit the following code
-/// ```rust
+/// ```no_run
 /// use serde_json::{json, Value};
+/// use clightningrpc_plugin_macros::{add_plugin_rpc, rpc_method};
 /// use clightningrpc_plugin::commands::RPCCommand;
 /// use clightningrpc_plugin::plugin::Plugin;
 ///
@@ -168,14 +169,13 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
 /// the macros take in input as first parameter the plugin, and as second the name of the
 /// rpc function specified by the user.
 ///
-/// ```rust
-/// use plugin_macros::{add_plugin_rpc, rpc_method};
+/// ```no_run
+/// use clightningrpc_plugin_macros::{add_plugin_rpc, rpc_method};
 /// use serde_json::{json, Value};
 ///
 /// use clightningrpc_plugin::add_rpc;
 /// use clightningrpc_plugin::commands::RPCCommand;
 /// use clightningrpc_plugin::plugin::Plugin;
-/// use clightningrpc_plugin_macros::add_plugin_rpc;
 ///
 /// #[rpc_method(
 ///     rpc_name = "foo",
@@ -331,14 +331,14 @@ fn generate_notification_method(item: &TokenStream, method_call: &RPCNotificatio
 /// the macros take in input as first parameter the plugin, and as second the name of the
 /// rpc function specified by the user.
 ///
-/// ```rust
-/// use plugin_macros::{add_plugin_rpc, rpc_method};
+/// ```no_run
+/// use std::marker::PhantomData;
 /// use serde_json::{json, Value};
 ///
-/// use clightningrpc_plugin::notification;
 /// use clightningrpc_plugin::commands::RPCCommand;
 /// use clightningrpc_plugin::plugin::Plugin;
-/// use clightningrpc_plugin_macros::plugin_register_notification;
+/// use clightningrpc_plugin::types::LogLevel;
+/// use clightningrpc_plugin_macros::{add_plugin_rpc, notification, rpc_method, plugin_register_notification};
 ///
 /// #[notification(on = "rpc_command")]
 /// fn on_rpc(_plugin: Plugin<()>, _request: Value) {
