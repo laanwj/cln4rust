@@ -13,7 +13,8 @@ struct HelloRPC {}
 
 /// Implementation of the RPC method
 impl RPCCommand<PluginState> for HelloRPC {
-    fn call<'c>(&self, _plugin: &mut Plugin<PluginState>, _request: &'c Value) -> Value {
+    fn call<'c>(&self, plugin: &mut Plugin<PluginState>, _request: &'c Value) -> Value {
+        plugin.log(LogLevel::Debug, "call the custom rpc method from rust");
         json!({
             "language": "Hello from rust"
         })

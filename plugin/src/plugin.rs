@@ -1,7 +1,7 @@
 //! Core of the plugin API
 //!
 //! Unofficial API interface to develop plugin in Rust.
-use crate::commands::json_utils::{add_str, init_success_response};
+use crate::commands::json_utils::{add_str, init_payload, init_success_response};
 use crate::commands::{
     builtin::{InitRPC, ManifestRPC},
     types::{RPCHookInfo, RPCMethodInfo},
@@ -57,11 +57,17 @@ impl<'a, T: 'a + Clone> Plugin<T> {
 
     pub fn log(&self, level: LogLevel, msg: &str) -> &Self {
         let mut writer = io::stdout();
-        let mut log_req = init_success_response(40);
-        add_str(&mut log_req, "level", &level.to_string()[0..]);
-        add_str(&mut log_req, "message", msg);
+        let mut payload = init_payload();
+        add_str(&mut payload, "level", &level.to_string()[0..]);
+        add_str(&mut payload, "message", msg);
+        let request = Request {
+            id: None,
+            jsonrpc: "2.0",
+            method: "log",
+            params: payload,
+        };
         writer
-            .write_all(serde_json::to_string(&log_req).unwrap().as_bytes())
+            .write_all(serde_json::to_string(&request).unwrap().as_bytes())
             .unwrap();
         writer.flush().unwrap();
         self
