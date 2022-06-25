@@ -13,6 +13,7 @@ pub struct Request<'f, T: Serialize> {
     /// Parameters to the RPC call
     pub params: T,
     /// Identifier for this Request, which should appear in the response
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<u64>,
     /// jsonrpc field, MUST be "2.0"
     pub jsonrpc: &'f str,
