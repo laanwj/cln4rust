@@ -58,7 +58,12 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     pub fn log(&self, level: LogLevel, msg: &str) -> &Self {
         let mut writer = io::stdout();
         let mut payload = init_payload();
-        add_str(&mut payload, "level", &level.to_string()[0..]);
+        // FIXME: add other log level supported by cln
+        let level = match level {
+            LogLevel::Debug => "debug",
+            LogLevel::Info => "info",
+        };
+        add_str(&mut payload, "level", level);
         add_str(&mut payload, "message", msg);
         let request = Request {
             id: None,
