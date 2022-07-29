@@ -149,8 +149,6 @@ To prepare for the release, these steps must be followed:
         - `changelog_plugin_macros`: generate the changelog for plugin_macros crate;
         - `changelog_common`: generate the changelog for common crate;
         - `changelog`: generate both changelogs.
-- Make the Github release: To release a single package we need to create a release with the following tag `{package_name}-v{version_number}`,
-  and if we make a release with the tag `v{version_number}` this will release all the packages (useful for a major release of the package).
 
 >Programs must be written for people to read, and only incidentally for machines to execute.
 >                                                                            - Someone
