@@ -1,6 +1,6 @@
 [package]
 name = "clightningrpc-common"
-version = "0.3.0-beta.1"
+version = "0.3.0-beta.2"
 edition = "2021"
 authors = ["Wladimir J. van der Laan <laanwj@gmail.com>", "Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
 license = "CC0-1.0"

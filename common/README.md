@@ -19,11 +19,7 @@
   <a href="https://crates.io/clightningrpc">
     <img alt="Crates.io" src="https://img.shields.io/crates/v/clightningrpc-common?style=flat-square">
   </a>
-  
-  <a href="https://crates.io/clightningrpc">
-    <img alt="Crates.io" src="https://img.shields.io/crates/d/clightningrpc?style=flat-square"/>
-  </a>
-  
+
   <a href="https://docs.rs/clightningrpc">
     <img alt="docs.rs" src="https://img.shields.io/docsrs/clightningrpc?style=flat-square"/>
   </a>
