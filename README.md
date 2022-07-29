@@ -46,9 +46,7 @@ These are the complete list of craters supported right now
 
 ## Contributing guidelines
 
-- Four spaces
-- Call `rustfmt src/lib.rs examples/*.rs` before committing
-- If you can, GPG-sign at least your top commit when filing a PR
+Read our [Hacking guide](/docs/MAINTAINERS.md)
 
 ## Supports
 
