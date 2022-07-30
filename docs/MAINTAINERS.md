@@ -1,4 +1,4 @@
-# "Rust core lightning Rust framework" HACKING guide
+# "core lightning Rust Framework" HACKING guide
 
 ## Table of Content
 
@@ -9,7 +9,7 @@
 
 ## Introduction
 
-Welcome to the HACKING guide and let's peek into how a day in the life of a "Rust core lightning Rust framework" maintainer looks like.
+Welcome to the HACKING guide and let's peek into how a day in the life of a "core lightning Rust Framework" maintainer looks like.
 
 After reading this you should be ready to contribute to the repository and also be one of
 the next maintainers in the future if you would like!
@@ -50,10 +50,8 @@ but you can end up shaving infinite yaks. This is a good time to drop a `/* FIXM
 
 ## Commit Style
 
-The commit style is one of the more important concepts when managing a monorepo like lndart.cln, and in particular,
+The commit style is one of the more important concepts when managing a monorepo like "core lightning Rust Framework", and in particular,
 the commit style is used to generate the changelog for the next release.
-
-The commits will follow a dart community guideline with the following rules.
 
 Each commit message consists of a **header**, a **body** and a **footer**. The header has a special
 format that includes a **type**, a **scope** and a **subject**:
@@ -129,12 +127,13 @@ The stacktrace is the following one
    15 | }---
 description: "`Rust core lightning Rust framework` HACKING guide"
 ---
+```
 
 ## How to make the release
 
 This is the most fun part and also is the most difficult one in a monorepo repository.
 
-In particular, lndart.cln has the possibility to release one single package at a time, or
+In particular, "core lightning Rust Framework" has the possibility to release one single package at a time, or
 all together.
 
 To prepare for the release, these steps must be followed:
@@ -148,12 +147,12 @@ To prepare for the release, these steps must be followed:
         - `changelog_plugin`: generate the changelog for plugin crate;
         - `changelog_plugin_macros`: generate the changelog for plugin_macros crate;
         - `changelog_common`: generate the changelog for common crate;
-        - `changelog`: generate both changelogs.
+        - `changelog`: generate all changelogs.
+
+N.B: Part of this document is stolen from [core lightning](https://github.com/ElementsProject/lightning/blob/master/doc/HACKING.md) docs made with from @rustyrussell 's experience.
 
 >Programs must be written for people to read, and only incidentally for machines to execute.
 >                                                                            - Someone
-
-N.B: Part of this document is stolen from [core lightning](https://github.com/ElementsProject/lightning/blob/master/doc/HACKING.md) docs made with from @rustyrussell 's experience.
 
 Cheers!
 
