@@ -1,11 +1,8 @@
 <div align="center">
-  <h1>Rust core lightning Rust framework</h1>
+  <h1>core lightning Rust Framework</h1>
 
   <p>
     <strong>A collection of libraries to develop and work with core lighting.</strong>
-  </p>
-
-  <p>
   </p>
 
   <h4>
