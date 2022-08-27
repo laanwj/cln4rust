@@ -7,6 +7,7 @@ use crate::commands::{
     types::{RPCHookInfo, RPCMethodInfo},
     RPCCommand,
 };
+use crate::errors::PluginError;
 use crate::types::{LogLevel, RpcOption};
 use clightningrpc_common::types::Request;
 use std::collections::{HashMap, HashSet};
@@ -118,14 +119,23 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         self
     }
 
-    fn call_rpc_method(&'a mut self, name: &str, params: &serde_json::Value) -> serde_json::Value {
+    fn call_rpc_method(
+        &'a mut self,
+        name: &str,
+        params: &serde_json::Value,
+    ) -> Result<serde_json::Value, PluginError> {
         let command = self.rpc_method.get(name).unwrap().clone();
         command.call(self, params)
     }
 
     fn handle_notification(&'a mut self, name: &str, params: &serde_json::Value) {
         let notification = self.rpc_notification.get(name).unwrap().clone();
-        notification.call(self, params);
+        if let Err(json_res) = notification.call(self, params) {
+            self.log(
+                LogLevel::Debug,
+                format!("Notification end with and error: {}", json_res).as_str(),
+            );
+        }
     }
 
     pub fn register_hook<F: 'static>(
@@ -157,6 +167,20 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         self
     }
 
+    fn write_respose(
+        &mut self,
+        result: &Result<serde_json::Value, PluginError>,
+        response: &mut serde_json::Value,
+    ) {
+        match result {
+            Ok(json_resp) => response["result"] = json_resp.to_owned(),
+            Err(json_err) => {
+                let err_resp = serde_json::to_value(json_err).unwrap();
+                response["error"] = err_resp;
+            }
+        }
+    }
+
     pub fn start(&'a mut self) {
         let reader = io::stdin();
         let mut writer = io::stdout();
@@ -181,7 +205,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 // whe the id is specified this is a RPC or Hook, so we need to return a response
                 let response = self.call_rpc_method(request.method, &request.params);
                 let mut rpc_response = init_success_response(id);
-                rpc_response["result"] = response;
+                self.write_respose(&response, &mut rpc_response);
                 writer
                     .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
                     .unwrap();

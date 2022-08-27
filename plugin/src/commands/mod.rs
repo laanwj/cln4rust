@@ -9,6 +9,7 @@ use serde_json;
 use serde_json::json;
 
 use super::plugin::Plugin;
+use crate::errors::PluginError;
 
 /// RPCCommand is a implementation of the callback using the command pattern.
 ///
@@ -20,8 +21,8 @@ pub trait RPCCommand<T: Clone>: RPCCommandClone<T> {
         &self,
         _plugin: &mut Plugin<T>,
         _request: &'c serde_json::Value,
-    ) -> serde_json::Value {
-        json!({})
+    ) -> Result<serde_json::Value, PluginError> {
+        Ok(json!({}))
     }
 
     /// void call is a generic method that it is used to simulate a callback with a void return type

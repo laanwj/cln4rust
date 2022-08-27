@@ -8,6 +8,7 @@
 //! author and mantainer: Vincenzo Palazzo https://github.com/vincenzopalazzo
 #![crate_name = "clightningrpc_plugin"]
 pub mod commands;
+pub mod errors;
 pub mod macros;
 pub mod plugin;
 pub mod types;

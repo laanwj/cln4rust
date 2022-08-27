@@ -1,7 +1,7 @@
 extern crate clightningrpc_plugin;
 
 use clightningrpc_plugin::types::LogLevel;
-use clightningrpc_plugin::{commands::RPCCommand, plugin::Plugin};
+use clightningrpc_plugin::{commands::RPCCommand, errors::PluginError, plugin::Plugin};
 use serde_json::{json, Value};
 
 #[derive(Clone)]
@@ -13,11 +13,16 @@ struct HelloRPC {}
 
 /// Implementation of the RPC method
 impl RPCCommand<PluginState> for HelloRPC {
-    fn call<'c>(&self, plugin: &mut Plugin<PluginState>, _request: &'c Value) -> Value {
+    fn call<'c>(
+        &self,
+        plugin: &mut Plugin<PluginState>,
+        _request: &'c Value,
+    ) -> Result<Value, PluginError> {
         plugin.log(LogLevel::Debug, "call the custom rpc method from rust");
-        json!({
+        let response = json!({
             "language": "Hello from rust"
-        })
+        });
+        Ok(response)
     }
 }
 
