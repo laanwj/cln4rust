@@ -59,18 +59,19 @@ impl fmt::Display for RPCCall {
 /// use clightningrpc_plugin_macros::{add_plugin_rpc, rpc_method};
 /// use clightningrpc_plugin::commands::RPCCommand;
 /// use clightningrpc_plugin::plugin::Plugin;
+/// use clightningrpc_plugin::errors::PluginError;
 ///
 /// #[rpc_method(
 ///     rpc_name = "foo",
 ///     description = "This is a simple and short description"
 /// )]
-/// pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Value {
+/// pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Result<Value, PluginError> {
 ///     /// The name of the parameters can be used only if used, otherwise can be omitted
 ///     /// the only rules that the macros require is to have a propriety with the following rules:
 ///     /// - Plugin as _plugin
 ///     /// - CLN JSON request as _request
 ///     /// The function parameter can be specified in any order.
-///     json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request})
+///     Ok(json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request}))
 /// }
 /// ```
 #[proc_macro_attribute]
@@ -141,7 +142,7 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
 
 
     impl<T: Clone + 'static> RPCCommand<T> for {}<T> {{
-       fn call<'c>(&self, _plugin: &mut Plugin<T>, _request: &'c Value) -> Value {{
+       fn call<'c>(&self, _plugin: &mut Plugin<T>, _request: &'c Value) -> Result<Value, PluginError> {{
            {}
        }}
     }}
@@ -176,13 +177,14 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
 /// use clightningrpc_plugin::add_rpc;
 /// use clightningrpc_plugin::commands::RPCCommand;
 /// use clightningrpc_plugin::plugin::Plugin;
+/// use clightningrpc_plugin::errors::PluginError;
 ///
 /// #[rpc_method(
 ///     rpc_name = "foo",
 ///     description = "This is a simple and short description"
 /// )]
-/// pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Value {
-///     json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request})
+/// pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Result<Value, PluginError> {
+///     Ok(json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request}))
 /// }
 ///
 /// fn main() {
