@@ -6,6 +6,7 @@ use clightningrpc_plugin_macros::{
 use serde_json::{json, Value};
 
 use clightningrpc_plugin::commands::RPCCommand;
+use clightningrpc_plugin::errors::PluginError;
 use clightningrpc_plugin::plugin::Plugin;
 use clightningrpc_plugin::types::LogLevel;
 use clightningrpc_plugin::{add_rpc, register_notification};
@@ -14,13 +15,14 @@ use clightningrpc_plugin::{add_rpc, register_notification};
     rpc_name = "foo_macro",
     description = "This is a simple and short description"
 )]
-pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Value {
+pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Result<Value, PluginError> {
     /// The name of the parameters can be used only if used, otherwise can be omitted
     /// the only rules that the macros require is to have a propriety with the following rules:
     /// - Plugin as _plugin
     /// - CLN JSON request as _request
     /// The function parameter can be specified in any order.
-    json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request})
+    let response = json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request});
+    Ok(response)
 }
 
 #[notification(on = "rpc_command")]

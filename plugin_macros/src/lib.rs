@@ -141,7 +141,7 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
 
 
     impl<T: Clone + 'static> RPCCommand<T> for {}<T> {{
-       fn call<'c>(&self, _plugin: &mut Plugin<T>, _request: &'c Value) -> Value {{
+       fn call<'c>(&self, _plugin: &mut Plugin<T>, _request: &'c Value) -> Result<Value, PluginError> {{
            {}
        }}
     }}
