@@ -44,6 +44,8 @@ where
     /// mark a plugin as dynamic, in this way the plugin can be run
     /// from core lightning without stop the lightningd daemon
     pub dynamic: bool,
+    /// plugin configuration given by core lightning
+    pub conf: Option<InitConf>,
     /// onInit callback called when the method on init is runned.
     on_init: Option<&'static OnInit<T>>,
 }
@@ -59,6 +61,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             hook_info: HashSet::new(),
             rpc_notification: HashMap::new(),
             dynamic,
+            conf: None,
             on_init: None,
         };
     }

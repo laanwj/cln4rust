@@ -21,13 +21,13 @@ pub struct RPCHookInfo {
     pub after: Option<Vec<String>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct InitConf {
     pub options: serde_json::Value,
     pub configuration: ConfFiled,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct ConfFiled {
     #[serde(rename = "lightning-dir")]
     pub lightning_dir: String,
@@ -42,7 +42,7 @@ pub struct ConfFiled {
     pub always_use_proxy: Option<bool>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct ProxyInfo {
     #[serde(alias = "type")]
     pub tup: String,
