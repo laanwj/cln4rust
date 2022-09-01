@@ -1,6 +1,6 @@
 [package]
 name = "clightningrpc-plugin-macros"
-version = "0.3.0-beta.2"
+version = "0.3.0-beta.3"
 edition = "2021"
 authors = ["Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
 license = "CC0-1.0"
@@ -19,8 +19,8 @@ quote = "1.0"
 darling = "0.14.1"
 convert_case = "0.5.0"
 serde_json = "1.0"
-clightningrpc-plugin = { path = "../plugin"}
-#clightningrpc-plugin = "0.3.0-beta.2"
+#clightningrpc-plugin = { path = "../plugin"}
+clightningrpc-plugin = "0.3.0-beta.3"
 
 [dev-dependencies]
 rstest = "0.10.0"

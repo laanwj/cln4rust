@@ -4,23 +4,27 @@
 use crate::commands::json_utils::{add_str, init_payload, init_success_response};
 use crate::commands::{
     builtin::{InitRPC, ManifestRPC},
-    types::{RPCHookInfo, RPCMethodInfo},
+    types::{InitConf, RPCHookInfo, RPCMethodInfo},
     RPCCommand,
 };
 use crate::errors::PluginError;
 use crate::types::{LogLevel, RpcOption};
 use clightningrpc_common::types::Request;
+use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::string::String;
 use std::{io, io::Write};
+
+pub trait OnInit<T> = Fn(&mut T, &InitConf) -> Value + Send + 'static;
 
 #[derive(Clone)]
 #[allow(dead_code)]
 pub struct Plugin<T>
 where
-    T: Clone,
+    // FIXME: move the static life time to a local life time for plugin
+    T: 'static + Clone,
 {
-    state: T,
+    pub(crate) state: T,
     /// all the option contained inside the
     /// hash map.
     pub option: HashSet<RpcOption>,
@@ -40,6 +44,8 @@ where
     /// mark a plugin as dynamic, in this way the plugin can be run
     /// from core lightning without stop the lightningd daemon
     pub dynamic: bool,
+    /// onInit callback called when the method on init is runned.
+    on_init: Option<&'static dyn OnInit<T>>,
 }
 
 impl<'a, T: 'a + Clone> Plugin<T> {
@@ -53,7 +59,13 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             hook_info: HashSet::new(),
             rpc_notification: HashMap::new(),
             dynamic,
+            on_init: None,
         };
+    }
+
+    pub fn on_init(&'a mut self, callback: &'static dyn OnInit<T>) -> &'a Self {
+        self.on_init = Some(callback);
+        self
     }
 
     pub fn log(&self, level: LogLevel, msg: &str) -> &Self {
@@ -188,8 +200,12 @@ impl<'a, T: 'a + Clone> Plugin<T> {
 
         self.rpc_method
             .insert("getmanifest".to_owned(), Box::new(ManifestRPC {}));
-        self.rpc_method
-            .insert("init".to_owned(), Box::new(InitRPC {}));
+        self.rpc_method.insert(
+            "init".to_owned(),
+            Box::new(InitRPC::<T> {
+                on_init: self.on_init,
+            }),
+        );
         // FIXME: core lightning end with the double endline, so this can cause
         // problem for some input reader.
         // we need to parse the writer, and avoid this while loop

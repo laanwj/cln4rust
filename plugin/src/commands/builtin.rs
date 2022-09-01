@@ -9,7 +9,7 @@ use crate::commands::{
 // FIXME: move this inside the common crater
 use crate::commands::json_utils::{add_bool, add_vec, init_payload};
 use crate::errors::PluginError;
-use crate::plugin::Plugin;
+use crate::plugin::{OnInit, Plugin};
 use crate::types::RpcOption;
 use serde_json::Value;
 
@@ -46,12 +46,17 @@ impl<T: Clone> RPCCommand<T> for ManifestRPC {
 }
 
 #[derive(Clone)]
-pub struct InitRPC {}
+pub struct InitRPC<T: 'static> {
+    pub(crate) on_init: Option<&'static dyn OnInit<T>>,
+}
 
-impl<T: Clone> RPCCommand<T> for InitRPC {
+impl<T: Clone> RPCCommand<T> for InitRPC<T> {
     fn call<'c>(&self, _plugin: &mut Plugin<T>, request: &'c Value) -> Result<Value, PluginError> {
         let response = init_payload();
-        let _conf: InitConf = serde_json::from_value(request.to_owned()).unwrap();
+        let conf: InitConf = serde_json::from_value(request.to_owned()).unwrap();
+        if let Some(callback) = self.on_init {
+            (*callback)(&mut _plugin.state, &conf);
+        }
         Ok(response)
     }
 }
