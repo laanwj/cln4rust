@@ -15,7 +15,7 @@ use std::collections::{HashMap, HashSet};
 use std::string::String;
 use std::{io, io::Write};
 
-pub trait OnInit<T> = Fn(&mut T, &InitConf) -> Value + Send + 'static;
+pub type OnInit<T> = dyn Fn(&mut Plugin<T>) -> Value + Send + 'static;
 
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -45,7 +45,7 @@ where
     /// from core lightning without stop the lightningd daemon
     pub dynamic: bool,
     /// onInit callback called when the method on init is runned.
-    on_init: Option<&'static dyn OnInit<T>>,
+    on_init: Option<&'static OnInit<T>>,
 }
 
 impl<'a, T: 'a + Clone> Plugin<T> {
@@ -63,7 +63,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         };
     }
 
-    pub fn on_init(&'a mut self, callback: &'static dyn OnInit<T>) -> &'a Self {
+    pub fn on_init(&'a mut self, callback: &'static OnInit<T>) -> &'a Self {
         self.on_init = Some(callback);
         self
     }

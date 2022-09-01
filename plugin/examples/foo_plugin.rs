@@ -4,7 +4,7 @@ use clightningrpc_plugin::types::LogLevel;
 use clightningrpc_plugin::{commands::RPCCommand, errors::PluginError, plugin::Plugin};
 use serde_json::{json, Value};
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 struct PluginState(());
 
 /// HelloRPC is used to register the RPC method
@@ -51,6 +51,10 @@ fn main() {
             false,
         )
         .register_notification("channel_opened", OnChannelOpened {})
+        .on_init(&|plugin| -> serde_json::Value {
+            plugin.log(LogLevel::Debug, "Custom init method called");
+            json!({})
+        })
         .clone();
     plugin.start();
 }
