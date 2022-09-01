@@ -3,7 +3,7 @@
 //!
 //! author: https://github.com/vincenzopalazzo
 use crate::commands::{
-    types::{InitConf, RPCHookInfo, RPCMethodInfo},
+    types::{RPCHookInfo, RPCMethodInfo},
     RPCCommand,
 };
 // FIXME: move this inside the common crater
@@ -51,11 +51,11 @@ pub struct InitRPC<T: 'static + Clone> {
 }
 
 impl<T: Clone> RPCCommand<T> for InitRPC<T> {
-    fn call<'c>(&self, _plugin: &mut Plugin<T>, request: &'c Value) -> Result<Value, PluginError> {
+    fn call<'c>(&self, plugin: &mut Plugin<T>, request: &'c Value) -> Result<Value, PluginError> {
         let response = init_payload();
-        let conf: InitConf = serde_json::from_value(request.to_owned()).unwrap();
+        plugin.conf = serde_json::from_value(request.to_owned()).unwrap();
         if let Some(callback) = self.on_init {
-            (*callback)(_plugin);
+            (*callback)(plugin);
         }
         Ok(response)
     }
