@@ -46,8 +46,8 @@ impl<T: Clone> RPCCommand<T> for ManifestRPC {
 }
 
 #[derive(Clone)]
-pub struct InitRPC<T: 'static> {
-    pub(crate) on_init: Option<&'static dyn OnInit<T>>,
+pub struct InitRPC<T: 'static + Clone> {
+    pub(crate) on_init: Option<&'static OnInit<T>>,
 }
 
 impl<T: Clone> RPCCommand<T> for InitRPC<T> {
@@ -55,7 +55,7 @@ impl<T: Clone> RPCCommand<T> for InitRPC<T> {
         let response = init_payload();
         let conf: InitConf = serde_json::from_value(request.to_owned()).unwrap();
         if let Some(callback) = self.on_init {
-            (*callback)(&mut _plugin.state, &conf);
+            (*callback)(_plugin);
         }
         Ok(response)
     }
