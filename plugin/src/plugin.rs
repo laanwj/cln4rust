@@ -24,7 +24,7 @@ where
     // FIXME: move the static life time to a local life time for plugin
     T: 'static + Clone,
 {
-    pub(crate) state: T,
+    pub state: T,
     /// all the option contained inside the
     /// hash map.
     pub option: HashSet<RpcOption>,
@@ -66,12 +66,12 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         };
     }
 
-    pub fn on_init(&'a mut self, callback: &'static OnInit<T>) -> &'a Self {
+    pub fn on_init(&'a mut self, callback: &'static OnInit<T>) -> Self {
         self.on_init = Some(callback);
-        self
+        self.clone()
     }
 
-    pub fn log(&self, level: LogLevel, msg: &str) -> &Self {
+    pub fn log(&self, level: LogLevel, msg: &str) {
         let mut writer = io::stdout();
         let mut payload = init_payload();
         // FIXME: add other log level supported by cln
@@ -91,7 +91,6 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             .write_all(serde_json::to_string(&request).unwrap().as_bytes())
             .unwrap();
         writer.flush().unwrap();
-        self
     }
 
     pub fn add_opt(
@@ -119,7 +118,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         usage: &str,
         description: &str,
         callback: F,
-    ) -> &mut Self
+    ) -> Self
     where
         F: RPCCommand<T> + 'static,
     {
@@ -131,7 +130,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             long_description: description.to_string(),
             deprecated: false,
         });
-        self
+        self.clone()
     }
 
     fn call_rpc_method(
@@ -159,7 +158,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         before: Option<Vec<String>>,
         after: Option<Vec<String>>,
         callback: F,
-    ) -> &mut Self
+    ) -> Self
     where
         F: RPCCommand<T> + 'static,
     {
@@ -170,16 +169,16 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             before,
             after,
         });
-        self
+        self.clone()
     }
 
-    pub fn register_notification<F: 'static>(&mut self, name: &str, callback: F) -> &mut Self
+    pub fn register_notification<F: 'static>(&mut self, name: &str, callback: F) -> Self
     where
         F: 'static + RPCCommand<T> + Clone,
     {
         self.rpc_notification
             .insert(name.to_owned(), Box::new(callback));
-        self
+        self.clone()
     }
 
     fn write_respose(
