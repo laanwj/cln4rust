@@ -1,3 +1,12 @@
+# v0.3.0-beta.5
+
+## Fixed
+- expose plugin state as public ([commit](https://github.com/laanwj/rust-clightning-rpc/commit/3e7f805b67480ecbfd0325b36c0241171d70313e)). @vincenzopalazzo 03-09-2022
+
+## Added
+- allow method chaining before startup ([commit](https://github.com/laanwj/rust-clightning-rpc/commit/5c4bf977129268d7e13865c5680193e0b6f495e8)). @vincenzopalazzo 03-09-2022
+
+
 # v0.3.0-beta.4
 
 ## Added
