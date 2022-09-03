@@ -27,7 +27,7 @@ impl Serialize for MSat {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&format!("{}msat", self.0))
+        serializer.serialize_u64(self.0)
     }
 }
 
@@ -52,8 +52,18 @@ impl<'d> de::Visitor<'d> for MSatVisitor {
         Ok(MSat(res))
     }
 
+    fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        Ok(MSat(v))
+    }
+
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        write!(formatter, "a string ending with \"msat\"")
+        write!(
+            formatter,
+            "a string ending with \"msat\" or an unsigned integer"
+        )
     }
 }
 
@@ -62,7 +72,7 @@ impl<'d> Deserialize<'d> for MSat {
     where
         D: Deserializer<'d>,
     {
-        deserializer.deserialize_str(MSatVisitor)
+        deserializer.deserialize_any(MSatVisitor)
     }
 }
 
@@ -75,5 +85,19 @@ impl fmt::Debug for MSat {
 impl fmt::Display for MSat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}msat", self.0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use crate::types::MSat;
+
+    #[test]
+    fn test_msat() {
+        let v1: MSat = serde_json::from_value(json!(3)).unwrap();
+        let v2: MSat = serde_json::from_value(json!("3msat")).unwrap();
+        assert_eq!(v1, v2);
     }
 }
