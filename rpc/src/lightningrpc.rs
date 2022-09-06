@@ -56,7 +56,11 @@ impl LightningRPC {
     }
 
     /// Generic call function for RPC calls.
-    fn call<T: Serialize, U: DeserializeOwned>(&self, method: &str, input: T) -> Result<U, Error> {
+    pub fn call<T: Serialize, U: DeserializeOwned>(
+        &self,
+        method: &str,
+        input: T,
+    ) -> Result<U, Error> {
         self.client
             .send_request(method, input)
             .and_then(|res| res.into_result())
