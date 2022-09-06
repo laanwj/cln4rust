@@ -1,6 +1,6 @@
 {
   "package_name": "rpc",
-  "version": "v0.3.0-beta.2",
+  "version": "v0.3.0-beta.3",
   "api": {
     "name": "github",
     "repository": "laanwj/rust-clightning-rpc",
