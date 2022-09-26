@@ -11,7 +11,7 @@ use serde_json::json;
 use super::plugin::Plugin;
 use crate::errors::PluginError;
 
-/// RPCCommand is a implementation of the callback using the command pattern.
+/// RPCCommand is an implementation of the callback using the command pattern.
 ///
 /// The usage of the pattern is a design choice to avoid to define a callback type
 /// in contrast, it is more complex but the plugin_macros package will help to simplify the API.

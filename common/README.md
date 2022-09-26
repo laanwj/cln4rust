@@ -1,8 +1,8 @@
 <div align="center">
-  <h1>Rust core lightning common client</h1>
+  <h1>Common client in Rust for core lightning</h1>
 
   <p>
-    <strong>This crate provides an generic interface from rust to the core lightning daemon through RPC with a generic interface.</strong>
+    <strong>This crate provides a generic interface to the core lightning daemon through RPC.</strong>
   </p>
 
   <p>
@@ -26,12 +26,12 @@
 
 </div>
 
-This crate provides an generic interface from rust to the [c-lightning](https://github.com/ElementsProject/lightning) daemon through RPC _with a generic interface_.
+This crate provides a _generic interface_ to the [core lightning](https://github.com/ElementsProject/lightning) daemon through RPC.
 
 From the crate [clightningrpc](../rpc) you can find this quote
 
 >Be aware that the API (of rust-clighting-rpc, but also that of c-lightning
-itself) is not finalized. This means that it may change from version to version and break your
+itself) is not finalized. This means that it is likely to change between versions and may break your
 compile, sorry!
 
 This crate solve the versioning with core lightning by offering a strongly type library with a generic interface, an example can be:

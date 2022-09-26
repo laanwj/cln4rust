@@ -1,5 +1,5 @@
-/// Common crate that implements all the primitive
-/// to talk the with the socket
+/// Common crate that implements all the primitives
+/// to interact with the lightning-rpc socket
 ///
 /// author: https://github.com/vincenzopalazzo
 extern crate serde;

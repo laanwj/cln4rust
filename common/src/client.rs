@@ -33,12 +33,14 @@ use crate::types::{Request, Response};
 /// A handle to a remote JSONRPC server
 #[derive(Debug)]
 pub struct Client {
+    /// field that defines path to the lightning-rpc socket file
     sockpath: PathBuf,
+    /// timeout for RPC request
     timeout: Option<Duration>,
 }
 
 impl Client {
-    /// Creates a new client
+    /// Creates a new client using the path to the socket file and initializing the timeout field to None
     pub fn new<P: AsRef<Path>>(sockpath: P) -> Client {
         Client {
             sockpath: sockpath.as_ref().to_path_buf(),

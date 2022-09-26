@@ -1,4 +1,4 @@
-//! macros module contains all the necessary macros to work with the plugin
+//! macros module containing all the necessary macros to work with the plugin
 //! and register new RPC method/Hooks/Subscription.
 //!
 //! author: https://github.com/vincenzopalazzo

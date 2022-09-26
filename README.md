@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>core lightning Rust Framework</h1>
+  <h1>Rust framework for core lightning</h1>
 
   <p>
     <strong>A collection of libraries to develop and work with core lighting.</strong>
@@ -27,8 +27,7 @@
 
 </div>
 
-This repository contains a sequence of craters that are usuefult to work with core lightning and develop with core lightning
-using Rust.
+This repository contains a sequence of craters that are useful to work with core lightning in the Rust programming environment.
 
 ## Craters
 
@@ -47,7 +46,7 @@ Read our [Hacking guide](/docs/MAINTAINERS.md)
 
 ## Supports
 
-If you want support this library consider to donate with the following methods
+If you want to support this library, consider donating with the following methods
 
 - Lightning address: vincenzopalazzo@lntxbot.com
 - [Github donation](https://github.com/sponsors/vincenzopalazzo)

@@ -1,4 +1,5 @@
-/// Common types used in the common crate
+/// JSONRPCv2.0 compliant type definitions defined here
+/// https://www.jsonrpc.org/specification
 ///
 /// author: https://github.com/vincenzopalazzo
 use serde::{Deserialize, Serialize};
@@ -6,11 +7,11 @@ use serde::{Deserialize, Serialize};
 use crate::errors::{Error, RpcError};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// A JSONRPC request object
+/// A standard JSONRPC request object
 pub struct Request<'f, T: Serialize> {
-    /// The name of the RPC call
+    /// The name of the RPC method call
     pub method: &'f str,
-    /// Parameters to the RPC call
+    /// Parameters to the RPC method call
     pub params: T,
     /// Identifier for this Request, which should appear in the response
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -20,7 +21,7 @@ pub struct Request<'f, T: Serialize> {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
-/// A JSONRPC response object
+/// A standard JSONRPC response object
 pub struct Response<T> {
     /// A result if there is one, or null
     pub result: Option<T>,
