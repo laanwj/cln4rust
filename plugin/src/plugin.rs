@@ -1,7 +1,6 @@
 //! Core of the plugin API
 //!
 //! Unofficial API interface to develop plugin in Rust.
-use crate::commands::json_utils::{add_str, init_payload, init_success_response};
 use crate::commands::{
     builtin::{InitRPC, ManifestRPC},
     types::{InitConf, RPCHookInfo, RPCMethodInfo},
@@ -9,6 +8,7 @@ use crate::commands::{
 };
 use crate::errors::PluginError;
 use crate::types::{LogLevel, RpcOption};
+use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
 use clightningrpc_common::types::Request;
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};

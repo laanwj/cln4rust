@@ -6,11 +6,10 @@ use crate::commands::{
     types::{RPCHookInfo, RPCMethodInfo},
     RPCCommand,
 };
-// FIXME: move this inside the common crater
-use crate::commands::json_utils::{add_bool, add_vec, init_payload};
 use crate::errors::PluginError;
 use crate::plugin::{OnInit, Plugin};
 use crate::types::RpcOption;
+use clightningrpc_common::json_utils::{add_bool, add_vec, init_payload};
 use serde_json::Value;
 
 #[derive(Clone)]
