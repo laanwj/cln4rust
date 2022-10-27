@@ -2,7 +2,6 @@
 //!
 //! author: https://github.com/vincenzopalazzo
 pub mod builtin;
-pub mod json_utils;
 pub mod types;
 
 use serde_json;
