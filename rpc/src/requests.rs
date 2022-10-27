@@ -95,6 +95,16 @@ pub struct Invoice<'a> {
     pub expiry: Option<u64>,
 }
 
+/// 'invoice' command with zero amount
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct AnyInvoice<'a> {
+    pub msatoshi: &'a str,
+    pub label: &'a str,
+    pub description: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expiry: Option<u64>,
+}
+
 /// 'delinvoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DelInvoice<'a> {
