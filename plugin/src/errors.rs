@@ -14,7 +14,7 @@ pub struct PluginError {
 
 impl PluginError {
     #[allow(dead_code)]
-    fn new(code: i32, msg: &str, data: &Option<serde_json::Value>) -> Self
+    pub fn new(code: i32, msg: &str, data: Option<serde_json::Value>) -> Self
     where
         Self: Sized,
     {
