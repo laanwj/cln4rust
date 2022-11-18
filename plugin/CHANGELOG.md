@@ -1,3 +1,9 @@
+# v0.3.0-beta.6
+
+## Fixed
+- API msg field plugin error ([commit](https://github.com/laanwj/cln4rust/commit/9aa0915f96afd808201f8afa7061569fd3711e89)). @vincenzopalazzo 18-11-2022
+- make plugin error API public ([commit](https://github.com/laanwj/cln4rust/commit/cf6fc6a67e5d0b9c84176b52c8e74c93e2939336)). @vincenzopalazzo 18-11-2022
+
 # v0.3.0-beta.5
 
 ## Fixed
