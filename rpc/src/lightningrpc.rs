@@ -144,15 +144,26 @@ impl LightningRPC {
         description: &str,
         expiry: Option<u64>,
     ) -> Result<responses::Invoice, Error> {
-        self.call(
-            "invoice",
-            requests::Invoice {
-                msatoshi,
-                label,
-                description,
-                expiry,
-            },
-        )
+        match msatoshi {
+            0 => self.call(
+                "invoice",
+                requests::AnyInvoice {
+                    msatoshi: "any",
+                    label,
+                    description,
+                    expiry,
+                },
+            ),
+            _ => self.call(
+                "invoice",
+                requests::Invoice {
+                    msatoshi,
+                    label,
+                    description,
+                    expiry,
+                },
+            ),
+        }
     }
 
     /// Create an invoice for {msatoshi} with {label} and {description} with
