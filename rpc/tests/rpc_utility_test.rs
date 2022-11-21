@@ -6,7 +6,6 @@ use clightningrpc::LightningRPC;
 use rstest::*;
 use std::path::Path;
 use std::{thread, time};
-use clightningrpc::types::MSat;
 use uuid::Uuid;
 
 // FIXME(vincenzopalazzo) Move this in a utils test
