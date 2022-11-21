@@ -88,7 +88,7 @@ pub struct ListInvoices<'a> {
 /// 'invoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Invoice<'a> {
-    pub msatoshi: u64,
+    pub amount_msat: u64,
     pub label: &'a str,
     pub description: &'a str,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -98,7 +98,7 @@ pub struct Invoice<'a> {
 /// 'invoice' command with zero amount
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AnyInvoice<'a> {
-    pub msatoshi: &'a str,
+    pub amount_msat: &'a str,
     pub label: &'a str,
     pub description: &'a str,
     #[serde(skip_serializing_if = "Option::is_none")]
