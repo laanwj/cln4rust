@@ -90,7 +90,7 @@ fn fundchannel_test_one(lightningd: LightningRPC, lightningd_second: LightningRP
 #[rstest]
 fn listinvoice_by_payment_hash_test_one(lightningd: LightningRPC) {
     let listinvoice = lightningd.listinvoices(None, None, None, None);
-    assert!(listinvoice.unwrap().invoices.is_empty());
+    assert!(listinvoice.is_ok());
 }
 
 #[rstest]
