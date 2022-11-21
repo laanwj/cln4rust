@@ -139,20 +139,31 @@ impl LightningRPC {
     /// optional {expiry} seconds (default 1 hour).
     pub fn invoice(
         &self,
-        msatoshi: u64,
+        amount_msat: Option<u64>,
         label: &str,
         description: &str,
         expiry: Option<u64>,
     ) -> Result<responses::Invoice, Error> {
-        self.call(
-            "invoice",
-            requests::Invoice {
-                msatoshi,
-                label,
-                description,
-                expiry,
-            },
-        )
+        match amount_msat {
+            None => self.call(
+                "invoice",
+                requests::AnyInvoice {
+                    amount_msat: "any",
+                    label,
+                    description,
+                    expiry,
+                },
+            ),
+            Some(amount_msat) => self.call(
+                "invoice",
+                requests::Invoice {
+                    amount_msat,
+                    label,
+                    description,
+                    expiry,
+                },
+            ),
+        }
     }
 
     /// Create an invoice for {msatoshi} with {label} and {description} with

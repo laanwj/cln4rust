@@ -2,10 +2,12 @@ extern crate clightningrpc;
 
 use clightningrpc::requests::AmountOrAll;
 use clightningrpc::responses::NetworkAddress;
+use clightningrpc::types::MSat;
 use clightningrpc::LightningRPC;
 use rstest::*;
 use std::path::Path;
 use std::{thread, time};
+use uuid::Uuid;
 
 // FIXME(vincenzopalazzo) Move this in a utils test
 #[allow(dead_code)]
@@ -89,4 +91,24 @@ fn fundchannel_test_one(lightningd: LightningRPC, lightningd_second: LightningRP
 fn listinvoice_by_payment_hash_test_one(lightningd: LightningRPC) {
     let listinvoice = lightningd.listinvoices(None, None, None, None);
     assert!(listinvoice.unwrap().invoices.is_empty());
+}
+
+#[rstest]
+fn generate_amountless_invoice_test_one(lightningd: LightningRPC) {
+    let label = format!("{}", Uuid::new_v4());
+    let invoice = lightningd
+        .invoice(None, label.as_str(), "generate an any invoice", None)
+        .unwrap();
+    let decode = lightningd.decodepay(&invoice.bolt11, None).unwrap();
+    assert_eq!(decode.amount_msat, None);
+}
+
+#[rstest]
+fn generate_invoice_with_amount_test_one(lightningd: LightningRPC) {
+    let label = format!("{}", Uuid::new_v4());
+    let invoice = lightningd
+        .invoice(Some(1), label.as_str(), "generate an any invoice", None)
+        .unwrap();
+    let decode = lightningd.decodepay(&invoice.bolt11, None).unwrap();
+    assert_eq!(decode.amount_msat, Some(MSat(1)));
 }

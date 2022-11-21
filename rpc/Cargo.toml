@@ -18,3 +18,4 @@ clightningrpc-common = "0.3.0-beta.2"
 
 [dev-dependencies]
 rstest = "0.10.0"
+uuid = { version = "0.8.2", features = ["v4"]}
