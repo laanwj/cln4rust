@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::errors::{Error, RpcError};
 
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// A standard JSONRPC request object
 pub struct Request<'f, T: Serialize> {
@@ -20,6 +21,7 @@ pub struct Request<'f, T: Serialize> {
     pub jsonrpc: &'f str,
 }
 
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 /// A standard JSONRPC response object
 pub struct Response<T> {

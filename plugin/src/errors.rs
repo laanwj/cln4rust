@@ -18,11 +18,11 @@ impl PluginError {
     where
         Self: Sized,
     {
-        return PluginError {
+        PluginError {
             code,
             msg: msg.to_string(),
-            data: data.to_owned(),
-        };
+            data,
+        }
     }
 }
 

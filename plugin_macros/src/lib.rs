@@ -92,8 +92,7 @@ pub fn rpc_method(attr: TokenStream, item: TokenStream) -> TokenStream {
         _ => panic!("The macros is applied over a not function declaration"),
     };
     let rpc_call = generate_method_call(&macro_args, fn_dec);
-    let res = generate_rpc_method(&item, &rpc_call).parse().unwrap();
-    res
+    generate_rpc_method(&item, &rpc_call).parse().unwrap()
 }
 
 // helper method to generator the RPCCall struct and make the code more readable and cleaner.
@@ -154,11 +153,10 @@ fn generate_rpc_method(item: &TokenStream, method_call: &RPCCall) -> String {
         method_call.description,
         method_call.description,
         method_call.usage,
-        item.to_string(),
+        item,
         method_call.struct_name,
-        method_call.to_string(),
+        method_call,
     )
-    .to_owned()
 }
 
 /// procedural macros to generate the code to register a RPC method created with the
@@ -210,7 +208,7 @@ pub fn add_plugin_rpc(items: TokenStream) -> TokenStream {
         input[0],
         input[2]
             .to_string()
-            .replace("\"", "")
+            .replace('"', "")
             .as_str()
             .to_case(Case::Pascal)
     )
@@ -317,11 +315,10 @@ fn generate_notification_method(item: &TokenStream, method_call: &RPCNotificatio
         method_call.struct_name,
         method_call.struct_name,
         method_call.original_name,
-        item.to_string(),
+        item,
         method_call.struct_name,
-        method_call.to_string(),
+        method_call,
     )
-    .to_owned()
 }
 
 /// procedural macros to generate the code to register a RPC method created with the
@@ -370,7 +367,7 @@ pub fn plugin_register_notification(items: TokenStream) -> TokenStream {
         input[0],
         input[2]
             .to_string()
-            .replace("\"", "")
+            .replace('"', "")
             .as_str()
             .to_case(Case::Pascal)
     )

@@ -77,6 +77,7 @@ impl error::Error for Error {
     }
 }
 
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 /// A JSONRPCv2.0 spec compilant error object
 pub struct RpcError {
