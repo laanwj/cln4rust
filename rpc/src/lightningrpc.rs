@@ -74,7 +74,7 @@ impl LightningRPC {
     /// Return feerate estimates, either satoshi-per-kw ({style} perkw) or satoshi-per-kb ({style}
     /// perkb).
     pub fn feerates(&self, style: &str) -> Result<responses::FeeRates, Error> {
-        self.call("feerates", requests::FeeRates { style: style })
+        self.call("feerates", requests::FeeRates { style })
     }
 
     /// Show node {id} (or all, if no {id}), in our local network view.
@@ -225,7 +225,7 @@ impl LightningRPC {
         self.call(
             "pay",
             requests::Pay {
-                bolt11: bolt11,
+                bolt11,
                 msatoshi: options.msatoshi,
                 description: options.description,
                 riskfactor: options.riskfactor,
@@ -305,6 +305,7 @@ impl LightningRPC {
     /// specified search from {fromid} otherwise use this node as source. Randomize the route with
     /// up to {fuzzpercent} (0.0 -> 100.0, default 5.0) using {seed} as an arbitrary-size string
     /// seed.
+    #[allow(clippy::too_many_arguments)]
     pub fn getroute(
         &self,
         id: &str,

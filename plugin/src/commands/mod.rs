@@ -39,7 +39,7 @@ pub trait RPCCommandClone<T: Clone> {
     fn clone_box(&self) -> Box<dyn RPCCommand<T>>;
 }
 
-impl<'a, F, T: Clone> RPCCommandClone<T> for F
+impl<F, T: Clone> RPCCommandClone<T> for F
 where
     F: 'static + RPCCommand<T> + Clone,
 {

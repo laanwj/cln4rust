@@ -52,7 +52,7 @@ where
 
 impl<'a, T: 'a + Clone> Plugin<T> {
     pub fn new(state: T, dynamic: bool) -> Self {
-        return Plugin {
+        Plugin {
             state,
             option: HashSet::new(),
             rpc_method: HashMap::new(),
@@ -63,7 +63,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             dynamic,
             conf: None,
             on_init: None,
-        };
+        }
     }
 
     pub fn on_init(&'a mut self, callback: &'static OnInit<T>) -> Self {
