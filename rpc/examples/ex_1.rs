@@ -5,6 +5,7 @@ use std::env;
 use clightningrpc::LightningRPC;
 
 fn main() {
+    #[allow(deprecated)]
     let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");
     println!("Using socket {}", sock.display());
 

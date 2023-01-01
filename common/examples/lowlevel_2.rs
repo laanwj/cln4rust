@@ -7,6 +7,7 @@ use std::env;
 use clightningrpc_common::{client, types};
 
 fn main() {
+    #[allow(deprecated)]
     let sock = env::home_dir().unwrap().join(".lightning/lightning-rpc");
     println!("Using socket {}", sock.display());
     let client = client::Client::new(&sock);
