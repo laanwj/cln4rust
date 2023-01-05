@@ -1,0 +1,16 @@
+{
+  "package_name": "conf",
+  "version": "v0.0.1-alpha.1",
+  "api": {
+    "name": "github",
+    "repository": "laanwj/rust-clightning-rpc",
+    "branch": "master"
+  },
+  "generation_method": {
+    "name": "semver-v2",
+    "header_filter": true
+  },
+  "serialization_method": {
+    "name": "md"
+  }
+}
