@@ -21,10 +21,18 @@ impl Parser {
 
     fn read_and_split(&self) -> Result<Vec<Word>, ParsingError> {
         let content = self.file.read().unwrap();
-        let words: Vec<Word> = content
-            .split('=')
+
+        let lines: Vec<String> = content
+            .split('\n')
+            .filter(|it| !it.is_empty())
             .map(|it| it.to_string())
-            .collect::<Vec<String>>();
+            .collect();
+        let mut words = vec![];
+        for line in lines {
+            let mut key_val: Vec<String> = line.split('=').map(|it| it.to_string()).collect();
+            words.append(&mut key_val);
+        }
+
         Ok(words)
     }
 
@@ -53,8 +61,8 @@ impl Parser {
         let key = stream.advance().to_owned();
         let value = stream.advance();
         if key == "include" {
-            let mut subconf = CLNConf::new();
-            if let Err(err) = subconf.parse(value) {
+            let mut subconf = CLNConf::new(&value);
+            if let Err(err) = subconf.parse() {
                 return Err(err);
             }
             conf.add_subconf(subconf);
