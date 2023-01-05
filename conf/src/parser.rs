@@ -59,15 +59,15 @@ impl Parser {
         conf: &mut CLNConf,
     ) -> Result<(), ParsingError> {
         let key = stream.advance().to_owned();
-        let value = stream.advance();
+        let value = stream.advance().to_owned();
         if key == "include" {
-            let mut subconf = CLNConf::new(&value);
+            let mut subconf = CLNConf::new(value);
             if let Err(err) = subconf.parse() {
                 return Err(err);
             }
             conf.add_subconf(subconf);
         } else {
-            conf.add_conf(&key, value);
+            conf.add_conf(&key, &value);
         }
         Ok(())
     }

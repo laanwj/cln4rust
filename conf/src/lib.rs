@@ -31,11 +31,11 @@ pub struct CLNConf {
 impl CLNConf {
     /// create a new instance of the configuration
     /// file manager.
-    pub fn new(path: &str) -> Self {
+    pub fn new(path: String) -> Self {
         CLNConf {
             filed: HashMap::new(),
             includes: Vec::new(),
-            path: path.to_owned(),
+            path,
         }
     }
 
@@ -63,9 +63,7 @@ impl CLNConf {
 impl SyncCLNConf for CLNConf {
     fn parse(&mut self) -> Result<(), ParsingError> {
         let parser = self.parser();
-        if let Err(err) = parser.parse(self) {
-            return Err(err.to_string());
-        }
+        parser.parse(self)?;
         Ok(())
     }
 }
