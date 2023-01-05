@@ -15,6 +15,7 @@ pub trait SyncCLNConf {
 /// core lightning configuration manager
 /// that help to parser and create a core
 /// lightning configuration with rust.
+#[derive(Debug)]
 pub struct CLNConf {
     /// collection of field included
     /// inside the conf file.
@@ -125,6 +126,9 @@ mod tests {
         assert!(result.is_ok());
         assert_eq!(conf.filed.keys().len(), 2);
 
+        assert!(conf.filed.contains_key("plugin"));
+        assert!(conf.filed.contains_key("network"));
+
         cleanup_file(path.as_str());
     }
 
@@ -141,6 +145,9 @@ mod tests {
         let result = conf.parse();
         assert!(result.is_ok());
         assert_eq!(conf.filed.keys().len(), 2);
+        println!("{:?}", conf);
+        assert!(conf.filed.contains_key("plugin"));
+        assert!(conf.filed.contains_key("network"));
 
         cleanup_file(path.as_str());
     }

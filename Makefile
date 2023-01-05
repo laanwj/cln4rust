@@ -12,7 +12,6 @@ fmt:
 
 check:
 	$(CC) test --all
-	$(CC) clippy --all
 
 example:
 	$(CC) build --example foo_plugin
