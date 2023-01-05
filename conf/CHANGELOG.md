@@ -1,3 +1,9 @@
+# v0.0.1-alpha.3
+
+## Added
+- support field with the same key ([commit](https://github.com/laanwj/cln4rust/commit/b0c99c4c627bd09a81a48f9f75e53907ccdb5338)). @vincenzopalazzo 05-01-2023
+
+
 # v0.0.1-alpha.2
 
 ## Fixed
