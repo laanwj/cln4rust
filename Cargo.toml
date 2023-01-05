@@ -4,6 +4,7 @@ members = [
         "common",
         "plugin",
         "plugin_macros",
+        "conf",
 ]
 resolver = "2"
 
