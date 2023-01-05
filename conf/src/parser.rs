@@ -53,8 +53,8 @@ impl Parser {
         let key = stream.advance().to_owned();
         let value = stream.advance();
         if key == "include" {
-            let mut subconf = CLNConf::new();
-            if let Err(err) = subconf.parse(value) {
+            let mut subconf = CLNConf::new(&value);
+            if let Err(err) = subconf.parse() {
                 return Err(err);
             }
             conf.add_subconf(subconf);
