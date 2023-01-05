@@ -12,3 +12,4 @@ readme = "README.md"
 
 [dependencies]
 albert_stream = "0.0.3"
+multimap = "0.8.3"
