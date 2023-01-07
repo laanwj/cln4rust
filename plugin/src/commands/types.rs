@@ -24,14 +24,14 @@ pub struct RPCHookInfo {
 
 #[derive(Deserialize, Clone)]
 /// Type to define attributes for the plugin's init method
-pub struct InitConf {
-    pub options: serde_json::Value,
-    pub configuration: ConfFiled,
+pub(crate) struct InitConf {
+    pub options: HashMap<String, serde_json::Value>,
+    pub configuration: CLNConf,
 }
 
 #[derive(Deserialize, Clone)]
 /// Type to define the configuration options for the plugin's init method
-pub struct ConfFiled {
+pub struct CLNConf {
     #[serde(rename = "lightning-dir")]
     pub lightning_dir: String,
     #[serde(rename = "rpc-file")]

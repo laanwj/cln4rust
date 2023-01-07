@@ -1,11 +1,9 @@
 //! Core of the plugin API
 //!
 //! Unofficial API interface to develop plugin in Rust.
-use crate::commands::{
-    builtin::{InitRPC, ManifestRPC},
-    types::{InitConf, RPCHookInfo, RPCMethodInfo},
-    RPCCommand,
-};
+use crate::commands::builtin::{InitRPC, ManifestRPC};
+use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
+use crate::commands::RPCCommand;
 use crate::errors::PluginError;
 use crate::types::{LogLevel, RpcOption};
 use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
@@ -27,7 +25,7 @@ where
     pub state: T,
     /// all the option contained inside the
     /// hash map.
-    pub option: HashSet<RpcOption>,
+    pub option: HashMap<String, RpcOption>,
     /// all the options rpc method that the
     /// plugin need to support, included the builtin rpc method.
     pub rpc_method: HashMap<String, Box<dyn RPCCommand<T>>>,
@@ -44,9 +42,9 @@ where
     /// mark a plugin as dynamic, in this way the plugin can be run
     /// from core lightning without stop the lightningd daemon
     pub dynamic: bool,
-    /// plugin configuration given by core lightning
-    pub conf: Option<InitConf>,
-    /// onInit callback called when the method on init is runned.
+    /// core lightning configuration sent with the init call.
+    pub configuration: Option<CLNConf>,
+    /// onInit callback called when the method on init is ran.
     on_init: Option<&'static OnInit<T>>,
 }
 
@@ -54,14 +52,14 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     pub fn new(state: T, dynamic: bool) -> Self {
         Plugin {
             state,
-            option: HashSet::new(),
+            option: HashMap::new(),
             rpc_method: HashMap::new(),
             rpc_info: HashSet::new(),
             rpc_hook: HashMap::new(),
             hook_info: HashSet::new(),
             rpc_notification: HashMap::new(),
             dynamic,
-            conf: None,
+            configuration: None,
             on_init: None,
         }
     }
@@ -93,6 +91,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         writer.flush().unwrap();
     }
 
+    /// register the plugin option.
     pub fn add_opt(
         &mut self,
         name: &str,
@@ -101,14 +100,27 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         description: &str,
         deprecated: bool,
     ) -> &mut Self {
-        self.option.insert(RpcOption {
-            name: name.to_string(),
-            opt_typ: opt_type.to_string(),
-            default: def_val,
-            description: description.to_string(),
-            deprecated,
-        });
+        self.option.insert(
+            name.to_owned(),
+            RpcOption {
+                name: name.to_string(),
+                opt_typ: opt_type.to_string(),
+                default: def_val,
+                description: description.to_string(),
+                deprecated,
+                value: None,
+            },
+        );
         self
+    }
+
+    /// get an option value that cln sent back to the plugin.
+    pub fn get_opt<R: for<'de> serde::de::Deserialize<'de>>(
+        &self,
+        name: &str,
+    ) -> Result<R, PluginError> {
+        let opt = self.option.get(name).unwrap();
+        Ok(opt.value())
     }
 
     // FIXME: adding the long description as parameter
@@ -195,7 +207,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         }
     }
 
-    pub fn start(&'a mut self) {
+    pub fn start(mut self) {
         let reader = io::stdin();
         let mut writer = io::stdout();
         let mut buffer = String::new();
@@ -220,7 +232,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             buffer.clear();
             let request: Request<serde_json::Value> = serde_json::from_str(&req_str).unwrap();
             if let Some(id) = request.id {
-                // whe the id is specified this is a RPC or Hook, so we need to return a response
+                // when the id is specified this is a RPC or Hook, so we need to return a response
                 let response = self.call_rpc_method(request.method, &request.params);
                 let mut rpc_response = init_success_response(id);
                 self.write_respose(&response, &mut rpc_response);

@@ -2,6 +2,8 @@
 //! by core lightning in other to configure the plugin at startup.
 //!
 //! author: https://github.com/vincenzopalazzo
+use std::collections::HashMap;
+
 use crate::commands::{
     types::{RPCHookInfo, RPCMethodInfo},
     RPCCommand,
@@ -11,6 +13,8 @@ use crate::plugin::{OnInit, Plugin};
 use crate::types::RpcOption;
 use clightningrpc_common::json_utils::{add_bool, add_vec, init_payload};
 use serde_json::Value;
+
+use super::types::InitConf;
 
 #[derive(Clone)]
 /// Type to define the manifest method and its attributes, used during plugin initialization
@@ -22,7 +26,7 @@ impl<T: Clone> RPCCommand<T> for ManifestRPC {
         add_vec::<RpcOption>(
             &mut response,
             "options",
-            plugin.option.clone().into_iter().collect(),
+            plugin.option.clone().into_iter().map(|it| it.1).collect(),
         );
         add_vec::<RPCMethodInfo>(
             &mut response,
@@ -51,10 +55,22 @@ pub struct InitRPC<T: 'static + Clone> {
     pub(crate) on_init: Option<&'static OnInit<T>>,
 }
 
+impl<T: Clone> InitRPC<T> {
+    fn parse_option(&self, plugin: &mut Plugin<T>, options: &HashMap<String, serde_json::Value>) {
+        for option_name in options.keys() {
+            let option = options.get(option_name).unwrap();
+            plugin.option.get_mut(option_name).unwrap().value = Some(option.to_owned());
+        }
+    }
+}
+
 impl<T: Clone> RPCCommand<T> for InitRPC<T> {
     fn call<'c>(&self, plugin: &mut Plugin<T>, request: &'c Value) -> Result<Value, PluginError> {
         let response = init_payload();
-        plugin.conf = serde_json::from_value(request.to_owned()).unwrap();
+        let init: InitConf = serde_json::from_value(request.to_owned()).unwrap();
+        plugin.configuration = Some(init.configuration);
+        self.parse_option(plugin, &init.options);
+
         if let Some(callback) = self.on_init {
             (*callback)(plugin);
         }

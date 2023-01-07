@@ -1,8 +1,9 @@
 //! types
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::fmt;
 
-#[derive(Deserialize, Serialize, Clone, Eq, Hash, PartialEq)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct RpcOption {
     /// option name that is specified by the
     /// core lightning user, like --foo
@@ -18,6 +19,15 @@ pub struct RpcOption {
     pub description: String,
     /// if the filed is deprecated
     pub deprecated: bool,
+    /// The value specified by the user
+    pub value: Option<Value>,
+}
+
+impl RpcOption {
+    pub fn value<T: for<'de> serde::de::Deserialize<'de>>(&self) -> T {
+        let value: T = serde_json::from_value(self.value.to_owned().unwrap()).unwrap();
+        value
+    }
 }
 
 pub enum LogLevel {
