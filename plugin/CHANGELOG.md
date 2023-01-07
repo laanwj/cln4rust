@@ -1,3 +1,9 @@
+# v0.3.0-beta.7
+
+## Added
+- support binding options from init method ([commit](https://github.com/laanwj/cln4rust/commit/10a3e773f9032dc1d4db7397ea292d9c802cf8aa)). @vincenzopalazzo 07-01-2023
+
+
 # v0.3.0-beta.6
 
 ## Fixed
