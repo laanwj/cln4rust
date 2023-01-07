@@ -36,7 +36,7 @@ impl RPCCommand<PluginState> for OnChannelOpened {
 }
 
 fn main() {
-    let mut plugin = Plugin::<PluginState>::new(PluginState(()), true)
+    let plugin = Plugin::<PluginState>::new(PluginState(()), true)
         .add_rpc_method(
             "hello",
             "",
