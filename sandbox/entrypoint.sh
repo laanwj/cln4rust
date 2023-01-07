@@ -8,4 +8,4 @@ cd .. || exit 1
 sleep 0.5m # Give the time to c-lightning to sync the network
 cd code || exit 1
 echo "Running test with Cargo"
-cargo test --workspace
+RUST_BACKTRACE=full cargo test --workspace

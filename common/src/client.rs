@@ -69,7 +69,7 @@ impl Client {
             &Request {
                 method,
                 params,
-                id: Some("0"), // we always open a new connection, so we don't have to care about the nonce
+                id: Some("0".into()), // we always open a new connection, so we don't have to care about the nonce
                 jsonrpc: "2.0",
             },
         )?;

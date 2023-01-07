@@ -234,7 +234,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             if let Some(id) = request.id {
                 // when the id is specified this is a RPC or Hook, so we need to return a response
                 let response = self.call_rpc_method(request.method, &request.params);
-                let mut rpc_response = init_success_response(id);
+                let mut rpc_response = init_success_response(&id);
                 self.write_respose(&response, &mut rpc_response);
                 writer
                     .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())

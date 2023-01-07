@@ -10,7 +10,7 @@ pub fn init_payload() -> serde_json::Value {
 }
 
 /// returns a success response.
-pub fn init_success_response(id: &str) -> serde_json::Value {
+pub fn init_success_response(id: &serde_json::Value) -> serde_json::Value {
     json!(
         {
             "id": id,

@@ -17,7 +17,7 @@ pub struct Request<'f, T: Serialize> {
     pub params: T,
     /// Identifier for this Request, which should appear in the response
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<&'f str>,
+    pub id: Option<Value>,
     /// jsonrpc field, MUST be "2.0"
     pub jsonrpc: &'f str,
 }
@@ -31,7 +31,7 @@ pub struct Response<T> {
     /// An error if there is one, or null
     pub error: Option<RpcError>,
     /// Identifier for this Request, which should match that of the request
-    pub id: u64,
+    pub id: Value,
     /// jsonrpc field, MUST be "2.0"
     pub jsonrpc: Option<String>,
 }
