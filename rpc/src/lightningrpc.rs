@@ -403,15 +403,17 @@ impl LightningRPC {
     pub fn withdraw(
         &self,
         destination: &str,
-        amount: requests::AmountOrAll,
+        satoshi: requests::AmountOrAll,
         feerate: Option<u64>,
+        minconf: Option<u32>,
     ) -> Result<responses::Withdraw, Error> {
         self.call(
             "withdraw",
             requests::Withdraw {
                 destination,
-                amount,
+                satoshi,
                 feerate,
+                minconf,
             },
         )
     }
