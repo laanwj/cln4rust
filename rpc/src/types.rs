@@ -14,7 +14,6 @@ pub struct RouteItem {
     pub amount_msat: MSat,
     pub delay: i64,
     pub style: Option<String>,
-    pub enctlv: Option<String>,
 }
 
 /// Type-safe millisatoshi wrapper
