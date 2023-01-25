@@ -193,7 +193,7 @@ pub struct Channel {
     pub close_to_addr: Option<String>,
     pub close_to: Option<String>,
     pub private: bool,
-    pub funding_msat: HashMap<String, MSat>,
+    pub funding: HashMap<String, MSat>,
     pub to_us_msat: MSat,
     pub min_to_us_msat: MSat,
     pub max_to_us_msat: MSat,
