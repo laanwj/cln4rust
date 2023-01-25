@@ -40,6 +40,10 @@ pub struct ListNodes<'a> {
 pub struct ListChannels<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub short_channel_id: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub destination: Option<&'a str>,
 }
 
 /// 'help' command
