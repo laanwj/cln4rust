@@ -282,9 +282,11 @@ pub struct ListFunds {}
 #[derive(Debug, Clone, Serialize)]
 pub struct Withdraw<'a> {
     pub destination: &'a str,
-    pub amount: AmountOrAll,
+    pub satoshi: AmountOrAll,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub feerate: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minconf: Option<u32>,
 }
 
 /// 'newaddr' command
