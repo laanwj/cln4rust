@@ -86,8 +86,10 @@ impl LightningRPC {
     pub fn listchannels(
         &self,
         short_channel_id: Option<&str>,
+        source: Option<&str>,
+        destination: Option<&str>,
     ) -> Result<responses::ListChannels, Error> {
-        self.call("listchannels", requests::ListChannels { short_channel_id })
+        self.call("listchannels", requests::ListChannels { short_channel_id, source, destination })
     }
 
     /// List available commands, or give verbose help on one command.
