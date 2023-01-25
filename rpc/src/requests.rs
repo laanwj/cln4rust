@@ -22,7 +22,7 @@ use crate::types;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetInfo {}
 
-/// 'aeerates' command
+/// 'feerates' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FeeRates<'a> {
     pub style: &'a str,
@@ -245,7 +245,7 @@ impl Serialize for AmountOrAll {
     }
 }
 
-/// 'aundchannel' command
+/// 'fundchannel' command
 #[derive(Debug, Clone, Serialize)]
 pub struct FundChannel<'a> {
     pub id: &'a str,
