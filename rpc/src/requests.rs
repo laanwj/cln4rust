@@ -104,6 +104,8 @@ pub struct Invoice<'a> {
     pub label: &'a str,
     pub description: &'a str,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub preimage: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub expiry: Option<u64>,
 }
 
@@ -113,6 +115,8 @@ pub struct AnyInvoice<'a> {
     pub amount_msat: &'a str,
     pub label: &'a str,
     pub description: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub preimage: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expiry: Option<u64>,
 }

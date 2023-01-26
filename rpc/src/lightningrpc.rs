@@ -144,6 +144,7 @@ impl LightningRPC {
         amount_msat: Option<u64>,
         label: &str,
         description: &str,
+        preimage: Option<&str>,
         expiry: Option<u64>,
     ) -> Result<responses::Invoice, Error> {
         match amount_msat {
@@ -153,6 +154,7 @@ impl LightningRPC {
                     amount_msat: "any",
                     label,
                     description,
+                    preimage,
                     expiry,
                 },
             ),
@@ -162,6 +164,7 @@ impl LightningRPC {
                     amount_msat,
                     label,
                     description,
+                    preimage,
                     expiry,
                 },
             ),
