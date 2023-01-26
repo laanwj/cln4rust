@@ -89,6 +89,14 @@ pub struct ListInvoices<'a> {
     pub offer_id: Option<&'a str>,
 }
 
+/// 'createinvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct CreateInvoice<'a> {
+    pub invstring: &'a str,
+    pub label: &'a str,
+    pub preimage: &'a str,
+}
+
 /// 'invoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Invoice<'a> {

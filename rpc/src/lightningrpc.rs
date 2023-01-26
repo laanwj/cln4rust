@@ -168,8 +168,25 @@ impl LightningRPC {
         }
     }
 
-    /// Create an invoice for {msatoshi} with {label} and {description} with
-    /// optional {expiry} seconds (default 1 hour).
+    /// Lowlevel command to sign and create invoice {invstring}, resolved with {preimage},
+    /// using unique {label}
+    pub fn createinvoice(
+        &self,
+        invstring: &str,
+        preimage: &str,
+        label: &str,
+    ) -> Result<responses::Invoice, Error> {
+        self.call(
+            "createinvoice",
+            requests::CreateInvoice {
+                invstring,
+                label,
+                preimage
+            },
+        )
+    }
+
+    /// Delete unpaid invoice {label} with {status}
     pub fn delinvoice(&self, label: &str, status: &str) -> Result<responses::DelInvoice, Error> {
         self.call("delinvoice", requests::DelInvoice { label, status })
     }
