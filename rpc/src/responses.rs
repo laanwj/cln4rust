@@ -269,7 +269,7 @@ pub struct CreateinvoiceResponse {
     pub bolt12: Option<String>,
     pub payment_hash: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_msat:  Option<MSat>,
+    pub amount_msat: Option<MSat>,
     pub status: String,
     pub description: String,
     pub expires_at: u64,

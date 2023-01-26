@@ -89,7 +89,14 @@ impl LightningRPC {
         source: Option<&str>,
         destination: Option<&str>,
     ) -> Result<responses::ListChannels, Error> {
-        self.call("listchannels", requests::ListChannels { short_channel_id, source, destination })
+        self.call(
+            "listchannels",
+            requests::ListChannels {
+                short_channel_id,
+                source,
+                destination,
+            },
+        )
     }
 
     /// List available commands, or give verbose help on one command.
@@ -144,6 +151,7 @@ impl LightningRPC {
         amount_msat: Option<u64>,
         label: &str,
         description: &str,
+        preimage: Option<&str>,
         expiry: Option<u64>,
     ) -> Result<responses::Invoice, Error> {
         match amount_msat {
@@ -153,6 +161,7 @@ impl LightningRPC {
                     amount_msat: "any",
                     label,
                     description,
+                    preimage,
                     expiry,
                 },
             ),
@@ -162,6 +171,7 @@ impl LightningRPC {
                     amount_msat,
                     label,
                     description,
+                    preimage,
                     expiry,
                 },
             ),
@@ -181,7 +191,7 @@ impl LightningRPC {
             requests::CreateInvoice {
                 invstring,
                 label,
-                preimage
+                preimage,
             },
         )
     }
