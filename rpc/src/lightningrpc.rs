@@ -173,8 +173,8 @@ impl LightningRPC {
     pub fn createinvoice(
         &self,
         invstring: &str,
-        preimage: &str,
         label: &str,
+        preimage: &str,
     ) -> Result<responses::Invoice, Error> {
         self.call(
             "createinvoice",
