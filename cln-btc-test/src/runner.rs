@@ -45,7 +45,7 @@ pub async fn setup_btc_node_ready(port: u16, rpc_port: u16) -> (Child, Client, T
         &rpc_url,
         Auth::UserPass("regtest".to_owned(), "regtest".to_owned()),
     )
-        .expect("Node client");
+    .expect("Node client");
     wait_for_btc_node(&client).await;
     client
         .create_wallet("default", None, None, None, None)
@@ -78,9 +78,9 @@ pub async fn generate_to_address(client: &Client, address: Address) {
 }
 
 pub async fn run_btc_test<F, Fut>(test_body: F)
-    where
-        F: FnOnce(Client) -> Fut,
-        Fut: Future<Output = ()>,
+where
+    F: FnOnce(Client) -> Fut,
+    Fut: Future<Output = ()>,
 {
     let _ = env_logger::builder().is_test(true).try_init();
     let node_port = random_free_tcp_port().expect("available port");
@@ -96,9 +96,9 @@ pub async fn run_btc_test<F, Fut>(test_body: F)
 }
 
 pub async fn run_two_nodes_test<F, Fut>(test_body: F)
-    where
-        F: FnOnce(Client, Client) -> Fut,
-        Fut: Future<Output = ()>,
+where
+    F: FnOnce(Client, Client) -> Fut,
+    Fut: Future<Output = ()>,
 {
     let _ = env_logger::builder().is_test(true).try_init();
 
@@ -127,9 +127,9 @@ pub async fn run_two_nodes_test<F, Fut>(test_body: F)
 // user's balance from an external wallet.
 // It also starts instance of hexstody-btc API.
 pub async fn run_regtest<F, Fut>(body: F)
-    where
-        F: FnOnce((u16, Client), (u16, Client)) -> Fut,
-        Fut: Future<Output = ()>,
+where
+    F: FnOnce((u16, Client), (u16, Client)) -> Fut,
+    Fut: Future<Output = ()>,
 {
     // Start 1st BTC node
     let node_1_port = 9803;
@@ -167,7 +167,7 @@ pub async fn run_regtest<F, Fut>(body: F)
         (node_2_rpc_port, client_2),
         //(api_url, api_client),
     )
-        .await;
+    .await;
     teardown_btc_node(node_1_handle);
     teardown_btc_node(node_2_handle);
 }

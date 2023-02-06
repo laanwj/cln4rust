@@ -89,7 +89,14 @@ impl LightningRPC {
         source: Option<&str>,
         destination: Option<&str>,
     ) -> Result<responses::ListChannels, Error> {
-        self.call("listchannels", requests::ListChannels { short_channel_id, source, destination })
+        self.call(
+            "listchannels",
+            requests::ListChannels {
+                short_channel_id,
+                source,
+                destination,
+            },
+        )
     }
 
     /// List available commands, or give verbose help on one command.
@@ -184,7 +191,7 @@ impl LightningRPC {
             requests::CreateInvoice {
                 invstring,
                 label,
-                preimage
+                preimage,
             },
         )
     }
@@ -435,7 +442,7 @@ impl LightningRPC {
                 destination,
                 satoshi,
                 feerate,
-                minconf
+                minconf,
             },
         )
     }

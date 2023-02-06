@@ -110,7 +110,7 @@ fn handle_defaults<'a, 'b>(
         if args[args_i] == serde_json::Value::Null {
             if first_non_null_optional_idx.is_some() {
                 if defaults[defaults_i] == serde_json::Value::Null {
-                    panic!("Missing `default` for argument idx {}", args_i);
+                    panic!("Missing `default` for argument idx {args_i}");
                 }
                 args[args_i] = defaults[defaults_i].clone();
             }
