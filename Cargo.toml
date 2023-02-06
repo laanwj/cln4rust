@@ -5,6 +5,8 @@ members = [
         "plugin",
         "plugin_macros",
         "conf",
+        "cln-btc-test",
+        "cln-test",
 ]
 resolver = "2"
 
