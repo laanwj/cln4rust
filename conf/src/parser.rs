@@ -39,14 +39,22 @@ impl Parser {
         let mut words = vec![];
         for line in lines {
             if line.starts_with("#") {
+                words.push(format!("comment {line}"));
                 continue;
             }
             if line.starts_with("include") {
                 words.push(line);
                 continue;
             }
-            let mut key_val: Vec<String> = line.split('=').map(|it| it.to_string()).collect();
-            words.append(&mut key_val);
+            let mut split: Vec<String> = line.split("=").map(|it| it.to_owned()).collect();
+            let key = split.first().unwrap().to_owned();
+            split.remove(0);
+            let val = if split.is_empty() {
+                "".to_owned()
+            } else {
+                split.join("=")
+            };
+            words.append(&mut vec![key, val]);
         }
 
         Ok(words)
@@ -75,6 +83,11 @@ impl Parser {
         conf: &mut CLNConf,
     ) -> Result<(), ParsingError> {
         let key = stream.advance().to_owned();
+        if key.starts_with("comment") {
+            let value = key.strip_prefix("comment ").unwrap().trim();
+            conf.add_conf(&key, value);
+            return Ok(());
+        }
         if key.starts_with("include") {
             let value = key.strip_prefix("include ").unwrap().trim();
             let mut subconf = CLNConf::new(value.to_owned(), false);

@@ -1,6 +1,6 @@
 [package]
 name = "clightningrpc-conf"
-version = "0.0.1-alpha.7"
+version = "0.0.1-alpha.8"
 edition = "2021"
 authors = ["Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
 license = "CC0-1.0"
@@ -12,4 +12,4 @@ readme = "README.md"
 
 [dependencies]
 albert_stream = "0.0.4"
-multimap = "0.8.3"
+indexmap = "1.9.2"

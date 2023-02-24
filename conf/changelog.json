@@ -1,6 +1,6 @@
 {
   "package_name": "conf",
-  "version": "v0.0.1-alpha.7",
+  "version": "v0.0.1-alpha.8",
   "api": {
     "name": "github",
     "repository": "laanwj/rust-clightning-rpc",
