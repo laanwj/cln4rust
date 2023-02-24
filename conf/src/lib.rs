@@ -29,7 +29,7 @@ pub trait SyncCLNConf {
 /// core lightning configuration manager
 /// that help to parser and create a core
 /// lightning configuration with rust.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CLNConf {
     /// collection of field included
     /// inside the conf file.
