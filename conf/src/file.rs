@@ -1,6 +1,7 @@
 //! file implementation to read and write content
 use std::fs;
 use std::io::{Error, Write};
+use std::path::Path;
 
 pub trait SyncFile {
     /// sync version to write into the file
@@ -17,6 +18,10 @@ pub trait SyncFile {
     }
 
     fn path(&self) -> String;
+
+    fn exist(&self) -> bool {
+        Path::exists(Path::new(&self.path()))
+    }
 }
 
 pub struct File {
