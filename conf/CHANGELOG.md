@@ -1,3 +1,9 @@
+# v0.0.1-alpha.4
+
+## Fixed
+- allow to specify `create_if_missing` ([commit](https://github.com/laanwj/cln4rust/commit/fe905fcc5d67a2da2a41d8f668095ed6533fa011)). @vincenzopalazzo 24-02-2023
+
+
 # v0.0.1-alpha.3
 
 ## Added
