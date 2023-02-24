@@ -36,7 +36,7 @@ pub struct CLNConf {
     ///
     /// `plugin=path/to/bin` is parser as
     /// `key=value`.
-    pub filed: MultiMap<String, String>,
+    pub fields: MultiMap<String, String>,
     /// other conf file included.
     pub includes: Vec<Rc<CLNConf>>,
     path: String,
@@ -48,7 +48,7 @@ impl CLNConf {
     /// file manager.
     pub fn new(path: String, create_if_missing: bool) -> Self {
         CLNConf {
-            filed: MultiMap::new(),
+            fields: MultiMap::new(),
             includes: Vec::new(),
             path,
             create_if_missing,
@@ -61,7 +61,7 @@ impl CLNConf {
     }
 
     pub fn add_conf(&mut self, key: &str, val: &str) {
-        self.filed.insert(key.to_owned(), val.to_owned());
+        self.fields.insert(key.to_owned(), val.to_owned());
     }
 
     pub fn add_subconf(&mut self, conf: CLNConf) {
@@ -87,8 +87,8 @@ impl SyncCLNConf for CLNConf {
 impl fmt::Display for CLNConf {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut content = String::new();
-        for field in self.filed.keys() {
-            let values = self.filed.get_vec(field).unwrap();
+        for field in self.fields.keys() {
+            let values = self.fields.get_vec(field).unwrap();
             for value in values {
                 content += format!("{field}={value}\n").as_str();
             }
@@ -137,13 +137,13 @@ mod tests {
         let path = build_file("plugin=foo\nnetwork=bitcoin");
         assert!(path.is_ok());
         let path = path.unwrap();
-        let mut conf = CLNConf::new(path.to_string());
+        let mut conf = CLNConf::new(path.to_string(), false);
         let result = conf.parse();
         assert!(result.is_ok());
-        assert_eq!(conf.filed.keys().len(), 2);
+        assert_eq!(conf.fields.keys().len(), 2);
 
-        assert!(conf.filed.contains_key("plugin"));
-        assert!(conf.filed.contains_key("network"));
+        assert!(conf.fields.contains_key("plugin"));
+        assert!(conf.fields.contains_key("network"));
 
         cleanup_file(path.as_str());
     }
@@ -151,19 +151,19 @@ mod tests {
     #[test]
     fn flush_conf_one() {
         let path = get_conf_path();
-        let mut conf = CLNConf::new(path.to_string());
+        let mut conf = CLNConf::new(path.to_string(), false);
         conf.add_conf("plugin", "/some/path");
         conf.add_conf("network", "bitcoin");
         let result = conf.flush();
         assert!(result.is_ok());
 
-        let mut conf = CLNConf::new(path.to_string());
+        let mut conf = CLNConf::new(path.to_string(), false);
         let result = conf.parse();
         assert!(result.is_ok());
-        assert_eq!(conf.filed.keys().len(), 2);
+        assert_eq!(conf.fields.keys().len(), 2);
         println!("{:?}", conf);
-        assert!(conf.filed.contains_key("plugin"));
-        assert!(conf.filed.contains_key("network"));
+        assert!(conf.fields.contains_key("plugin"));
+        assert!(conf.fields.contains_key("network"));
 
         cleanup_file(path.as_str());
     }
@@ -171,20 +171,56 @@ mod tests {
     #[test]
     fn flush_conf_two() {
         let path = get_conf_path();
-        let mut conf = CLNConf::new(path.to_string());
+        let mut conf = CLNConf::new(path.to_string(), false);
         conf.add_conf("plugin", "/some/path");
         conf.add_conf("plugin", "foo");
         conf.add_conf("network", "bitcoin");
         let result = conf.flush();
         assert!(result.is_ok());
 
-        let mut conf = CLNConf::new(path.to_string());
+        let mut conf = CLNConf::new(path.to_string(), false);
         let result = conf.parse();
         assert!(result.is_ok());
-        assert_eq!(conf.filed.get_vec("plugin").unwrap().len(), 2);
+        assert_eq!(conf.fields.get_vec("plugin").unwrap().len(), 2);
         println!("{:?}", conf);
-        assert!(conf.filed.contains_key("plugin"));
-        assert!(conf.filed.contains_key("network"));
+        assert!(conf.fields.contains_key("plugin"));
+        assert!(conf.fields.contains_key("network"));
+
+        cleanup_file(path.as_str());
+    }
+
+    #[test]
+    fn flush_conf_with_comments() {
+        let path = build_file("# this is just a commit\nplugin=foo\nnetwork=bitcoin");
+        assert!(path.is_ok());
+        let path = path.unwrap();
+        let mut conf = CLNConf::new(path.to_string(), false);
+        let result = conf.parse();
+        assert!(result.is_ok());
+        assert_eq!(conf.fields.keys().len(), 2);
+
+        assert!(conf.fields.contains_key("plugin"));
+        assert!(conf.fields.contains_key("network"));
+
+        cleanup_file(path.as_str());
+    }
+
+    #[test]
+    fn flush_conf_with_includes() {
+        let subpath = get_conf_path();
+        let conf = CLNConf::new(subpath.clone(), false);
+        assert!(conf.flush().is_ok());
+
+        let path = build_file(format!("# this is just a commit\nplugin=foo\nnetwork=bitcoin\ninclude {subpath}").as_str());
+        assert!(path.is_ok(), "{}", format!("{:?}", path));
+        let path = path.unwrap();
+        let mut conf = CLNConf::new(path.to_string(), false);
+        let result = conf.parse();
+        assert!(result.is_ok(), "{}", result.unwrap_err().cause);
+        assert_eq!(conf.fields.keys().len(), 2);
+
+        assert!(conf.fields.contains_key("plugin"));
+        assert!(conf.fields.contains_key("network"));
 
         cleanup_file(path.as_str());
     }
