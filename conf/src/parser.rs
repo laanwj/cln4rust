@@ -85,7 +85,7 @@ impl Parser {
         let key = stream.advance().to_owned();
         if key.starts_with("comment") {
             let value = key.strip_prefix("comment ").unwrap().trim();
-            conf.add_conf(&key, value);
+            conf.add_conf(&key, value)?;
             return Ok(());
         }
         if key.starts_with("include") {
@@ -94,10 +94,10 @@ impl Parser {
             if let Err(err) = subconf.parse() {
                 return Err(err);
             }
-            conf.add_subconf(subconf);
+            conf.add_subconf(subconf)?;
         } else {
             let value = stream.advance().to_owned();
-            conf.add_conf(&key, &value);
+            conf.add_conf(&key, &value)?;
         }
         Ok(())
     }

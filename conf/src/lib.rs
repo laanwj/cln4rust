@@ -60,17 +60,35 @@ impl CLNConf {
         parser::Parser::new(&self.path, self.create_if_missing)
     }
 
-    pub fn add_conf(&mut self, key: &str, val: &str) {
+    pub fn add_conf(&mut self, key: &str, val: &str) -> Result<(), ParsingError> {
         if self.fields.contains_key(key) {
             let values = self.fields.get_mut(key).unwrap();
+            for value in values.iter() {
+                if val == value {
+                    return Err(ParsingError {
+                        core: 2,
+                        cause: format!("field {key} with value {val} already present"),
+                    });
+                }
+            }
             values.push(val.to_owned());
         } else {
             self.fields.insert(key.to_owned(), vec![val.to_owned()]);
         }
+        Ok(())
     }
 
-    pub fn add_subconf(&mut self, conf: CLNConf) {
+    pub fn add_subconf(&mut self, conf: CLNConf) -> Result<(), ParsingError> {
+        for subconf in &self.includes {
+            if conf.path == subconf.path {
+                return Err(ParsingError {
+                    core: 2,
+                    cause: format!("duplicate include {}", conf.path),
+                });
+            }
+        }
         self.includes.push(conf.into());
+        Ok(())
     }
 
     pub fn flush(&self) -> Result<(), std::io::Error> {
