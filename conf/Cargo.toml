@@ -1,6 +1,6 @@
 [package]
 name = "clightningrpc-conf"
-version = "0.0.1-alpha.5"
+version = "0.0.1-alpha.6"
 edition = "2021"
 authors = ["Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
 license = "CC0-1.0"
@@ -11,5 +11,5 @@ keywords = [ "cln-conf-parser", "cln", "rpc", "lightning", "bitcoin" ]
 readme = "README.md"
 
 [dependencies]
-albert_stream = "0.0.3"
+albert_stream = "0.0.4"
 multimap = "0.8.3"
