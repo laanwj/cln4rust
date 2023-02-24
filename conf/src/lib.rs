@@ -1,6 +1,6 @@
 //! Core lightning configuration manager written in rust.
-use std::fmt;
 use std::rc::Rc;
+use std::{fmt, io};
 
 mod file;
 mod parser;
@@ -8,7 +8,19 @@ mod parser;
 use file::{File, SyncFile};
 use multimap::MultiMap;
 
-pub type ParsingError = String;
+pub struct ParsingError {
+    pub core: u64,
+    pub cause: String,
+}
+
+impl From<io::Error> for ParsingError {
+    fn from(value: io::Error) -> Self {
+        ParsingError {
+            core: 1,
+            cause: format!("{value}"),
+        }
+    }
+}
 
 pub trait SyncCLNConf {
     fn parse(&mut self) -> Result<(), ParsingError>;
@@ -28,22 +40,24 @@ pub struct CLNConf {
     /// other conf file included.
     pub includes: Vec<Rc<CLNConf>>,
     path: String,
+    create_if_missing: bool,
 }
 
 impl CLNConf {
     /// create a new instance of the configuration
     /// file manager.
-    pub fn new(path: String) -> Self {
+    pub fn new(path: String, create_if_missing: bool) -> Self {
         CLNConf {
             filed: MultiMap::new(),
             includes: Vec::new(),
             path,
+            create_if_missing,
         }
     }
 
     /// build a new instance of the parser.
     pub fn parser(&self) -> parser::Parser {
-        parser::Parser::new(&self.path)
+        parser::Parser::new(&self.path, self.create_if_missing)
     }
 
     pub fn add_conf(&mut self, key: &str, val: &str) {

@@ -8,19 +8,26 @@ use albert_stream::{BasicStream, Stream};
 
 pub struct Parser {
     file: File,
+    create_if_missing: bool,
 }
 
 type Word = String;
 
 impl Parser {
-    pub(crate) fn new(file_path: &str) -> Self {
+    pub(crate) fn new(file_path: &str, create_if_missing: bool) -> Self {
         Parser {
             file: File::new(file_path),
+            create_if_missing,
         }
     }
 
     fn read_and_split(&self) -> Result<Vec<Word>, ParsingError> {
-        let content = self.file.read().unwrap();
+        let content = if !self.file.exist() && self.create_if_missing {
+            self.file.write("")?;
+            self.file.read()
+        } else {
+            self.file.read()
+        }?;
 
         let lines: Vec<String> = content
             .split('\n')
@@ -61,7 +68,7 @@ impl Parser {
         let key = stream.advance().to_owned();
         let value = stream.advance().to_owned();
         if key == "include" {
-            let mut subconf = CLNConf::new(value);
+            let mut subconf = CLNConf::new(value, false);
             if let Err(err) = subconf.parse() {
                 return Err(err);
             }
