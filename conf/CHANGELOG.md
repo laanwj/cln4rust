@@ -1,3 +1,12 @@
+# v0.0.1
+
+## Fixed
+- do not allow duplicate fields ([commit](https://github.com/laanwj/cln4rust/commit/22e34ccf661c69628301bda44ec82a35c1b1d4ab)). @vincenzopalazzo 24-02-2023
+- include complex case for the parser ([commit](https://github.com/laanwj/cln4rust/commit/2b5888221d9d023b63d1635dd70d7c467242b39d)). @vincenzopalazzo 24-02-2023
+- take into count inclue and comments ([commit](https://github.com/laanwj/cln4rust/commit/c4a8a9a789c7d7fb33f0b561086aba3c3399676f)). @vincenzopalazzo 24-02-2023
+- allow to specify `create_if_missing` ([commit](https://github.com/laanwj/cln4rust/commit/fe905fcc5d67a2da2a41d8f668095ed6533fa011)). @vincenzopalazzo 24-02-2023
+
+
 # v0.0.1-alpha.4
 
 ## Fixed

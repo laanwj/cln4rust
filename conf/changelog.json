@@ -1,10 +1,10 @@
 {
   "package_name": "conf",
-  "version": "v0.0.1-alpha.8",
+  "version": "v0.0.1",
   "api": {
     "name": "github",
     "repository": "laanwj/rust-clightning-rpc",
-    "branch": "macros/conf-create"
+    "branch": "master"
   },
   "generation_method": {
     "name": "semver-v2",
