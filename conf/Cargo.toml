@@ -1,6 +1,6 @@
 [package]
 name = "clightningrpc-conf"
-version = "0.0.1-alpha.4"
+version = "0.0.1-alpha.5"
 edition = "2021"
 authors = ["Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
 license = "CC0-1.0"
