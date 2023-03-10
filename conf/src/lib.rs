@@ -150,7 +150,7 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .subsec_nanos();
-        format!("{dir}/conf-{}", nanos)
+        format!("{dir}/conf-{nanos}")
     }
 
     fn build_file(content: &str) -> Result<String, std::io::Error> {
@@ -193,7 +193,7 @@ mod tests {
         let result = conf.parse();
         assert!(result.is_ok());
         assert_eq!(conf.fields.keys().len(), 2);
-        println!("{:?}", conf);
+        println!("{conf:?}");
         assert!(conf.fields.contains_key("plugin"));
         assert!(conf.fields.contains_key("network"));
 
@@ -214,7 +214,7 @@ mod tests {
         let result = conf.parse();
         assert!(result.is_ok());
         assert_eq!(conf.fields.get("plugin").unwrap().len(), 2);
-        println!("{:?}", conf);
+        println!("{conf:?}");
         assert!(conf.fields.contains_key("plugin"));
         assert!(conf.fields.contains_key("network"));
 
@@ -248,7 +248,7 @@ mod tests {
             format!("# this is just a commit\nplugin=foo\nnetwork=bitcoin\ninclude {subpath}")
                 .as_str(),
         );
-        assert!(path.is_ok(), "{}", format!("{:?}", path));
+        assert!(path.is_ok(), "{}", format!("{path:?}"));
         let path = path.unwrap();
         let mut conf = CLNConf::new(path.to_string(), false);
         let result = conf.parse();

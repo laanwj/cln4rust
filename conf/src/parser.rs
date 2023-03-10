@@ -38,7 +38,7 @@ impl Parser {
             .collect();
         let mut words = vec![];
         for line in lines {
-            if line.starts_with("#") {
+            if line.starts_with('#') {
                 words.push(format!("comment {line}"));
                 continue;
             }
@@ -46,7 +46,7 @@ impl Parser {
                 words.push(line);
                 continue;
             }
-            let mut split: Vec<String> = line.split("=").map(|it| it.to_owned()).collect();
+            let mut split: Vec<String> = line.split('=').map(|it| it.to_owned()).collect();
             let key = split.first().unwrap().to_owned();
             split.remove(0);
             let val = if split.is_empty() {
@@ -91,9 +91,7 @@ impl Parser {
         if key.starts_with("include") {
             let value = key.strip_prefix("include ").unwrap().trim();
             let mut subconf = CLNConf::new(value.to_owned(), false);
-            if let Err(err) = subconf.parse() {
-                return Err(err);
-            }
+            subconf.parse()?;
             conf.add_subconf(subconf)?;
         } else {
             let value = stream.advance().to_owned();
