@@ -22,7 +22,7 @@ use crate::types;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GetInfo {}
 
-/// 'aeerates' command
+/// 'feerates' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FeeRates<'a> {
     pub style: &'a str,
@@ -40,6 +40,10 @@ pub struct ListNodes<'a> {
 pub struct ListChannels<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub short_channel_id: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub destination: Option<&'a str>,
 }
 
 /// 'help' command
@@ -85,12 +89,22 @@ pub struct ListInvoices<'a> {
     pub offer_id: Option<&'a str>,
 }
 
+/// 'createinvoice' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct CreateInvoice<'a> {
+    pub invstring: &'a str,
+    pub label: &'a str,
+    pub preimage: &'a str,
+}
+
 /// 'invoice' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Invoice<'a> {
     pub amount_msat: u64,
     pub label: &'a str,
     pub description: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub preimage: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expiry: Option<u64>,
 }
@@ -101,6 +115,8 @@ pub struct AnyInvoice<'a> {
     pub amount_msat: &'a str,
     pub label: &'a str,
     pub description: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub preimage: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expiry: Option<u64>,
 }
@@ -245,7 +261,7 @@ impl Serialize for AmountOrAll {
     }
 }
 
-/// 'aundchannel' command
+/// 'fundchannel' command
 #[derive(Debug, Clone, Serialize)]
 pub struct FundChannel<'a> {
     pub id: &'a str,
@@ -282,9 +298,11 @@ pub struct ListFunds {}
 #[derive(Debug, Clone, Serialize)]
 pub struct Withdraw<'a> {
     pub destination: &'a str,
-    pub amount: AmountOrAll,
+    pub satoshi: AmountOrAll,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub feerate: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minconf: Option<u32>,
 }
 
 /// 'newaddr' command

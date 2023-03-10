@@ -193,7 +193,7 @@ pub struct Channel {
     pub close_to_addr: Option<String>,
     pub close_to: Option<String>,
     pub private: bool,
-    pub funding_msat: HashMap<String, MSat>,
+    pub funding: HashMap<String, MSat>,
     pub to_us_msat: MSat,
     pub min_to_us_msat: MSat,
     pub max_to_us_msat: MSat,
@@ -257,6 +257,34 @@ pub struct ListInvoice {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ListInvoices {
     pub invoices: Vec<ListInvoice>,
+}
+
+/// 'createinvoice' command
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CreateinvoiceResponse {
+    pub label: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bolt11: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bolt12: Option<String>,
+    pub payment_hash: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub amount_msat: Option<MSat>,
+    pub status: String,
+    pub description: String,
+    pub expires_at: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pay_index: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub amount_received_msat: Option<MSat>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub paid_at: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payment_preimage: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub local_offer_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub invreq_payer_note: Option<String>,
 }
 
 /// 'invoice' command

@@ -86,8 +86,17 @@ impl LightningRPC {
     pub fn listchannels(
         &self,
         short_channel_id: Option<&str>,
+        source: Option<&str>,
+        destination: Option<&str>,
     ) -> Result<responses::ListChannels, Error> {
-        self.call("listchannels", requests::ListChannels { short_channel_id })
+        self.call(
+            "listchannels",
+            requests::ListChannels {
+                short_channel_id,
+                source,
+                destination,
+            },
+        )
     }
 
     /// List available commands, or give verbose help on one command.
@@ -142,6 +151,7 @@ impl LightningRPC {
         amount_msat: Option<u64>,
         label: &str,
         description: &str,
+        preimage: Option<&str>,
         expiry: Option<u64>,
     ) -> Result<responses::Invoice, Error> {
         match amount_msat {
@@ -151,6 +161,7 @@ impl LightningRPC {
                     amount_msat: "any",
                     label,
                     description,
+                    preimage,
                     expiry,
                 },
             ),
@@ -160,14 +171,32 @@ impl LightningRPC {
                     amount_msat,
                     label,
                     description,
+                    preimage,
                     expiry,
                 },
             ),
         }
     }
 
-    /// Create an invoice for {msatoshi} with {label} and {description} with
-    /// optional {expiry} seconds (default 1 hour).
+    /// Lowlevel command to sign and create invoice {invstring}, resolved with {preimage},
+    /// using unique {label}
+    pub fn createinvoice(
+        &self,
+        invstring: &str,
+        label: &str,
+        preimage: &str,
+    ) -> Result<responses::Invoice, Error> {
+        self.call(
+            "createinvoice",
+            requests::CreateInvoice {
+                invstring,
+                label,
+                preimage,
+            },
+        )
+    }
+
+    /// Delete unpaid invoice {label} with {status}
     pub fn delinvoice(&self, label: &str, status: &str) -> Result<responses::DelInvoice, Error> {
         self.call("delinvoice", requests::DelInvoice { label, status })
     }
@@ -403,15 +432,17 @@ impl LightningRPC {
     pub fn withdraw(
         &self,
         destination: &str,
-        amount: requests::AmountOrAll,
+        satoshi: requests::AmountOrAll,
         feerate: Option<u64>,
+        minconf: Option<u32>,
     ) -> Result<responses::Withdraw, Error> {
         self.call(
             "withdraw",
             requests::Withdraw {
                 destination,
-                amount,
+                satoshi,
                 feerate,
+                minconf,
             },
         )
     }

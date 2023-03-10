@@ -159,7 +159,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         if let Err(json_res) = notification.call(self, params) {
             self.log(
                 LogLevel::Debug,
-                format!("Notification end with and error: {}", json_res).as_str(),
+                format!("Notification end with and error: {json_res}").as_str(),
             );
         }
     }
