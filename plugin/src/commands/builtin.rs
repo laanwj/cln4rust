@@ -21,7 +21,7 @@ use super::types::InitConf;
 pub struct ManifestRPC {}
 
 impl<T: Clone> RPCCommand<T> for ManifestRPC {
-    fn call<'c>(&self, plugin: &mut Plugin<T>, _request: &'c Value) -> Result<Value, PluginError> {
+    fn call<'c>(&self, plugin: &mut Plugin<T>, _request: Value) -> Result<Value, PluginError> {
         let mut response = init_payload();
         add_vec::<RpcOption>(
             &mut response,
@@ -65,7 +65,7 @@ impl<T: Clone> InitRPC<T> {
 }
 
 impl<T: Clone> RPCCommand<T> for InitRPC<T> {
-    fn call<'c>(&self, plugin: &mut Plugin<T>, request: &'c Value) -> Result<Value, PluginError> {
+    fn call<'c>(&self, plugin: &mut Plugin<T>, request: Value) -> Result<Value, PluginError> {
         let response = init_payload();
         let init: InitConf = serde_json::from_value(request.to_owned()).unwrap();
         plugin.configuration = Some(init.configuration);

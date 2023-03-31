@@ -2,6 +2,15 @@
 use serde::Serialize;
 use std::fmt;
 
+#[macro_export]
+/// emit a compiler error
+macro_rules! error {
+    ($($msg:tt)*) => {{
+        let msg = format!($($msg)*);
+        PluginError::new(-1, &msg, None)
+    }};
+}
+
 #[derive(Debug, Clone, Serialize)]
 /// Type defining JSONRPCv2.0 compliant plugin errors defined here
 /// https://www.jsonrpc.org/specification#error_object
@@ -29,5 +38,15 @@ impl PluginError {
 impl fmt::Display for PluginError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "code: {}, msg: {}", self.code, self.msg)
+    }
+}
+
+impl From<serde_json::Error> for PluginError {
+    fn from(e: serde_json::Error) -> Self {
+        PluginError {
+            code: -1,
+            msg: format!("{e}"),
+            data: None,
+        }
     }
 }

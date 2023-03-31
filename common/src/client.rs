@@ -67,10 +67,11 @@ impl Client {
         to_writer(
             &mut stream,
             &Request {
-                method,
+                method: method.to_owned(),
                 params,
-                id: Some(0), // we always open a new connection, so we don't have to care about the nonce
-                jsonrpc: "2.0",
+                // FIXME: use a custom json to identify the json request!
+                id: Some("0".into()), // we always open a new connection, so we don't have to care about the nonce
+                jsonrpc: "2.0".to_owned(),
             },
         )?;
 
@@ -84,11 +85,6 @@ impl Client {
             .map_or(false, |version| version != "2.0")
         {
             return Err(Error::VersionMismatch);
-        }
-
-        // nonce will always be 0
-        if response.id != 0 {
-            return Err(Error::NonceMismatch);
         }
 
         Ok(response)

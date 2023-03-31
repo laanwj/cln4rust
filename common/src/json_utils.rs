@@ -4,13 +4,15 @@
 use serde::Serialize;
 use serde_json::{json, Number};
 
+use crate::types::Id;
+
 /// return a server::json_value useful to initialize the JSON payload as an empty JSON object.
 pub fn init_payload() -> serde_json::Value {
     json!({})
 }
 
 /// returns a success response.
-pub fn init_success_response(id: u64) -> serde_json::Value {
+pub fn init_success_response(id: Id) -> serde_json::Value {
     json!(
         {
             "id": id,

@@ -18,5 +18,6 @@ fn plugin_macros_rpc_call_call(lightningd: Client) {
     let response = lightningd
         .send_request::<HashMap<String, Value>, HashMap<String, Value>>("foo_macro", HashMap::new())
         .unwrap();
+    println!("{:#?}", response);
     assert!(response.result.unwrap().contains_key("is_dynamic"));
 }

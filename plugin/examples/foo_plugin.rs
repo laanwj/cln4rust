@@ -16,7 +16,7 @@ impl RPCCommand<PluginState> for HelloRPC {
     fn call<'c>(
         &self,
         plugin: &mut Plugin<PluginState>,
-        _request: &'c Value,
+        _request: Value,
     ) -> Result<Value, PluginError> {
         plugin.log(LogLevel::Debug, "call the custom rpc method from rust");
         let response = json!({
