@@ -6,19 +6,38 @@ use serde::{Deserialize, Serialize};
 
 use crate::errors::{Error, RpcError};
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Id {
+    Str(String),
+    Int(u16),
+}
+
+impl From<&str> for Id {
+    fn from(value: &str) -> Self {
+        Id::Str(value.to_owned())
+    }
+}
+
+impl From<u64> for Id {
+    fn from(value: u64) -> Self {
+        Id::Str(format!("{value}"))
+    }
+}
+
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// A standard JSONRPC request object
-pub struct Request<'f, T: Serialize> {
+pub struct Request<T: Serialize> {
     /// The name of the RPC method call
-    pub method: &'f str,
+    pub method: String,
     /// Parameters to the RPC method call
     pub params: T,
     /// Identifier for this Request, which should appear in the response
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<u64>,
+    pub id: Option<Id>,
     /// jsonrpc field, MUST be "2.0"
-    pub jsonrpc: &'f str,
+    pub jsonrpc: String,
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -30,7 +49,7 @@ pub struct Response<T> {
     /// An error if there is one, or null
     pub error: Option<RpcError>,
     /// Identifier for this Request, which should match that of the request
-    pub id: u64,
+    pub id: Id,
     /// jsonrpc field, MUST be "2.0"
     pub jsonrpc: Option<String>,
 }
