@@ -81,8 +81,8 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         add_str(&mut payload, "message", msg);
         let request = Request {
             id: None,
-            jsonrpc: "2.0",
-            method: "log",
+            jsonrpc: "2.0".to_owned(),
+            method: "log".to_owned(),
             params: payload,
         };
         writer
@@ -148,13 +148,13 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     fn call_rpc_method(
         &'a mut self,
         name: &str,
-        params: &serde_json::Value,
+        params: serde_json::Value,
     ) -> Result<serde_json::Value, PluginError> {
         let command = self.rpc_method.get(name).unwrap().clone();
         command.call(self, params)
     }
 
-    fn handle_notification(&'a mut self, name: &str, params: &serde_json::Value) {
+    fn handle_notification(&'a mut self, name: &str, params: serde_json::Value) {
         let notification = self.rpc_notification.get(name).unwrap().clone();
         if let Err(json_res) = notification.call(self, params) {
             self.log(
@@ -233,7 +233,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             let request: Request<serde_json::Value> = serde_json::from_str(&req_str).unwrap();
             if let Some(id) = request.id {
                 // when the id is specified this is a RPC or Hook, so we need to return a response
-                let response = self.call_rpc_method(request.method, &request.params);
+                let response = self.call_rpc_method(&request.method, request.params);
                 let mut rpc_response = init_success_response(id);
                 self.write_respose(&response, &mut rpc_response);
                 writer
@@ -243,7 +243,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             } else {
                 // in case of the id is None, we are receiving the notification, so the server is not
                 // interested in the answer.
-                self.handle_notification(request.method, &request.params);
+                self.handle_notification(&request.method, request.params);
             }
         }
     }

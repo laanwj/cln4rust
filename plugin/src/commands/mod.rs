@@ -4,7 +4,6 @@
 pub mod builtin;
 pub mod types;
 
-use serde_json;
 use serde_json::json;
 
 use super::plugin::Plugin;
@@ -18,8 +17,8 @@ pub trait RPCCommand<T: Clone>: RPCCommandClone<T> {
     /// call is a generic method that it is used to simulate the callback.
     fn call<'c>(
         &self,
-        _plugin: &mut Plugin<T>,
-        _request: &'c serde_json::Value,
+        _: &mut Plugin<T>,
+        _: serde_json::Value,
     ) -> Result<serde_json::Value, PluginError> {
         Ok(json!({}))
     }
