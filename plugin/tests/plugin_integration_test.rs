@@ -18,5 +18,8 @@ fn plugin_rpc_call_call(lightningd: Client) {
     let response = lightningd
         .send_request::<HashMap<String, Value>, HashMap<String, Value>>("hello", HashMap::new())
         .unwrap();
+    println!("{:#?}", response);
+    assert!(response.result.is_some());
+    assert!(response.error.is_none());
     assert!(response.result.unwrap().contains_key("language"));
 }
