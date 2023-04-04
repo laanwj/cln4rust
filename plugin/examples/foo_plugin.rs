@@ -51,7 +51,7 @@ fn main() {
             false,
         )
         .register_notification("channel_opened", OnChannelOpened {})
-        .on_init(&|plugin| -> serde_json::Value {
+        .on_init(|plugin: &mut Plugin<_>| -> serde_json::Value {
             plugin.log(LogLevel::Debug, "Custom init method called");
             json!({})
         })
