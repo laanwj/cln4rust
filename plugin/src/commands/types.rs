@@ -4,7 +4,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Eq, Hash, PartialEq, Serialize)]
+#[derive(Clone, Eq, Hash, PartialEq, Serialize, Debug)]
 /// Type to define metadata for custom RPC Methods
 pub struct RPCMethodInfo {
     pub name: String,
@@ -14,7 +14,7 @@ pub struct RPCMethodInfo {
     pub deprecated: bool,
 }
 
-#[derive(Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 /// Type to define metadata for custom RPC Hooks
 pub struct RPCHookInfo {
     pub name: String,
@@ -22,14 +22,14 @@ pub struct RPCHookInfo {
     pub after: Option<Vec<String>>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 /// Type to define attributes for the plugin's init method
 pub(crate) struct InitConf {
     pub options: HashMap<String, serde_json::Value>,
     pub configuration: CLNConf,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 /// Type to define the configuration options for the plugin's init method
 pub struct CLNConf {
     #[serde(rename = "lightning-dir")]
@@ -45,7 +45,7 @@ pub struct CLNConf {
     pub always_use_proxy: Option<bool>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 /// Type to define the network information for the plugin's configuration
 pub struct ProxyInfo {
     #[serde(alias = "type")]
