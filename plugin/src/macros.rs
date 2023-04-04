@@ -24,3 +24,16 @@ macro_rules! register_notification {
         $plugin.register_notification(callback.on_event.as_str(), callback.clone());
     };
 }
+
+/// emit a compiler error
+#[macro_export]
+macro_rules! error {
+    ($($msg:tt)*) => {{
+        let msg = format!($($msg)*);
+        PluginError::new(-1, &msg, None)
+    }};
+}
+
+pub use add_rpc;
+pub use error;
+pub use register_notification;
