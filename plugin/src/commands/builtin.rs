@@ -3,13 +3,14 @@
 //!
 //! author: https://github.com/vincenzopalazzo
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use crate::commands::{
     types::{RPCHookInfo, RPCMethodInfo},
     RPCCommand,
 };
 use crate::errors::PluginError;
-use crate::plugin::{OnInit, Plugin};
+use crate::plugin::Plugin;
 use crate::types::RpcOption;
 use clightningrpc_common::json_utils::{add_bool, add_vec, init_payload};
 use serde_json::Value;
@@ -52,7 +53,7 @@ impl<T: Clone> RPCCommand<T> for ManifestRPC {
 #[derive(Clone)]
 /// Type to define the init method and its attributes, used in plugin
 pub struct InitRPC<T: 'static + Clone> {
-    pub(crate) on_init: Option<&'static OnInit<T>>,
+    pub(crate) on_init: Option<Arc<dyn Fn(&mut Plugin<T>) -> Value>>,
 }
 
 impl<T: Clone> InitRPC<T> {
@@ -66,13 +67,13 @@ impl<T: Clone> InitRPC<T> {
 
 impl<T: Clone> RPCCommand<T> for InitRPC<T> {
     fn call<'c>(&self, plugin: &mut Plugin<T>, request: Value) -> Result<Value, PluginError> {
-        let response = init_payload();
+        let mut response = init_payload();
         let init: InitConf = serde_json::from_value(request.to_owned()).unwrap();
         plugin.configuration = Some(init.configuration);
         self.parse_option(plugin, &init.options);
 
-        if let Some(callback) = self.on_init {
-            (*callback)(plugin);
+        if let Some(callback) = &self.on_init {
+            response = callback(plugin);
         }
         Ok(response)
     }

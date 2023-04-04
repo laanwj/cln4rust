@@ -11,9 +11,8 @@ use clightningrpc_common::types::Request;
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::string::String;
+use std::sync::Arc;
 use std::{io, io::Write};
-
-pub type OnInit<T> = dyn Fn(&mut Plugin<T>) -> Value + Send + 'static;
 
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -45,7 +44,7 @@ where
     /// core lightning configuration sent with the init call.
     pub configuration: Option<CLNConf>,
     /// onInit callback called when the method on init is ran.
-    on_init: Option<&'static OnInit<T>>,
+    on_init: Option<Arc<dyn Fn(&mut Plugin<T>) -> Value>>,
 }
 
 impl<'a, T: 'a + Clone> Plugin<T> {
@@ -64,8 +63,11 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         }
     }
 
-    pub fn on_init(&'a mut self, callback: &'static OnInit<T>) -> Self {
-        self.on_init = Some(callback);
+    pub fn on_init<C: 'static>(&'a mut self, callback: C) -> Self
+    where
+        C: Fn(&mut Plugin<T>) -> Value,
+    {
+        self.on_init = Some(Arc::new(callback));
         self.clone()
     }
 
@@ -114,7 +116,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         self
     }
 
-    /// get an option value that cln sent back to the plugin.
+    /// get an optionue that cln sent back to the plugin.
     pub fn get_opt<R: for<'de> serde::de::Deserialize<'de>>(
         &self,
         name: &str,
@@ -217,7 +219,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         self.rpc_method.insert(
             "init".to_owned(),
             Box::new(InitRPC::<T> {
-                on_init: self.on_init,
+                on_init: self.on_init.clone(),
             }),
         );
         // FIXME: core lightning end with the double endline, so this can cause
