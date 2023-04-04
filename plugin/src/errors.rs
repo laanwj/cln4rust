@@ -1,19 +1,11 @@
 //! plugin error JSONRPCv2.0 compliant module implementation
-use serde::Serialize;
 use std::fmt;
 
-#[macro_export]
-/// emit a compiler error
-macro_rules! error {
-    ($($msg:tt)*) => {{
-        let msg = format!($($msg)*);
-        PluginError::new(-1, &msg, None)
-    }};
-}
+use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize)]
 /// Type defining JSONRPCv2.0 compliant plugin errors defined here
 /// https://www.jsonrpc.org/specification#error_object
+#[derive(Debug, Clone, Serialize)]
 pub struct PluginError {
     code: i32,
     #[serde(rename = "message")]
