@@ -14,7 +14,10 @@ readme = "README.md"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 clightningrpc-common = { path = "../common" }
-#clightningrpc-common = "0.3.0-beta.2"
+log = { version = "0.4.17", optional = true }
 
 [dev-dependencies]
 rstest = "0.10.0"
+
+[features]
+log = ["dep:log"]

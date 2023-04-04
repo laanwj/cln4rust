@@ -4,7 +4,7 @@ FMT=fmt
 OPTIONS=
 
 default: fmt
-	$(CC) build
+	$(CC) build --all-features
 	@make example
 
 fmt:

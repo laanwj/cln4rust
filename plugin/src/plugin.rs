@@ -14,6 +14,9 @@ use std::string::String;
 use std::sync::Arc;
 use std::{io, io::Write};
 
+#[cfg(feature = "log")]
+pub use log::*;
+
 #[derive(Clone)]
 #[allow(dead_code)]
 pub struct Plugin<T>
@@ -47,6 +50,40 @@ where
     on_init: Option<Arc<dyn Fn(&mut Plugin<T>) -> Value>>,
 }
 
+#[cfg(feature = "log")]
+pub struct Log;
+
+#[cfg(feature = "log")]
+impl log::Log for Log {
+    fn enabled(&self, _: &Metadata) -> bool {
+        true
+    }
+
+    fn log(&self, record: &Record) {
+        if self.enabled(record.metadata()) {
+            let level: LogLevel = record.level().into();
+            let msg = record.args();
+
+            let mut writer = io::stdout();
+            let mut payload = init_payload();
+            add_str(&mut payload, "level", &level.to_string());
+            add_str(&mut payload, "message", &format!("{msg}"));
+            let request = Request {
+                id: None,
+                jsonrpc: "2.0".to_owned(),
+                method: "log".to_owned(),
+                params: payload,
+            };
+            writer
+                .write_all(serde_json::to_string(&request).unwrap().as_bytes())
+                .unwrap();
+            writer.flush().unwrap();
+        }
+    }
+
+    fn flush(&self) {}
+}
+
 impl<'a, T: 'a + Clone> Plugin<T> {
     pub fn new(state: T, dynamic: bool) -> Self {
         Plugin {
@@ -74,12 +111,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     pub fn log(&self, level: LogLevel, msg: &str) {
         let mut writer = io::stdout();
         let mut payload = init_payload();
-        // FIXME: add other log level supported by cln
-        let level = match level {
-            LogLevel::Debug => "debug",
-            LogLevel::Info => "info",
-        };
-        add_str(&mut payload, "level", level);
+        add_str(&mut payload, "level", &level.to_string());
         add_str(&mut payload, "message", msg);
         let request = Request {
             id: None,
@@ -213,7 +245,10 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         let reader = io::stdin();
         let mut writer = io::stdout();
         let mut buffer = String::new();
-
+        #[cfg(feature = "log")]
+        {
+            let _ = log::set_logger(&Log {}).map(|()| log::set_max_level(LevelFilter::Trace));
+        }
         self.rpc_method
             .insert("getmanifest".to_owned(), Box::new(ManifestRPC {}));
         self.rpc_method.insert(

@@ -33,6 +33,8 @@ impl RpcOption {
 pub enum LogLevel {
     Debug,
     Info,
+    Warn,
+    Error,
 }
 
 impl fmt::Display for LogLevel {
@@ -40,6 +42,22 @@ impl fmt::Display for LogLevel {
         match self {
             LogLevel::Debug => write!(f, "debug"),
             LogLevel::Info => write!(f, "info"),
+            LogLevel::Warn => write!(f, "warn"),
+            LogLevel::Error => write!(f, "error"),
+        }
+    }
+}
+
+#[cfg(feature = "log")]
+impl From<log::Level> for LogLevel {
+    fn from(value: log::Level) -> Self {
+        use log::Level;
+        match value {
+            Level::Debug => LogLevel::Debug,
+            Level::Info => LogLevel::Info,
+            Level::Warn => LogLevel::Warn,
+            Level::Error => LogLevel::Error,
+            Level::Trace => LogLevel::Debug,
         }
     }
 }
