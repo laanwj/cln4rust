@@ -39,7 +39,7 @@ pub struct CLNConf {
     pub fields: IndexMap<String, Vec<String>>,
     /// other conf file included.
     pub includes: Vec<Rc<CLNConf>>,
-    path: String,
+    pub path: String,
     create_if_missing: bool,
 }
 
@@ -76,6 +76,19 @@ impl CLNConf {
             self.fields.insert(key.to_owned(), vec![val.to_owned()]);
         }
         Ok(())
+    }
+
+    pub fn get_conf(&self, key: &str) -> Option<Vec<String>> {
+        let mut results = vec![];
+        if let Some(fields) = self.fields.get(key) {
+            results.append(&mut fields.clone());
+        }
+        for include in &self.includes {
+            if let Some(fields) = include.get_conf(key) {
+                results.append(&mut fields.clone());
+            }
+        }
+        Some(results)
     }
 
     pub fn add_subconf(&mut self, conf: CLNConf) -> Result<(), ParsingError> {
