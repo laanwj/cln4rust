@@ -1,6 +1,6 @@
 //! Core lightning configuration manager written in rust.
 use indexmap::IndexMap;
-use std::rc::Rc;
+use std::sync::Arc;
 use std::{fmt, io};
 
 mod file;
@@ -38,7 +38,7 @@ pub struct CLNConf {
     /// `key=value`.
     pub fields: IndexMap<String, Vec<String>>,
     /// other conf file included.
-    pub includes: Vec<Rc<CLNConf>>,
+    pub includes: Vec<Arc<CLNConf>>,
     pub path: String,
     create_if_missing: bool,
 }
