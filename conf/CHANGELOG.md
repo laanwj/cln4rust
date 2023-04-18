@@ -1,3 +1,13 @@
+# v0.0.2
+
+## Fixed
+- allow the conf to be sync and send ([commit](https://github.com/laanwj/cln4rust/commit/344c6c11aec423467faef5e4626f9a8b660be50f)). @vincenzopalazzo 17-04-2023
+
+## Added
+- add method to remove a key value pair from the configuration ([commit](https://github.com/laanwj/cln4rust/commit/a05e1e7f39fa449da38ce294a26b0dd23ccef1bb)). @tareknaser360 17-04-2023
+- add method to lookup inside the configuration ([commit](https://github.com/laanwj/cln4rust/commit/852b60365669b3277d3e333b8807c805f35dae56)). @vincenzopalazzo 16-04-2023
+
+
 # v0.0.1
 
 ## Fixed
