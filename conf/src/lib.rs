@@ -104,6 +104,33 @@ impl CLNConf {
         Ok(())
     }
 
+    pub fn rm_conf(&mut self, key: &str, val: Option<&str>) -> Result<(), ParsingError> {
+        if self.fields.contains_key(key) {
+            match val {
+                Some(val) => {
+                    let values = self.fields.get_mut(key).unwrap();
+                    if let Some(index) = values.iter().position(|x| x == val) {
+                        values.remove(index);
+                    } else {
+                        return Err(ParsingError {
+                            core: 2,
+                            cause: format!("field {key} with value {val} not found"),
+                        });
+                    }
+                }
+                None => {
+                    self.fields.remove_entry(key);
+                }
+            }
+        } else {
+            return Err(ParsingError {
+                core: 2,
+                cause: format!("field with `{key}` not present"),
+            });
+        }
+        Ok(())
+    }
+
     pub fn flush(&self) -> Result<(), std::io::Error> {
         let content = format!("{self}");
         let file = File::new(&self.path);
@@ -229,6 +256,61 @@ mod tests {
         assert_eq!(conf.fields.get("plugin").unwrap().len(), 2);
         println!("{conf:?}");
         assert!(conf.fields.contains_key("plugin"));
+        assert!(conf.fields.contains_key("network"));
+
+        cleanup_file(path.as_str());
+    }
+
+    #[test]
+    fn flush_conf_three() {
+        let path = get_conf_path();
+        let mut conf = CLNConf::new(path.to_string(), false);
+        conf.add_conf("network", "bitcoin");
+        conf.add_conf("plugin", "/some/path");
+        conf.add_conf("plugin", "/some/other/path");
+        conf.rm_conf("plugin", None);
+        let result = conf.flush();
+        assert!(result.is_ok());
+
+        let mut conf = CLNConf::new(path.to_string(), false);
+        let result = conf.parse();
+        assert!(result.is_ok());
+        assert_eq!(conf.fields.keys().len(), 1);
+        println!("{conf:?}");
+        assert!(!conf.fields.contains_key("plugin"));
+        assert!(conf.fields.contains_key("network"));
+
+        cleanup_file(path.as_str());
+    }
+
+    #[test]
+    fn flush_conf_four() {
+        let path = get_conf_path();
+        let mut conf = CLNConf::new(path.to_string(), false);
+        conf.add_conf("network", "bitcoin");
+        conf.add_conf("plugin", "/some/path");
+        conf.add_conf("plugin", "/some/other/path");
+        conf.rm_conf("plugin", Some("/some/other/path"));
+        let result = conf.flush();
+        assert!(result.is_ok());
+
+        let mut conf = CLNConf::new(path.to_string(), false);
+        let result = conf.parse();
+        assert!(result.is_ok());
+        assert_eq!(conf.fields.keys().len(), 2);
+        println!("{conf:?}");
+        assert!(conf
+            .fields
+            .get("plugin")
+            .as_ref()
+            .map(|&s| s.contains(&"/some/path".to_string()))
+            .unwrap_or(false));
+        assert!(!conf
+            .fields
+            .get("plugin")
+            .as_ref()
+            .map(|&s| s.contains(&"/some/other/path".to_string()))
+            .unwrap_or(false));
         assert!(conf.fields.contains_key("network"));
 
         cleanup_file(path.as_str());
