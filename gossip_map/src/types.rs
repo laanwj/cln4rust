@@ -1,6 +1,7 @@
 //! Gossip map types implementations.
+use std::{collections::HashMap, io::BufRead, str::Bytes, vec::Vec};
+
 use byteorder::{BigEndian, ReadBytesExt};
-use std::{collections::HashMap, io::BufRead, ops::Deref, str, str::Bytes, vec::Vec};
 
 use crate::flags::{GOSSIP_STORE_LEN_DELETED_BIT, GOSSIP_STORE_LEN_MASK};
 
@@ -15,15 +16,18 @@ trait GossipType {
 }
 
 /// Node Id encoded for the gossip map
+#[derive(Eq, Hash, PartialEq, Debug, Clone)]
 pub struct GossipNodeId {
-    node_id: String,
+    pub(crate) node_id: String,
 }
 
 impl GossipNodeId {
-    pub(crate) fn from_bytes(buff: &[u8; 32]) -> GossipNodeId {
-        GossipNodeId {
-            node_id: String::from_utf8(buff.to_vec()).unwrap(),
-        }
+    pub(crate) fn from_bytes(buff: &[u8; 33]) -> std::io::Result<Self> {
+        Ok(GossipNodeId {
+            node_id: String::from_utf8(buff.to_vec()).map_err(|err| {
+                std::io::Error::new(std::io::ErrorKind::Other, format!("{:?}", err))
+            })?,
+        })
     }
 }
 
@@ -52,6 +56,17 @@ pub struct GossipNode<'a> {
     channels: Vec<&'a GossipChannel<'a>>,
 }
 
+impl GossipNode<'_> {
+    pub fn new(node_id: GossipNodeId) -> Self {
+        Self {
+            node_id,
+            announce_fileds: None,
+            announce_offset: None,
+            channels: vec![],
+        }
+    }
+}
+
 impl<'a> GossipNode<'a> {
     /// add a gossip channel inside the gossip map.
     pub fn add_channel(&'a mut self, channel: &'a GossipChannel) {
@@ -64,10 +79,15 @@ impl GossipType for GossipNode<'_> {
     where
         Self: Sized,
     {
-        let mut buff = [0; 32];
+        let mut buff = [0; 33];
         stream.read_exact(&mut buff)?;
-        let node_id = GossipNodeId::from_bytes(&buff);
-        todo!()
+        let node_id = GossipNodeId::from_bytes(&buff)?;
+        Ok(Self {
+            node_id,
+            announce_fileds: None,
+            announce_offset: None,
+            channels: vec![],
+        })
     }
 
     fn encode(&self) -> Bytes {

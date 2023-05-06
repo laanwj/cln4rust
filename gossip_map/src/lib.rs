@@ -1,31 +1,46 @@
-use byteorder::{BigEndian, ReadBytesExt};
+use std::{
+    collections::{HashMap, HashSet},
+    fs::File,
+    io::{BufReader, Error, ErrorKind},
+};
+
+use fundamentals::{
+    bolt::bolt7::ChannelAnnouncement,
+    prelude::bolt7::{ChannelUpdate, NodeAnnouncement},
+};
+use fundamentals::{core::FromWire, types::ShortChannelId};
+
+mod flags;
+mod gossip_store_msg;
+mod types;
+
 use flags::{
     GOSSIP_STORE_MAJOR_VERSION, GOSSIP_STORE_MAJOR_VERSION_MASK, WIRE_GOSSIP_STORE_CHANNEL_AMOUNT,
     WIRE_GOSSIP_STORE_DELETE_CHAN, WIRE_GOSSIP_STORE_ENDED, WIRE_GOSSIP_STORE_PRIVATE_CHANNEL,
     WIRE_GOSSIP_STORE_PRIVATE_UPDATE,
 };
-use std::{
-    fs::File,
-    io::{BufReader, Error, ErrorKind},
-};
-use types::{GossipChannel, GossipNode};
-
-mod flags;
-mod types;
+use gossip_store_msg::*;
+use types::{GossipChannel, GossipNode, GossipNodeId};
 
 /// Gossip map implementation, that allow you to manage the gossip_store
 /// written by core lightning.
-struct GossipMap {
+struct GossipMap<'a> {
     version: u8,
     stream: Option<BufReader<File>>,
+    nodes: HashMap<GossipNodeId, GossipNode<'a>>,
+    channels: HashMap<ShortChannelId, GossipChannel<'a>>,
+    orphan_channel_updates: HashSet<ChannelUpdate>,
 }
 
-impl GossipMap {
+impl GossipMap<'_> {
     // Create a new instance of the gossip map.
     pub fn new(version: u8) -> Self {
         GossipMap {
             version,
             stream: None,
+            nodes: HashMap::new(),
+            channels: HashMap::new(),
+            orphan_channel_updates: HashSet::new(),
         }
     }
 
@@ -35,40 +50,63 @@ impl GossipMap {
         let mut gossip_map = GossipMap {
             version: 0,
             stream: Some(stream),
+            nodes: HashMap::new(),
+            channels: HashMap::new(),
+            orphan_channel_updates: HashSet::new(),
         };
         gossip_map.refresh()?;
         Ok(gossip_map)
     }
 
-    pub fn get_channel(short_chananel_id: &str) -> Result<&'static GossipChannel, ()> {
-        todo!()
+    pub fn get_channel(&self, short_chananel_id: &str) -> Option<&'static GossipChannel> {
+        self.channels.get(short_chananel_id.as_bytes())
     }
 
-    pub fn get_node(node_id: &str) -> Result<&'static GossipNode, ()> {
-        todo!()
+    pub fn get_node(&self, node_id: &str) -> Option<&'static GossipNode> {
+        // FIXME: store the node as String?
+        self.nodes.get(&GossipNodeId {
+            node_id: node_id.to_owned(),
+        })
     }
 
-    fn refresh(&mut self) -> Result<(), std::io::Error> {
-        let version = self.stream.as_mut().unwrap().read_u8()? as u16;
+    fn refresh(&mut self) -> std::io::Result<()> {
+        let mut stream = self.stream.as_mut().unwrap();
+        let version = u8::from_wire(&mut stream)? as u16;
         if (version & GOSSIP_STORE_MAJOR_VERSION_MASK) != GOSSIP_STORE_MAJOR_VERSION {
             return Err(Error::new(
                 ErrorKind::Other,
-                "Invalid gossip tore version {version}",
+                "Invalid gossip store version {version}",
             ));
         }
         self.version = version as u8;
 
-        while let Ok(chunk) = self.stream.as_mut().unwrap().read_u8() {
+        while let Ok(chunk) = u8::from_wire(&mut stream) {
             match chunk as u16 {
                 // channel announcement!
-                256 => todo!(),
-                WIRE_GOSSIP_STORE_PRIVATE_CHANNEL => todo!("parsing the private channel"),
-                WIRE_GOSSIP_STORE_CHANNEL_AMOUNT => todo!("channel ammount"),
-                WIRE_GOSSIP_STORE_PRIVATE_UPDATE => todo!("private update"),
-                WIRE_GOSSIP_STORE_DELETE_CHAN => todo!("channel deleted"),
-                WIRE_GOSSIP_STORE_ENDED => todo!("need to be reimplemented the open store"),
-                257 => todo!("node announcment"),
-                258 => todo!("channel update"),
+                256 => {
+                    let channel_announcement = ChannelAnnouncement::from_wire(&mut stream)?;
+                }
+                WIRE_GOSSIP_STORE_PRIVATE_CHANNEL => {
+                    let private_channel = GossipStorePrivateChannel::from_wire(&mut stream)?;
+                }
+                WIRE_GOSSIP_STORE_CHANNEL_AMOUNT => {
+                    let channel_amount = GossipStoreChannelAmount::from_wire(&mut stream)?;
+                }
+                WIRE_GOSSIP_STORE_PRIVATE_UPDATE => {
+                    let private_update = GossipStorePrivateUpdate::from_wire(&mut stream)?;
+                }
+                WIRE_GOSSIP_STORE_DELETE_CHAN => {
+                    let del_chan = GossipStoreDeleteChan::from_wire(&mut stream)?;
+                }
+                WIRE_GOSSIP_STORE_ENDED => {
+                    let eof = GossipStoreEnded::from_wire(&mut stream)?;
+                }
+                257 => {
+                    let node_announcement = NodeAnnouncement::from_wire(&mut stream)?;
+                }
+                258 => {
+                    let channel_update = ChannelUpdate::from_wire(&mut stream)?;
+                }
                 _ => continue,
             }
         }
