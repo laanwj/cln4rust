@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 byteorder = "1.4.3"
+fundamentals = "^0.0.1-alpha.2"
+fundamentals-derive = "^0.0.1-alpha.1"
