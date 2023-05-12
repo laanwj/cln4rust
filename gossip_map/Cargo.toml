@@ -5,5 +5,7 @@ edition = "2021"
 
 [dependencies]
 byteorder = "1.4.3"
-fundamentals = "^0.0.1-alpha.2"
-fundamentals-derive = "^0.0.1-alpha.1"
+hex = "0.4.3"
+bitcoin = { version = "0.30.0" }
+fundamentals = { git = "https://github.com/lnspec-tools/ln-fundamentals.git" }
+fundamentals-derive = { git = "https://github.com/lnspec-tools/ln-fundamentals.git" }

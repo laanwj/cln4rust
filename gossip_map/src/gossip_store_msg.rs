@@ -20,7 +20,7 @@ pub struct GossipStoreChannelAmount {
     #[warn(dead_code)]
     #[msg_type = 4101]
     ty: u16,
-    satoshis: u16,
+    pub satoshis: u64,
 }
 
 #[derive(DecodeWire, EncodeWire, Debug)]
