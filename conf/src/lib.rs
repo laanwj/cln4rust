@@ -8,6 +8,7 @@ mod parser;
 
 use file::{File, SyncFile};
 
+#[derive(Debug)]
 pub struct ParsingError {
     pub core: u64,
     pub cause: String,
@@ -19,6 +20,12 @@ impl From<io::Error> for ParsingError {
             core: 1,
             cause: format!("{value}"),
         }
+    }
+}
+
+impl std::fmt::Display for ParsingError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.cause)
     }
 }
 
@@ -78,17 +85,48 @@ impl CLNConf {
         Ok(())
     }
 
-    pub fn get_conf(&self, key: &str) -> Option<Vec<String>> {
+    /// Get a unique field with the specified key, if there are multiple definition
+    /// the function return an error.
+    ///
+    /// In the case of multiple definition of the same key you would like to use `get_confs`.
+    pub fn get_conf(&self, key: &str) -> Result<Option<String>, ParsingError> {
         let mut results = vec![];
         if let Some(fields) = self.fields.get(key) {
             results.append(&mut fields.clone());
         }
         for include in &self.includes {
-            if let Some(fields) = include.get_conf(key) {
+            let fields = include.get_confs(key);
+            if !fields.is_empty() {
                 results.append(&mut fields.clone());
             }
         }
-        Some(results)
+        if results.is_empty() {
+            return Ok(None);
+        }
+
+        if results.len() > 1 {
+            return Err(ParsingError {
+                core: 1,
+                cause: "mutiple field with the `{key}`".to_owned(),
+            });
+        }
+        Ok(Some(results.first().unwrap().clone()))
+    }
+
+    /// Return a list of values with the specified key, if no
+    /// item is found, return an empity vector.
+    pub fn get_confs(&self, key: &str) -> Vec<String> {
+        let mut results = vec![];
+        if let Some(fields) = self.fields.get(key) {
+            results.append(&mut fields.clone());
+        }
+        for include in &self.includes {
+            let fields = include.get_confs(key);
+            if !fields.is_empty() {
+                results.append(&mut fields.clone());
+            }
+        }
+        results
     }
 
     pub fn add_subconf(&mut self, conf: CLNConf) -> Result<(), ParsingError> {
