@@ -1,3 +1,9 @@
+# v0.0.3
+
+## Fixed
+- fix the ambigity when we get a list of confs ([commit](https://github.com/laanwj/cln4rust/commit/4e32e0a4c7d8c9e97c552d632fc04696972fdee3)). @vincenzopalazzo 23-05-2023
+
+
 # v0.0.2
 
 ## Fixed
