@@ -12,6 +12,14 @@ use clightningrpc_plugin::plugin::Plugin;
 #[derive(Clone)]
 struct State;
 
+// FIXME: implement a derive macros to register
+// the option plugins
+impl State {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 #[rpc_method(
     rpc_name = "foo_macro",
     description = "This is a simple and short description"
@@ -28,31 +36,16 @@ fn on_rpc(plugin: &mut Plugin<State>, request: &Value) {
 }
 
 fn main() {
-    // as fist step you need to make a new plugin instance
-    // more docs about Plugin struct is provided under the clightning_plugin crate
-    let mut plugin = Plugin::new(State, true);
-
-    // FIXME: this is just for now, we will write a plugin macros
-    // that define the definition like in the linux kernel a module is
-    // defined.
-    //
-    // ```
-    // module! {
-    //  type: RustMinimal,
-    //  name: "rust_minimal",
-    //  author: "Rust for Linux Contributors",
-    //  description: "Rust minimal sample",
-    //  license: "GPL",
-    // }
-    // ```
-    let call = on_rpc();
-    plugin.register_notification(&call.on_event.clone(), call);
-    let call = foo_rpc();
-    plugin.add_rpc_method(
-        &call.name.clone(),
-        &call.usage.clone(),
-        &call.description.clone(),
-        call,
-    );
+    let plugin = plugin! {
+        state: State::new(),
+        dynamic: true,
+        notification: [
+            on_rpc,
+        ],
+        methods: [
+            foo_rpc,
+        ],
+        hooks: [],
+    };
     plugin.start();
 }
