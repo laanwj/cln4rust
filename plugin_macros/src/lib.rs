@@ -7,6 +7,7 @@ use kproc_parser::kparser::KParserTracer;
 use kproc_parser::proc_macro::TokenStream;
 
 mod notification;
+mod plugin;
 mod rpc_method;
 
 mod attr_parser;
@@ -17,6 +18,47 @@ impl KParserTracer for Tracer {
     fn log(&self, msg: &str) {
         eprintln!("\x1b[93mkproc-tracing\x1b[1;97m {msg}");
     }
+}
+/// procedural macros that can be used wit the following code
+/// ```no_run
+/// use serde_json::{json, Value};
+/// use clightningrpc_plugin_macros::{rpc_method, plugin};
+/// use clightningrpc_plugin::commands::RPCCommand;
+/// use clightningrpc_plugin::plugin::Plugin;
+/// use clightningrpc_plugin::errors::PluginError;
+///
+/// #[derive(Clone)]
+/// struct State;
+///
+/// impl State {
+///    pub fn new() -> Self {
+///        Self
+///    }
+/// }
+///
+/// #[rpc_method(
+///     rpc_name = "foo",
+///     description = "This is a simple and short description"
+/// )]
+/// pub fn foo_rpc(plugin: &mut Plugin<State>, request: Value) -> Result<Value, PluginError> {
+///     Ok(json!({"is_dynamic": plugin.dynamic, "rpc_request": request}))
+/// }
+///
+/// fn main() {
+///     let plugin = plugin! {
+///         state: State::new(),
+///         dynamic: true,
+///         notification: [],
+///         methods: [
+///             foo_rpc,
+///         ],
+///     };
+///     plugin.start();
+/// }
+/// ```
+#[proc_macro]
+pub fn plugin(attr: TokenStream) -> TokenStream {
+    plugin::parse(attr)
 }
 
 /// procedural macros that can be used wit the following code
@@ -34,13 +76,8 @@ impl KParserTracer for Tracer {
 ///     rpc_name = "foo",
 ///     description = "This is a simple and short description"
 /// )]
-/// pub fn foo_rpc(_plugin: &mut Plugin<State>, _request: Value) -> Result<Value, PluginError> {
-///     /// The name of the parameters can be used only if used, otherwise can be omitted
-///     /// the only rules that the macros require is to have a propriety with the following rules:
-///     /// - Plugin as _plugin
-///     /// - CLN JSON request as _request
-///     /// The function parameter can be specified in any order.
-///     Ok(json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request}))
+/// pub fn foo_rpc(plugin: &mut Plugin<State>, request: Value) -> Result<Value, PluginError> {
+///     Ok(json!({"is_dynamic": plugin.dynamic, "rpc_request": request}))
 /// }
 /// ```
 #[proc_macro_attribute]
