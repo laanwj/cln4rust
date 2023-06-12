@@ -107,6 +107,8 @@ pub struct Invoice<'a> {
     pub preimage: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expiry: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deschashonly: Option<bool>,
 }
 
 /// 'invoice' command with zero amount
@@ -119,6 +121,8 @@ pub struct AnyInvoice<'a> {
     pub preimage: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expiry: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deschashonly: Option<bool>,
 }
 
 /// 'delinvoice' command
