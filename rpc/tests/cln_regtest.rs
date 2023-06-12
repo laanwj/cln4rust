@@ -113,6 +113,7 @@ async fn basic_test() {
                     "test",
                     Some(preimage),
                     None,
+                    None,
                 )
                 .expect("Failed to get invoice");
             println!("{:?}", invoice);

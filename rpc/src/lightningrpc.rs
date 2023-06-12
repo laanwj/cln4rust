@@ -153,6 +153,7 @@ impl LightningRPC {
         description: &str,
         preimage: Option<&str>,
         expiry: Option<u64>,
+        deschashonly: Option<bool>
     ) -> Result<responses::Invoice, Error> {
         match amount_msat {
             None => self.call(
@@ -163,6 +164,7 @@ impl LightningRPC {
                     description,
                     preimage,
                     expiry,
+                    deschashonly,
                 },
             ),
             Some(amount_msat) => self.call(
@@ -173,6 +175,7 @@ impl LightningRPC {
                     description,
                     preimage,
                     expiry,
+                    deschashonly,
                 },
             ),
         }
