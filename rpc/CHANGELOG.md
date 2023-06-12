@@ -1,3 +1,14 @@
+# v0.3.0-beta.5
+
+## Fixed
+- add preimage in invoice ([commit](https://github.com/laanwj/cln4rust/commit/f612b56c26e5e4d1ce125e475a675349f188f7a6)). @evd0kim 10-03-2023
+- route model update ([commit](https://github.com/laanwj/cln4rust/commit/c0201fc16fcfdc084c5bb53665deca7073f7f5f8)). @evd0kim 10-03-2023
+- listchannels update ([commit](https://github.com/laanwj/cln4rust/commit/0e7575ef7a279fb28d11213de470c6996cb808af)). @evd0kim 10-03-2023
+
+## Added
+- support createinvoice model ([commit](https://github.com/laanwj/cln4rust/commit/d863a6d0a1c119bd472dab46d1c24618368414d8)). @evd0kim 10-03-2023
+
+
 # v0.3.0-beta.4
 
 ## Fixed

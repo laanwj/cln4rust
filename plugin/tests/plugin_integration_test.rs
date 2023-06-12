@@ -10,7 +10,7 @@ use std::path::Path;
 pub fn lightningd() -> Client {
     // FIXME(vincenzopalazzo):  Using the env to take the path of the RPC file.
     let sock = Path::new("/workdir/lightning_dir_one/regtest/lightning-rpc");
-    Client::new(&sock)
+    Client::new(sock)
 }
 
 #[rstest]

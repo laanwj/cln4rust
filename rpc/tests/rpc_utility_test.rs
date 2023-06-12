@@ -20,16 +20,16 @@ fn wait_for(millisecond: u64) {
 pub fn lightningd() -> LightningRPC {
     // FIXME(vincenzopalazzo):  Using the env to take the path of the RPC file.
     let sock = Path::new("/workdir/lightning_dir_two/regtest/lightning-rpc");
-    let client = LightningRPC::new(&sock);
-    client
+
+    LightningRPC::new(sock)
 }
 
 #[fixture]
 pub fn lightningd_second() -> LightningRPC {
     // FIXME(vincenzopalazzo):  Using the env to take the path of the RPC file.
     let sock = Path::new("/workdir/lightning_dir_one/regtest/lightning-rpc");
-    let client = LightningRPC::new(&sock);
-    client
+
+    LightningRPC::new(sock)
 }
 
 #[rstest]
@@ -54,7 +54,7 @@ fn connect_test_one(lightningd: LightningRPC, lightningd_second: LightningRPC) {
     let host = match addr {
         NetworkAddress::Ipv4 { address, port } => {
             host.push_str(&address.to_string());
-            host.push_str(":");
+            host.push(':');
             host.push_str(&port.to_string());
             host
         }
@@ -73,7 +73,7 @@ fn fundchannel_test_one(lightningd: LightningRPC, lightningd_second: LightningRP
     let host = match addr {
         NetworkAddress::Ipv4 { address, port } => {
             host.push_str(&address.to_string());
-            host.push_str(":");
+            host.push(':');
             host.push_str(&port.to_string());
             host
         }
@@ -97,7 +97,7 @@ fn listinvoice_by_payment_hash_test_one(lightningd: LightningRPC) {
 fn generate_amountless_invoice_test_one(lightningd: LightningRPC) {
     let label = format!("{}", Uuid::new_v4());
     let invoice = lightningd
-        .invoice(None, label.as_str(), "generate an any invoice", None)
+        .invoice(None, label.as_str(), "generate an any invoice", None, None)
         .unwrap();
     let decode = lightningd.decodepay(&invoice.bolt11, None).unwrap();
     assert_eq!(decode.amount_msat, None);
@@ -107,7 +107,13 @@ fn generate_amountless_invoice_test_one(lightningd: LightningRPC) {
 fn generate_invoice_with_amount_test_one(lightningd: LightningRPC) {
     let label = format!("{}", Uuid::new_v4());
     let invoice = lightningd
-        .invoice(Some(1), label.as_str(), "generate an any invoice", None)
+        .invoice(
+            Some(1),
+            label.as_str(),
+            "generate an any invoice",
+            None,
+            None,
+        )
         .unwrap();
     let decode = lightningd.decodepay(&invoice.bolt11, None).unwrap();
     assert_eq!(decode.amount_msat, Some(MSat(1)));

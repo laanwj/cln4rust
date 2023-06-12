@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::env;
 
 use clightningrpc_common::{client, types};
+use serde_json::{json, Value};
 
 fn main() {
     #[allow(deprecated)]
@@ -13,11 +14,12 @@ fn main() {
     let client = client::Client::new(&sock);
     for style in &["perkb", "perkw"] {
         let method = "feerates";
-        let mut params: HashMap<String, String> = HashMap::new();
-        params.insert("style".to_string(), style.to_string());
+        let params = json!({
+            "style": style,
+        });
         match client
             .send_request(method, params)
-            .and_then(|res: types::Response<HashMap<String, String>>| res.into_result())
+            .and_then(|res: types::Response<HashMap<String, Value>>| res.into_result())
         {
             Ok(d) => {
                 println!("Ok! {:?}", d);
