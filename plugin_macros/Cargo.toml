@@ -1,6 +1,6 @@
 [package]
 name = "clightningrpc-plugin-macros"
-version = "0.3.0-beta.3"
+version = "0.3.0-beta.4"
 edition = "2021"
 authors = ["Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
 license = "CC0-1.0"
