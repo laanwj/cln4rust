@@ -30,35 +30,52 @@
 Crate that provides a procedural macros implementation to make easy to develop a plugin developer to build a plugin.
 
 ```rust
-use clightningrpc_plugin_macros::{add_plugin_rpc, rpc_method};
-use serde_json::{json, Value};
+use serde_json::json;
+use serde_json::Value;
 
-use clightningrpc_plugin::add_rpc;
+use clightningrpc_plugin_macros::*;
 use clightningrpc_plugin::commands::RPCCommand;
+use clightningrpc_plugin::errors::PluginError;
 use clightningrpc_plugin::plugin::Plugin;
 
+#[derive(Clone)]
+struct State;
+
+// FIXME: implement a derive macros to register
+// the option plugins
+impl State {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 #[rpc_method(
-rpc_name = "foo",
-description = "This is a simple and short description"
+    rpc_name = "foo_macro",
+    description = "This is a simple and short description"
 )]
-pub fn foo_rpc(_plugin: Plugin<()>, _request: Value) -> Value {
-    /// The name of the parameters can be used only if used, otherwise can be omitted
-    /// the only rules that the macros require is to have a propriety with the following rules:
-    /// - Plugin as _plugin
-    /// - CLN JSON request as _request
-    /// The function parameter can be specified in any order.
-    json!({"is_dynamic": _plugin.dynamic, "rpc_request": _request})
+pub fn foo_rpc(plugin: &mut Plugin<State>, request: Value) -> Result<Value, PluginError> {
+    let response = json!({"is_dynamic": plugin.dynamic, "rpc_request": request});
+    Ok(response)
+}
+
+#[notification(on = "rpc_command")]
+fn on_rpc(plugin: &mut Plugin<State>, request: &Value) {
+    use clightningrpc_plugin::types::LogLevel;
+    plugin.log(LogLevel::Info, "received an RPC notification");
 }
 
 fn main() {
-    // as fist step you need to make a new plugin instance
-    // more docs about Plugin struct is provided under the clightning_plugin crate
-    let mut plugin = Plugin::new((), true);
-
-    // The macros helper that help to register a RPC method with the name
-    // without worry about all the rules of the library
-    add_plugin_rpc!(plugin, "foo");
-
+    let plugin = plugin! {
+        state: State::new(),
+        dynamic: true,
+        notification: [
+            on_rpc,
+        ],
+        methods: [
+            foo_rpc,
+        ],
+        hooks: [],
+    };
     plugin.start();
 }
 ```
