@@ -1,3 +1,9 @@
+# v0.3.0-beta.4
+
+## Added
+- add plugin macros to easy declare a plugin. ([commit](https://github.com/laanwj/cln4rust/commit/60467c84344ce3c9c6e1b82503f0bb993bc07817)). @vincenzopalazzo 13-06-2023
+
+
 # v0.3.0-beta.3
 
 ## Added
