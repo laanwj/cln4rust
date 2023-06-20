@@ -16,12 +16,10 @@ serde_json = "1.0"
 clightningrpc-common = "0.3.0-beta.4"
 
 [dev-dependencies]
-#btc_test
 bitcoincore-rpc = "0.15.0"
 cln-btc-test = { path = "../cln-btc-test" }
 cln-test = { path = "../cln-test" }
 tokio = { version = "1", features = ["full"] }
-
 rstest = "0.10.0"
 uuid = { version = "0.8.2", features = ["v4"]}
 p256 ="0.11.1"

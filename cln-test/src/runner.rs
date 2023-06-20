@@ -8,8 +8,8 @@ use std::process::{Child, Command, Stdio};
 use std::time::Duration;
 use tempdir::TempDir;
 
-use clightningrpc::LightningRPC;
 use bitcoin::Address;
+use clightningrpc::LightningRPC;
 
 use cln_btc_test::runner::*;
 
@@ -159,8 +159,12 @@ async fn setup_cln_peernode_ready(
     (node_handle, client, temp_dir)
 }
 
-pub async fn mine_and_sync(btc: &Client, block_num: u64, address: &Address, ln_nodes: Vec<&LightningRPC>) -> u64
-{
+pub async fn mine_and_sync(
+    btc: &Client,
+    block_num: u64,
+    address: &Address,
+    ln_nodes: Vec<&LightningRPC>,
+) -> u64 {
     let _r = btc
         .generate_to_address(block_num, address)
         .expect("New blocks");
@@ -182,8 +186,7 @@ pub async fn mine_and_sync(btc: &Client, block_num: u64, address: &Address, ln_n
     chain_info.blocks
 }
 
-pub async fn wait_for_htlc(cln: &LightningRPC) -> u64
-{
+pub async fn wait_for_htlc(cln: &LightningRPC) -> u64 {
     // Ensures all HTLC settled
     // scids can be a list of strings. If unset wait on all channels.
     let peers = cln.listpeers(None, None).expect("All peers of the node");
@@ -195,10 +198,9 @@ pub async fn wait_for_htlc(cln: &LightningRPC) -> u64
                 msec = msec + 100;
             }
         }
-    };
+    }
     msec
 }
-
 
 pub async fn run_cln_test<F, Fut>(test_body: F)
 where
