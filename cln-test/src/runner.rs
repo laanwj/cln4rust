@@ -193,9 +193,9 @@ pub async fn wait_for_htlc(cln: &LightningRPC) -> u64 {
     let mut msec = 0;
     for p in peers.peers {
         for c in p.channels {
-            if c.htlcs.len() > 0 {
+            if !c.htlcs.is_empty() {
                 tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-                msec = msec + 100;
+                msec += 100;
             }
         }
     }
