@@ -1,3 +1,9 @@
+# v0.3.0-beta.7
+
+## Fixed
+- re-export lightningrpc::Error ([commit](https://github.com/laanwj/cln4rust/commit/951bb8772a9ba1563bddb0752d22fa3dbd9ea45b)). @vincenzopalazzo 24-08-2023
+
+
 # v0.3.0-beta.5
 
 ## Fixed
