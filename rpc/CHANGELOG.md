@@ -1,3 +1,9 @@
+# v0.3.0-beta.8
+
+## Fixed
+- update msat on Pay response ([commit](https://github.com/laanwj/cln4rust/commit/26c730e9c81f3983d52982cc18c616ea53550762)). @lvaccaro 24-08-2023
+
+
 # v0.3.0-beta.7
 
 ## Fixed
