@@ -38,3 +38,4 @@ pub mod types;
 
 // Re-export high-level connection type
 pub use crate::lightningrpc::LightningRPC;
+pub use clightningrpc_common::errors::Error;
