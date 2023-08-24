@@ -331,8 +331,8 @@ pub struct FailureItem {
 pub struct Pay {
     pub payment_hash: String,
     pub destination: String,
-    pub msatoshi: u64,
-    pub msatoshi_sent: u64,
+    pub amount_msat: MSat,
+    pub amount_sent_msat: MSat,
     pub created_at: f64,
     pub status: String,
     pub payment_preimage: String,
