@@ -50,7 +50,8 @@ Read our [Hacking guide](/docs/MAINTAINERS.md)
 
 If you want to support this library, consider donating with the following methods
 
-- Lightning address: vincenzopalazzo@lntxbot.com
+- Lightning address: vincenzopalazzo@coinos.io
+- BOLT 12: https://bruce.lnmetrics.info/donation
 - [Github donation](https://github.com/sponsors/vincenzopalazzo)
 
 ## Credits
