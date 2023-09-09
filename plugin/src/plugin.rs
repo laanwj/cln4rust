@@ -247,7 +247,11 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         let mut buffer = String::new();
         #[cfg(feature = "log")]
         {
-            let _ = log::set_logger(&Log {}).map(|()| log::set_max_level(LevelFilter::Trace));
+            use std::str::FromStr;
+            // We are compatible with the cln-plugin
+            let level = std::env::var("CLN_PLUGIN_LOG").unwrap_or("info".to_string());
+            let level = LevelFilter::from_str(&level).unwrap();
+            let _ = log::set_logger(&Log {}).map(|()| log::set_max_level(level));
         }
         self.rpc_method
             .insert("getmanifest".to_owned(), Box::new(ManifestRPC {}));
