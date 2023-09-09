@@ -40,6 +40,7 @@ These are the complete list of craters supported right now
 | clightningrpc-plugin |    Crate that provides a plugin API to give the possibility to implement a plugin in Rust     | ![Crates.io](https://img.shields.io/crates/v/clightningrpc-plugin?style=flat-square) |
 | clightningrpc-plugin-macros |    Crate that provides a procedural macros implementation to make easy to develop a plugin developer to build a plugin     | ![Crates.io](https://img.shields.io/crates/v/clightningrpc-plugin_macros?style=flat-square) |
 | clightningrpc-conf |    This crate provides configuration manager for core lightning.    | ![Crates.io](https://img.shields.io/crates/v/clightningrpc-conf?style=flat-square) |
+| clightningrpc-testing |    This crate provides test framework for core lightning (including bitcoin).    | unrelated |
 
 ## Contributing guidelines
 
