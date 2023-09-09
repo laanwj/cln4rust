@@ -93,7 +93,8 @@ N.B: A good solution if you have some missing compatibility between core lightni
 
 If you want support this library consider to donate with the following methods
 
-- Lightning address: vincenzopalazzo@lntxbot.com
+- Lightning address: vincenzopalazzo@coinos.io
+- BOLT 12: https://bruce.lnmetrics.info/donation
 - [Github donation](https://github.com/sponsors/vincenzopalazzo)
 
 # Credits
