@@ -47,7 +47,7 @@ pub struct GetInfo {
     pub fees_collected_msat: MSat,
     pub network: String,
     #[serde(rename = "lightning-dir")]
-    pub ligthning_dir: String,
+    pub lightning_dir: String,
     pub warning_bitcoind_sync: Option<String>,
     pub warning_lightningd_sync: Option<String>,
 }
