@@ -1,18 +1,21 @@
 //! Core of the plugin API
 //!
 //! Unofficial API interface to develop plugin in Rust.
+use std::collections::{HashMap, HashSet};
+use std::io;
+use std::io::Write;
+use std::string::String;
+use std::sync::Arc;
+
+use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
+use clightningrpc_common::types::Request;
+use serde_json::Value;
+
 use crate::commands::builtin::{InitRPC, ManifestRPC};
 use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
 use crate::commands::RPCCommand;
 use crate::errors::PluginError;
 use crate::types::{LogLevel, RpcOption};
-use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
-use clightningrpc_common::types::Request;
-use serde_json::Value;
-use std::collections::{HashMap, HashSet};
-use std::string::String;
-use std::sync::Arc;
-use std::{io, io::Write};
 
 #[cfg(feature = "log")]
 pub use log::*;
@@ -149,12 +152,8 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     }
 
     /// get an optionue that cln sent back to the plugin.
-    pub fn get_opt<R: for<'de> serde::de::Deserialize<'de>>(
-        &self,
-        name: &str,
-    ) -> Result<R, PluginError> {
-        let opt = self.option.get(name).unwrap();
-        Ok(opt.value())
+    pub fn get_opt<R: for<'de> serde::de::Deserialize<'de>>(&self, name: &str) -> Option<R> {
+        self.option.get(name).and_then(|value| value.value())
     }
 
     // FIXME: adding the long description as parameter
