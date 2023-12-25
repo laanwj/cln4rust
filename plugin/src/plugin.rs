@@ -7,14 +7,16 @@ use std::io::Write;
 use std::string::String;
 use std::sync::Arc;
 
+use serde_json::Value;
+
 use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
 use clightningrpc_common::types::Request;
-use serde_json::Value;
 
 use crate::commands::builtin::{InitRPC, ManifestRPC};
 use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
 use crate::commands::RPCCommand;
 use crate::errors::PluginError;
+use crate::io::AsyncIO;
 use crate::types::{LogLevel, RpcOption};
 
 #[cfg(feature = "log")]
@@ -64,10 +66,10 @@ impl log::Log for Log {
 
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) {
+            let mut writer = io::stdout().lock();
             let level: LogLevel = record.level().into();
             let msg = record.args();
 
-            let mut writer = io::stdout();
             let mut payload = init_payload();
             add_str(&mut payload, "level", &level.to_string());
             add_str(&mut payload, "message", &format!("{msg}"));
@@ -77,10 +79,8 @@ impl log::Log for Log {
                 method: "log".to_owned(),
                 params: payload,
             };
-            writer
-                .write_all(serde_json::to_string(&request).unwrap().as_bytes())
-                .unwrap();
-            writer.flush().unwrap();
+            let _ = writer.write_all(serde_json::to_string(&request).unwrap().as_bytes());
+            let _ = writer.flush();
         }
     }
 
@@ -112,7 +112,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     }
 
     pub fn log(&self, level: LogLevel, msg: &str) {
-        let mut writer = io::stdout();
+        let mut writer = io::stdout().lock();
         let mut payload = init_payload();
         add_str(&mut payload, "level", &level.to_string());
         add_str(&mut payload, "message", msg);
@@ -256,10 +256,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         }
     }
 
-    pub fn start(mut self) {
-        let reader = io::stdin();
-        let mut writer = io::stdout();
-        let mut buffer = String::new();
+    pub fn start(mut self) -> io::Result<()> {
         #[cfg(feature = "log")]
         {
             use std::str::FromStr;
@@ -276,29 +273,33 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 on_init: self.on_init.clone(),
             }),
         );
-        // FIXME: core lightning end with the double endline, so this can cause
-        // problem for some input reader.
-        // we need to parse the writer, and avoid this while loop
-        while let Ok(_) = reader.read_line(&mut buffer) {
-            let req_str = buffer.to_string();
-            buffer.clear();
-            let Ok(request) = serde_json::from_str::<Request<serde_json::Value>>(&req_str) else {
-                continue;
-            };
+        let mut asyncio = AsyncIO::new()?;
+        asyncio.register()?;
+        asyncio.into_loop(|buffer| {
+            #[cfg(feature = "log")]
+            log::info!("looping around the string: {buffer}");
+            let request: Request<serde_json::Value> = serde_json::from_str(&buffer).unwrap();
             if let Some(id) = request.id {
                 // when the id is specified this is a RPC or Hook, so we need to return a response
                 let response = self.call_rpc_method(&request.method, request.params);
                 let mut rpc_response = init_success_response(id);
                 self.write_respose(&response, &mut rpc_response);
-                writer
-                    .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
-                    .unwrap();
-                writer.flush().unwrap();
+                #[cfg(feature = "log")]
+                log::info!(
+                    "rpc or hook: {} with reponse {:?}",
+                    request.method,
+                    rpc_response
+                );
+                return Some(serde_json::to_string(&rpc_response).unwrap());
             } else {
                 // in case of the id is None, we are receiving the notification, so the server is not
                 // interested in the answer.
                 self.handle_notification(&request.method, request.params);
+                #[cfg(feature = "log")]
+                log::info!("notification: {}", request.method);
+                return None;
             }
-        }
+        })?;
+        Ok(())
     }
 }

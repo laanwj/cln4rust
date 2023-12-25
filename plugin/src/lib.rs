@@ -9,6 +9,7 @@
 #![crate_name = "clightningrpc_plugin"]
 pub mod commands;
 pub mod errors;
+mod io;
 pub mod macros;
 pub mod plugin;
 pub mod types;
