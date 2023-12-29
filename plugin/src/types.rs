@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fmt;
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct RpcOption {
     /// option name that is specified by the
     /// core lightning user, like --foo
@@ -25,7 +25,12 @@ pub struct RpcOption {
 
 impl RpcOption {
     pub fn value<T: for<'de> serde::de::Deserialize<'de>>(&self) -> T {
-        let value: T = serde_json::from_value(self.value.to_owned().unwrap()).unwrap();
+        let value: T = serde_json::from_value(
+            self.value
+                .to_owned()
+                .expect(&format!("RPC value option is not present {:?}", self)),
+        )
+        .expect("serde json fails to build json::Value");
         value
     }
 }
