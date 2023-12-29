@@ -24,14 +24,13 @@ pub struct RpcOption {
 }
 
 impl RpcOption {
-    pub fn value<T: for<'de> serde::de::Deserialize<'de>>(&self) -> T {
-        let value: T = serde_json::from_value(
-            self.value
-                .to_owned()
-                .expect(&format!("RPC value option is not present {:?}", self)),
-        )
-        .expect("serde json fails to build json::Value");
-        value
+    pub fn value<T: for<'de> serde::de::Deserialize<'de>>(&self) -> Option<T> {
+        let Some(ref value) = self.value else {
+            return None;
+        };
+        let value: T =
+            serde_json::from_value(value.clone()).expect("serde json fails to build json::Value");
+        Some(value)
     }
 }
 
