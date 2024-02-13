@@ -6,6 +6,7 @@ members = [
         "plugin_macros",
         "conf",
         "testing",
+        "tests",
 ]
 resolver = "2"
 

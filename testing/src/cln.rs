@@ -55,6 +55,7 @@ pub struct Node {
 
 impl Drop for Node {
     fn drop(&mut self) {
+        let _ = self.rpc().stop();
         for process in self.process.iter() {
             let Some(child) = process.id() else {
                 continue;

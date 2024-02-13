@@ -11,7 +11,7 @@ fmt:
 	$(CC) fmt --all
 
 check:
-	$(CC) test --all
+	$(CC) test -- --show-output
 
 example:
 	$(CC) build --example foo_plugin
