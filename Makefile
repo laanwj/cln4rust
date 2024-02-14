@@ -11,6 +11,7 @@ fmt:
 	$(CC) fmt --all
 
 check:
+	@make default
 	$(CC) test -- --show-output
 
 example:
