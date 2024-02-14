@@ -27,9 +27,8 @@ macro_rules! async_run {
 
 pub mod fixtures {
 
-    use rstest::*;
-
     use clightning_testing::cln;
+    use rstest::*;
 
     use super::{async_run, init};
 

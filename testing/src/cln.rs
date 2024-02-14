@@ -14,8 +14,6 @@ pub mod macros {
     macro_rules! lightningd {
         ($dir:expr, $port:expr, $($opt_args:tt)*) => {
             async {
-                use std::process::Stdio;
-
                 use tokio::process::Command;
 
                 let opt_args = format!($($opt_args)*);
@@ -31,9 +29,11 @@ pub mod macros {
                     .arg(format!("--addr=127.0.0.1:{}", $port))
                     .arg(format!("--bind-addr=127.0.0.1:{}", $port + 1))
                     .arg(format!("--lightning-dir={path}"))
+                    .arg("--developer")
                     .arg("--dev-fast-gossip")
                     .arg("--funding-confirms=1")
-                    .stdout(Stdio::null())
+                    .arg(format!("--log-file={path}/log.log"))
+                    .stdout(std::process::Stdio::null())
                     .spawn()
             }.await
         };
@@ -116,6 +116,8 @@ impl Node {
     pub fn rpc(&self) -> Arc<LightningRPC> {
         self.inner.clone()
     }
+
+    // FIXME: add a method to print the log file
 
     pub fn btc(&self) -> Arc<BtcNode> {
         self.bitcoin.clone()

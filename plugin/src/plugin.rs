@@ -137,6 +137,14 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         description: &str,
         deprecated: bool,
     ) -> &mut Self {
+        let def_val = match opt_type {
+            "flag" | "bool" => {
+                def_val.and_then(|val| Some(serde_json::json!(val.parse::<bool>().unwrap())))
+            }
+            "int" => def_val.and_then(|val| Some(serde_json::json!(val.parse::<i64>().unwrap()))),
+            "string" => def_val.and_then(|val| Some(serde_json::json!(val))),
+            _ => unreachable!("{opt_type} not supported"),
+        };
         self.option.insert(
             name.to_owned(),
             RpcOption {

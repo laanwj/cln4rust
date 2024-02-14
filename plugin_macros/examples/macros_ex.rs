@@ -29,8 +29,8 @@ pub fn foo_rpc(plugin: &mut Plugin<State>, request: Value) -> Result<Value, Plug
     Ok(response)
 }
 
-#[notification(on = "rpc_command")]
-fn on_rpc(plugin: &mut Plugin<State>, request: &Value) {
+#[notification(on = "warning")]
+fn on_warning(plugin: &mut Plugin<State>, request: &Value) {
     use clightningrpc_plugin::types::LogLevel;
     plugin.log(LogLevel::Info, "received an RPC notification");
 }
@@ -40,7 +40,7 @@ fn main() {
         state: State::new(),
         dynamic: true,
         notification: [
-            on_rpc,
+            on_warning,
         ],
         methods: [
             foo_rpc,

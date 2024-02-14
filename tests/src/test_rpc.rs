@@ -89,7 +89,6 @@ fn generate_invoice_with_description_hash(lightningd: cln::Node) {
             Some(true),
         )
         .unwrap();
-    println!("{:?}", invoice);
     let decode = lightningd.decodepay(&invoice.bolt11, None).unwrap();
     assert_eq!(decode.amount_msat, Some(MSat(1)));
     assert_eq!(

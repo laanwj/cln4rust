@@ -13,7 +13,7 @@ pub struct RpcOption {
     pub opt_typ: String,
     /// default value, that can be specified only as string
     /// and core lightning will convert it for you :) smart right?
-    pub default: Option<String>,
+    pub default: Option<serde_json::Value>,
     /// description of the option that is shows to the user
     /// when lightningd --help is typed
     pub description: String,
