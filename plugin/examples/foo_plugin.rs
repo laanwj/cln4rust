@@ -27,11 +27,11 @@ impl RPCCommand<PluginState> for HelloRPC {
 }
 
 #[derive(Clone)]
-struct OnChannelOpened {}
+struct OnShutdown {}
 
-impl RPCCommand<PluginState> for OnChannelOpened {
-    fn call_void<'c>(&self, _plugin: &mut Plugin<PluginState>, _request: &'c Value) {
-        _plugin.log(LogLevel::Debug, "A new channel was opened!");
+impl RPCCommand<PluginState> for OnShutdown {
+    fn call_void<'c>(&self, _: &mut Plugin<PluginState>, _: &'c Value) {
+        std::process::exit(0);
     }
 }
 
@@ -50,7 +50,7 @@ fn main() {
             "An example of command line option",
             false,
         )
-        .register_notification("channel_opened", OnChannelOpened {})
+        .register_notification("shutdown", OnShutdown {})
         .on_init(|plugin: &mut Plugin<_>| -> serde_json::Value {
             plugin.log(LogLevel::Debug, "Custom init method called");
             json!({})

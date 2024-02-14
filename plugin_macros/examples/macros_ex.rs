@@ -35,12 +35,18 @@ fn on_warning(plugin: &mut Plugin<State>, request: &Value) {
     plugin.log(LogLevel::Info, "received an RPC notification");
 }
 
+#[notification(on = "shutdown")]
+fn on_shutdown(_: &mut Plugin<State>, _: &Value) {
+    std::process::exit(0);
+}
+
 fn main() {
     let plugin = plugin! {
         state: State::new(),
         dynamic: true,
         notification: [
             on_warning,
+            on_shutdown,
         ],
         methods: [
             foo_rpc,
