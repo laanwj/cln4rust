@@ -271,14 +271,12 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         // FIXME: core lightning end with the double endline, so this can cause
         // problem for some input reader.
         // we need to parse the writer, and avoid this while loop
-        loop {
-            let _ = reader.read_line(&mut buffer);
+        while let Ok(_) = reader.read_line(&mut buffer) {
             let req_str = buffer.to_string();
-            if req_str.trim().is_empty() {
-                continue;
-            }
             buffer.clear();
-            let request: Request<serde_json::Value> = serde_json::from_str(&req_str).unwrap();
+            let Ok(request) = serde_json::from_str::<Request<serde_json::Value>>(&req_str) else {
+                continue;
+            };
             if let Some(id) = request.id {
                 // when the id is specified this is a RPC or Hook, so we need to return a response
                 let response = self.call_rpc_method(&request.method, request.params);
