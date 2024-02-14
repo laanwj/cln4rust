@@ -262,8 +262,8 @@ mod tests {
     fn flush_conf_one() {
         let path = get_conf_path();
         let mut conf = CLNConf::new(path.to_string(), false);
-        conf.add_conf("plugin", "/some/path");
-        conf.add_conf("network", "bitcoin");
+        conf.add_conf("plugin", "/some/path").unwrap();
+        conf.add_conf("network", "bitcoin").unwrap();
         let result = conf.flush();
         assert!(result.is_ok());
 
@@ -282,9 +282,9 @@ mod tests {
     fn flush_conf_two() {
         let path = get_conf_path();
         let mut conf = CLNConf::new(path.to_string(), false);
-        conf.add_conf("plugin", "/some/path");
-        conf.add_conf("plugin", "foo");
-        conf.add_conf("network", "bitcoin");
+        conf.add_conf("plugin", "/some/path").unwrap();
+        conf.add_conf("plugin", "foo").unwrap();
+        conf.add_conf("network", "bitcoin").unwrap();
         let result = conf.flush();
         assert!(result.is_ok());
 
@@ -303,10 +303,10 @@ mod tests {
     fn flush_conf_three() {
         let path = get_conf_path();
         let mut conf = CLNConf::new(path.to_string(), false);
-        conf.add_conf("network", "bitcoin");
-        conf.add_conf("plugin", "/some/path");
-        conf.add_conf("plugin", "/some/other/path");
-        conf.rm_conf("plugin", None);
+        conf.add_conf("network", "bitcoin").unwrap();
+        conf.add_conf("plugin", "/some/path").unwrap();
+        conf.add_conf("plugin", "/some/other/path").unwrap();
+        conf.rm_conf("plugin", None).unwrap();
         let result = conf.flush();
         assert!(result.is_ok());
 
@@ -325,10 +325,10 @@ mod tests {
     fn flush_conf_four() {
         let path = get_conf_path();
         let mut conf = CLNConf::new(path.to_string(), false);
-        conf.add_conf("network", "bitcoin");
-        conf.add_conf("plugin", "/some/path");
-        conf.add_conf("plugin", "/some/other/path");
-        conf.rm_conf("plugin", Some("/some/other/path"));
+        conf.add_conf("network", "bitcoin").unwrap();
+        conf.add_conf("plugin", "/some/path").unwrap();
+        conf.add_conf("plugin", "/some/other/path").unwrap();
+        conf.rm_conf("plugin", Some("/some/other/path")).unwrap();
         let result = conf.flush();
         assert!(result.is_ok());
 
