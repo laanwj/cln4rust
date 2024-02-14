@@ -5,24 +5,22 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::commands::{
-    types::{RPCHookInfo, RPCMethodInfo},
-    RPCCommand,
-};
+use serde_json::Value;
+
+use clightningrpc_common::json_utils::{add_bool, add_vec, init_payload};
+
+use crate::commands::types::{InitConf, RPCHookInfo, RPCMethodInfo};
+use crate::commands::RPCCommand;
 use crate::errors::PluginError;
 use crate::plugin::Plugin;
 use crate::types::RpcOption;
-use clightningrpc_common::json_utils::{add_bool, add_vec, init_payload};
-use serde_json::Value;
 
-use super::types::InitConf;
-
-#[derive(Clone)]
 /// Type to define the manifest method and its attributes, used during plugin initialization
+#[derive(Clone)]
 pub struct ManifestRPC {}
 
 impl<T: Clone> RPCCommand<T> for ManifestRPC {
-    fn call<'c>(&self, plugin: &mut Plugin<T>, _request: Value) -> Result<Value, PluginError> {
+    fn call<'c>(&self, plugin: &mut Plugin<T>, _: Value) -> Result<Value, PluginError> {
         let mut response = init_payload();
         add_vec::<RpcOption>(
             &mut response,

@@ -46,7 +46,7 @@ fn main() {
         .add_opt(
             "foo",
             "flag",
-            None,
+            Some("false".to_owned()),
             "An example of command line option",
             false,
         )
