@@ -49,6 +49,7 @@ pub struct Node {
     inner: Arc<LightningRPC>,
     pub port: u16,
     root_path: Arc<TempDir>,
+    cln_dir: String,
     bitcoin: Arc<BtcNode>,
     process: Vec<tokio::process::Child>,
 }
@@ -84,6 +85,8 @@ impl Node {
         let btc = Arc::new(btc);
 
         let dir = tempfile::tempdir()?;
+
+        let cln_path = format!("{}/.lightning", dir.path().to_str().unwrap());
         let port = port::random_free_port().unwrap();
         let process = macros::lightningd!(
             dir,
@@ -110,6 +113,7 @@ impl Node {
             bitcoin: btc,
             port,
             process: vec![process],
+            cln_dir: cln_path,
         })
     }
 
@@ -117,7 +121,16 @@ impl Node {
         self.inner.clone()
     }
 
-    // FIXME: add a method to print the log file
+    pub fn logs(&self) -> anyhow::Result<String> {
+        let content = std::fs::read_to_string(format!("{}/log.log", self.cln_dir))?;
+        Ok(content)
+    }
+
+    pub fn print_logs(&self) -> anyhow::Result<()> {
+        let content = std::fs::read_to_string(format!("{}/log.log", self.cln_dir))?;
+        log::info!("{content}");
+        Ok(())
+    }
 
     pub fn btc(&self) -> Arc<BtcNode> {
         self.bitcoin.clone()
