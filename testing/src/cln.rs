@@ -83,7 +83,14 @@ impl Node {
     pub async fn with_params(params: &str, network: &str) -> anyhow::Result<Self> {
         let btc = BtcNode::tmp(network).await?;
         let btc = Arc::new(btc);
+        Self::with_btc_and_params(btc.clone(), params, network).await
+    }
 
+    pub async fn with_btc_and_params(
+        btc: Arc<BtcNode>,
+        params: &str,
+        network: &str,
+    ) -> anyhow::Result<Self> {
         let dir = tempfile::tempdir()?;
 
         let cln_path = format!("{}/.lightning", dir.path().to_str().unwrap());
