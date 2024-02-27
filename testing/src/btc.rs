@@ -7,6 +7,8 @@ use port::Port;
 use port_selector as port;
 use tempfile::TempDir;
 
+use crate::wait_for;
+
 pub mod macros {
     #[macro_export]
     macro_rules! bitcoind {
@@ -84,6 +86,19 @@ impl BtcNode {
             &format!("http://localhost:{port}"),
             Auth::UserPass(user.clone(), pass.clone()),
         )?;
+
+        wait_for!(async {
+            let Ok(info) = rpc.get_blockchain_info() else {
+                return Err(());
+            };
+
+            if info.initial_block_download {
+                return Err(());
+            }
+
+            Ok(())
+        });
+
         let bg_process = vec![process];
         Ok(Self {
             inner: rpc,
