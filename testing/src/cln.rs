@@ -98,7 +98,7 @@ impl Node {
         let process = macros::lightningd!(
             dir,
             port,
-            "--network={} --log-level=debug --bitcoin-rpcuser={} --bitcoin-rpcpassword={} --bitcoin-rpcport={} {}",
+            "--network={} --log-level=debug --dev-bitcoind-poll=1 --bitcoin-rpcuser={} --bitcoin-rpcpassword={} --bitcoin-rpcport={} {}",
             network,
             btc.user,
             btc.pass,
