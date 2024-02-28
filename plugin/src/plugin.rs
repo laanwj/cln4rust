@@ -191,8 +191,21 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         name: &str,
         params: serde_json::Value,
     ) -> Result<serde_json::Value, PluginError> {
-        let command = self.rpc_method.get(name).unwrap().clone();
-        command.call(self, params)
+        let Some(command) = self.rpc_method.get(name) else {
+            return self.call_hook(name, params);
+        };
+        command.clone().call(self, params)
+    }
+
+    fn call_hook(
+        &mut self,
+        name: &str,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, PluginError> {
+        let Some(command) = self.rpc_hook.get(name) else {
+            return Err(crate::error!("callback for method/hook `{name}` not found"));
+        };
+        command.clone().call(self, params)
     }
 
     fn handle_notification(&'a mut self, name: &str, params: serde_json::Value) {
