@@ -210,12 +210,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
 
     fn handle_notification(&'a mut self, name: &str, params: serde_json::Value) {
         let notification = self.rpc_notification.get(name).unwrap().clone();
-        if let Err(json_res) = notification.call(self, params) {
-            self.log(
-                LogLevel::Debug,
-                format!("Notification end with and error: {json_res}").as_str(),
-            );
-        }
+        notification.call_void(self, &params);
     }
 
     pub fn register_hook<F: 'static>(
