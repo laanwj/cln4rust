@@ -79,8 +79,11 @@ impl log::Log for Log {
                 method: "log".to_owned(),
                 params: payload,
             };
-            let _ = writer.write_all(serde_json::to_string(&request).unwrap().as_bytes());
-            let _ = writer.flush();
+
+            crate::poll_loop!({
+                writer.write_all(serde_json::to_string(&request).unwrap().as_bytes())
+            });
+            crate::poll_loop!({ writer.flush() });
         }
     }
 
@@ -122,9 +125,10 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             method: "log".to_owned(),
             params: payload,
         };
-        // We do not like unwrap there
-        let _ = writer.write_all(serde_json::to_string(&request).unwrap().as_bytes());
-        let _ = writer.flush();
+        crate::poll_loop!({
+            writer.write_all(serde_json::to_string(&request).unwrap().as_bytes())
+        });
+        crate::poll_loop!({ writer.flush() });
     }
 
     /// register the plugin option.
