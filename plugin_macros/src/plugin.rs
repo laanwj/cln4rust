@@ -5,8 +5,7 @@ use kproc_parser::kproc_macros::KTokenStream;
 use kproc_parser::proc_macro::{TokenStream, TokenTree};
 use kproc_parser::{build_error, check, trace};
 
-#[derive(Debug)]
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct PluginDeclaration {
     pub state: Option<String>,
     pub dynamic: Option<TokenTree>,
@@ -58,8 +57,6 @@ impl std::fmt::Display for PluginDeclaration {
         writeln!(f, "plugin\n }}")
     }
 }
-
-
 
 /// proc macro syntax is something like this
 ///

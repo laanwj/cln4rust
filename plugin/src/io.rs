@@ -30,6 +30,7 @@ impl AsyncIO {
         Ok(())
     }
 
+    #[allow(clippy::wrong_self_convention)]
     pub fn into_loop<F>(&mut self, mut async_callback: F) -> io::Result<()>
     where
         F: FnMut(String) -> Option<String>,

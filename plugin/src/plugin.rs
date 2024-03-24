@@ -126,6 +126,8 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             params: payload,
         };
         crate::poll_loop!({
+            // SAFETY: it is valid json and if we panic there is a buf somewhere
+            #[allow(clippy::unwrap_used)]
             writer.write_all(serde_json::to_string(&request).unwrap().as_bytes())
         });
         crate::poll_loop!({ writer.flush() });
@@ -142,8 +144,12 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     ) -> &mut Self {
         let def_val = match opt_type {
             "flag" | "bool" => {
+                // FIXME: remove unwrap and return the error
+                #[allow(clippy::unwrap_used)]
                 def_val.map(|val| serde_json::json!(val.parse::<bool>().unwrap()))
             }
+            // FIXME: remove unwrap and return the error
+            #[allow(clippy::unwrap_used)]
             "int" => def_val.map(|val| serde_json::json!(val.parse::<i64>().unwrap())),
             "string" => def_val.map(|val| serde_json::json!(val)),
             _ => unreachable!("{opt_type} not supported"),
@@ -212,6 +218,9 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     }
 
     fn handle_notification(&'a mut self, name: &str, params: serde_json::Value) {
+        // SAFETY: we register the notification and if we do not have inside the map
+        // this is a bug.
+        #[allow(clippy::unwrap_used)]
         let notification = self.rpc_notification.get(name).unwrap().clone();
         notification.call_void(self, &params);
     }
@@ -253,6 +262,8 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         match result {
             Ok(json_resp) => response["result"] = json_resp.to_owned(),
             Err(json_err) => {
+                // SAFETY: should be valud json
+                #[allow(clippy::unwrap_used)]
                 let err_resp = serde_json::to_value(json_err).unwrap();
                 response["error"] = err_resp;
             }
@@ -281,6 +292,8 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         asyncio.into_loop(|buffer| {
             #[cfg(feature = "log")]
             log::info!("looping around the string: {buffer}");
+            // SAFETY: should be valud json
+            #[allow(clippy::unwrap_used)]
             let request: Request<serde_json::Value> = serde_json::from_str(&buffer).unwrap();
             if let Some(id) = request.id {
                 // when the id is specified this is a RPC or Hook, so we need to return a response
@@ -293,6 +306,8 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                     request.method,
                     rpc_response
                 );
+                // SAFETY: should be valud json
+                #[allow(clippy::unwrap_used)]
                 Some(serde_json::to_string(&rpc_response).unwrap())
             } else {
                 // in case of the id is None, we are receiving the notification, so the server is not

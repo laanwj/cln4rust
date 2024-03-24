@@ -15,7 +15,7 @@ use crate::errors::PluginError;
 /// in contrast, it is more complex but the plugin_macros package will help to simplify the API.
 pub trait RPCCommand<T: Clone>: RPCCommandClone<T> {
     /// call is a generic method that it is used to simulate the callback.
-    fn call<'c>(
+    fn call(
         &self,
         _: &mut Plugin<T>,
         _: serde_json::Value,
