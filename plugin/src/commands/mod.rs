@@ -24,7 +24,7 @@ pub trait RPCCommand<T: Clone>: RPCCommandClone<T> {
     }
 
     /// void call is a generic method that it is used to simulate a callback with a void return type
-    fn call_void<'c>(&self, _plugin: &mut Plugin<T>, _request: &'c serde_json::Value) {}
+    fn call_void(&self, _plugin: &mut Plugin<T>, _request: &serde_json::Value) {}
 }
 
 // Splitting RPCCommandClone into its own trait allows us to provide a blanket

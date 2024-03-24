@@ -36,14 +36,14 @@ pub mod fixtures {
     pub fn lightningd() -> cln::Node {
         init();
         let pwd = std::env::var("PWD").unwrap();
-        let cln = async_run!(cln::Node::with_params(&format!("--developer --plugin={pwd}/target/debug/examples/foo_plugin --plugin={pwd}/target/debug/examples/macros_ex"), "regtest")).unwrap();
-        cln
+        
+        async_run!(cln::Node::with_params(&format!("--developer --plugin={pwd}/target/debug/examples/foo_plugin --plugin={pwd}/target/debug/examples/macros_ex"), "regtest")).unwrap()
     }
 
     #[fixture]
     pub fn lightningd_second() -> cln::Node {
         init();
-        let cln = async_run!(cln::Node::with_params("--developer", "regtest")).unwrap();
-        cln
+        
+        async_run!(cln::Node::with_params("--developer", "regtest")).unwrap()
     }
 }

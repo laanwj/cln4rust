@@ -1,5 +1,7 @@
 extern crate clightningrpc_plugin;
 
+use std::io;
+
 use clightningrpc_plugin::types::LogLevel;
 use clightningrpc_plugin::{commands::RPCCommand, errors::PluginError, plugin::Plugin};
 use serde_json::{json, Value};
@@ -35,7 +37,7 @@ impl RPCCommand<PluginState> for OnShutdown {
     }
 }
 
-fn main() {
+fn main() -> io::Result<()> {
     let plugin = Plugin::<PluginState>::new(PluginState(()), true)
         .add_rpc_method(
             "hello",
@@ -56,5 +58,6 @@ fn main() {
             json!({})
         })
         .clone();
-    plugin.start();
+    plugin.start()?;
+    Ok(())
 }

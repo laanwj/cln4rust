@@ -142,10 +142,10 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     ) -> &mut Self {
         let def_val = match opt_type {
             "flag" | "bool" => {
-                def_val.and_then(|val| Some(serde_json::json!(val.parse::<bool>().unwrap())))
+                def_val.map(|val| serde_json::json!(val.parse::<bool>().unwrap()))
             }
-            "int" => def_val.and_then(|val| Some(serde_json::json!(val.parse::<i64>().unwrap()))),
-            "string" => def_val.and_then(|val| Some(serde_json::json!(val))),
+            "int" => def_val.map(|val| serde_json::json!(val.parse::<i64>().unwrap())),
+            "string" => def_val.map(|val| serde_json::json!(val)),
             _ => unreachable!("{opt_type} not supported"),
         };
         self.option.insert(
@@ -293,14 +293,14 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                     request.method,
                     rpc_response
                 );
-                return Some(serde_json::to_string(&rpc_response).unwrap());
+                Some(serde_json::to_string(&rpc_response).unwrap())
             } else {
                 // in case of the id is None, we are receiving the notification, so the server is not
                 // interested in the answer.
                 self.handle_notification(&request.method, request.params);
                 #[cfg(feature = "log")]
                 log::info!("notification: {}", request.method);
-                return None;
+                None
             }
         })?;
         Ok(())
