@@ -7,8 +7,10 @@
 //!
 //! author and mantainer: Vincenzo Palazzo https://github.com/vincenzopalazzo
 #![crate_name = "clightningrpc_plugin"]
+#![deny(clippy::unwrap_used)]
 pub mod commands;
 pub mod errors;
+mod io;
 pub mod macros;
 pub mod plugin;
 pub mod types;

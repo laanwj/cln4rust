@@ -7,14 +7,16 @@ use std::io::Write;
 use std::string::String;
 use std::sync::Arc;
 
+use serde_json::Value;
+
 use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
 use clightningrpc_common::types::Request;
-use serde_json::Value;
 
 use crate::commands::builtin::{InitRPC, ManifestRPC};
 use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
 use crate::commands::RPCCommand;
 use crate::errors::PluginError;
+use crate::io::AsyncIO;
 use crate::types::{LogLevel, RpcOption};
 
 #[cfg(feature = "log")]
@@ -64,10 +66,10 @@ impl log::Log for Log {
 
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) {
+            let mut writer = io::stdout().lock();
             let level: LogLevel = record.level().into();
             let msg = record.args();
 
-            let mut writer = io::stdout();
             let mut payload = init_payload();
             add_str(&mut payload, "level", &level.to_string());
             add_str(&mut payload, "message", &format!("{msg}"));
@@ -77,10 +79,11 @@ impl log::Log for Log {
                 method: "log".to_owned(),
                 params: payload,
             };
-            writer
-                .write_all(serde_json::to_string(&request).unwrap().as_bytes())
-                .unwrap();
-            writer.flush().unwrap();
+
+            crate::poll_loop!({
+                writer.write_all(serde_json::to_string(&request).unwrap().as_bytes())
+            });
+            crate::poll_loop!({ writer.flush() });
         }
     }
 
@@ -112,7 +115,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     }
 
     pub fn log(&self, level: LogLevel, msg: &str) {
-        let mut writer = io::stdout();
+        let mut writer = io::stdout().lock();
         let mut payload = init_payload();
         add_str(&mut payload, "level", &level.to_string());
         add_str(&mut payload, "message", msg);
@@ -122,10 +125,12 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             method: "log".to_owned(),
             params: payload,
         };
-        writer
-            .write_all(serde_json::to_string(&request).unwrap().as_bytes())
-            .unwrap();
-        writer.flush().unwrap();
+        crate::poll_loop!({
+            // SAFETY: it is valid json and if we panic there is a buf somewhere
+            #[allow(clippy::unwrap_used)]
+            writer.write_all(serde_json::to_string(&request).unwrap().as_bytes())
+        });
+        crate::poll_loop!({ writer.flush() });
     }
 
     /// register the plugin option.
@@ -139,10 +144,14 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     ) -> &mut Self {
         let def_val = match opt_type {
             "flag" | "bool" => {
-                def_val.and_then(|val| Some(serde_json::json!(val.parse::<bool>().unwrap())))
+                // FIXME: remove unwrap and return the error
+                #[allow(clippy::unwrap_used)]
+                def_val.map(|val| serde_json::json!(val.parse::<bool>().unwrap()))
             }
-            "int" => def_val.and_then(|val| Some(serde_json::json!(val.parse::<i64>().unwrap()))),
-            "string" => def_val.and_then(|val| Some(serde_json::json!(val))),
+            // FIXME: remove unwrap and return the error
+            #[allow(clippy::unwrap_used)]
+            "int" => def_val.map(|val| serde_json::json!(val.parse::<i64>().unwrap())),
+            "string" => def_val.map(|val| serde_json::json!(val)),
             _ => unreachable!("{opt_type} not supported"),
         };
         self.option.insert(
@@ -209,6 +218,9 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     }
 
     fn handle_notification(&'a mut self, name: &str, params: serde_json::Value) {
+        // SAFETY: we register the notification and if we do not have inside the map
+        // this is a bug.
+        #[allow(clippy::unwrap_used)]
         let notification = self.rpc_notification.get(name).unwrap().clone();
         notification.call_void(self, &params);
     }
@@ -250,16 +262,15 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         match result {
             Ok(json_resp) => response["result"] = json_resp.to_owned(),
             Err(json_err) => {
+                // SAFETY: should be valud json
+                #[allow(clippy::unwrap_used)]
                 let err_resp = serde_json::to_value(json_err).unwrap();
                 response["error"] = err_resp;
             }
         }
     }
 
-    pub fn start(mut self) {
-        let reader = io::stdin();
-        let mut writer = io::stdout();
-        let mut buffer = String::new();
+    pub fn start(mut self) -> io::Result<()> {
         #[cfg(feature = "log")]
         {
             use std::str::FromStr;
@@ -276,29 +287,37 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 on_init: self.on_init.clone(),
             }),
         );
-        // FIXME: core lightning end with the double endline, so this can cause
-        // problem for some input reader.
-        // we need to parse the writer, and avoid this while loop
-        while let Ok(_) = reader.read_line(&mut buffer) {
-            let req_str = buffer.to_string();
-            buffer.clear();
-            let Ok(request) = serde_json::from_str::<Request<serde_json::Value>>(&req_str) else {
-                continue;
-            };
+        let mut asyncio = AsyncIO::new()?;
+        asyncio.register()?;
+        asyncio.into_loop(|buffer| {
+            #[cfg(feature = "log")]
+            log::info!("looping around the string: {buffer}");
+            // SAFETY: should be valud json
+            #[allow(clippy::unwrap_used)]
+            let request: Request<serde_json::Value> = serde_json::from_str(&buffer).unwrap();
             if let Some(id) = request.id {
                 // when the id is specified this is a RPC or Hook, so we need to return a response
                 let response = self.call_rpc_method(&request.method, request.params);
                 let mut rpc_response = init_success_response(id);
                 self.write_respose(&response, &mut rpc_response);
-                writer
-                    .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
-                    .unwrap();
-                writer.flush().unwrap();
+                #[cfg(feature = "log")]
+                log::info!(
+                    "rpc or hook: {} with reponse {:?}",
+                    request.method,
+                    rpc_response
+                );
+                // SAFETY: should be valud json
+                #[allow(clippy::unwrap_used)]
+                Some(serde_json::to_string(&rpc_response).unwrap())
             } else {
                 // in case of the id is None, we are receiving the notification, so the server is not
                 // interested in the answer.
                 self.handle_notification(&request.method, request.params);
+                #[cfg(feature = "log")]
+                log::info!("notification: {}", request.method);
+                None
             }
-        }
+        })?;
+        Ok(())
     }
 }

@@ -51,14 +51,21 @@ impl<T: Clone> RPCCommand<T> for ManifestRPC {
 #[derive(Clone)]
 /// Type to define the init method and its attributes, used in plugin
 pub struct InitRPC<T: 'static + Clone> {
+    #[allow(clippy::type_complexity)]
     pub(crate) on_init: Option<Arc<dyn Fn(&mut Plugin<T>) -> Value>>,
 }
 
 impl<T: Clone> InitRPC<T> {
     fn parse_option(&self, plugin: &mut Plugin<T>, options: &HashMap<String, serde_json::Value>) {
         for option_name in options.keys() {
+            // SAFETY: We are iterating over the key this never None
+            #[allow(clippy::unwrap_used)]
             let option = options.get(option_name).unwrap();
-            plugin.option.get_mut(option_name).unwrap().value = Some(option.to_owned());
+            // SAFETY: we put them into it so it is safe to unwrap.
+            // If we panic this mean that there is a bug
+            #[allow(clippy::unwrap_used)]
+            let opt = plugin.option.get_mut(option_name).unwrap();
+            opt.value = Some(option.to_owned());
         }
     }
 }
@@ -66,6 +73,8 @@ impl<T: Clone> InitRPC<T> {
 impl<T: Clone> RPCCommand<T> for InitRPC<T> {
     fn call<'c>(&self, plugin: &mut Plugin<T>, request: Value) -> Result<Value, PluginError> {
         let mut response = init_payload();
+        // SAFETY: Shouwl be valid json so should be safe to unwrap
+        #[allow(clippy::unwrap_used)]
         let init: InitConf = serde_json::from_value(request.to_owned()).unwrap();
         plugin.configuration = Some(init.configuration);
         self.parse_option(plugin, &init.options);

@@ -5,7 +5,7 @@ use kproc_parser::kproc_macros::KTokenStream;
 use kproc_parser::proc_macro::{TokenStream, TokenTree};
 use kproc_parser::{build_error, check, trace};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct PluginDeclaration {
     pub state: Option<String>,
     pub dynamic: Option<TokenTree>,
@@ -27,7 +27,7 @@ impl std::fmt::Display for PluginDeclaration {
                 .map_or(String::from("false"), |val| val.to_string())
         )?;
         if let Some(ref inner) = self.notificatios {
-            let mut inner = KTokenStream::new(&inner);
+            let mut inner = KTokenStream::new(inner);
             while !inner.is_end() {
                 let notification = inner.advance();
                 writeln!(f, "let call = {}();", notification)?;
@@ -42,7 +42,7 @@ impl std::fmt::Display for PluginDeclaration {
             }
         }
         if let Some(ref inner) = self.rpc_methods {
-            let mut inner = KTokenStream::new(&inner);
+            let mut inner = KTokenStream::new(inner);
             while !inner.is_end() {
                 let rpc = inner.advance();
                 writeln!(f, "let call = {}();", rpc)?;
@@ -55,18 +55,6 @@ impl std::fmt::Display for PluginDeclaration {
         }
 
         writeln!(f, "plugin\n }}")
-    }
-}
-
-impl Default for PluginDeclaration {
-    fn default() -> Self {
-        Self {
-            state: None,
-            dynamic: None,
-            notificatios: None,
-            hooks: None,
-            rpc_methods: None,
-        }
     }
 }
 

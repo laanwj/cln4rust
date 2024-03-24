@@ -36,7 +36,7 @@ fn parse_key_values(
             trace!(tracer, "removing the `,` tok");
             check!(",", stream.advance())?;
         }
-        let value = value.to_string().replace("\"", "");
+        let value = value.to_string().replace('\"', "");
         trace!(tracer, "key {key} = value {value}");
         hash_map.insert(key.to_string(), value.to_string());
         trace!(tracer, "map is {:?}", hash_map);
