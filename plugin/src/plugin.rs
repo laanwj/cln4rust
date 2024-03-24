@@ -122,10 +122,9 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             method: "log".to_owned(),
             params: payload,
         };
-        writer
-            .write_all(serde_json::to_string(&request).unwrap().as_bytes())
-            .unwrap();
-        writer.flush().unwrap();
+        // We do not like unwrap there
+        let _ = writer.write_all(serde_json::to_string(&request).unwrap().as_bytes());
+        let _ = writer.flush();
     }
 
     /// register the plugin option.
