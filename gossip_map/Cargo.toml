@@ -1,0 +1,11 @@
+[package]
+name = "clightningrpc_gossip_map"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+byteorder = "1.4.3"
+hex = "0.4.3"
+bitcoin = { version = "0.30.0" }
+fundamentals = { git = "https://github.com/lnspec-tools/ln-fundamentals.git" }
+fundamentals-derive = { git = "https://github.com/lnspec-tools/ln-fundamentals.git" }
