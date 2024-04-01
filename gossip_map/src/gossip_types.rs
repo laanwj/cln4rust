@@ -1,14 +1,15 @@
 //! Gossip map types implementations.
+use std::fmt::Debug;
 use std::io::Read;
 use std::{collections::HashMap, io::BufRead, str::Bytes, vec::Vec};
 
 use bitcoin::PublicKey;
 use fundamentals::core::FromWire;
-use fundamentals::prelude::bolt7::{ChannelAnnouncement, ChannelUpdate, NodeAnnouncement};
-use fundamentals::types::{Point, ShortChannelId};
+use fundamentals::types::ShortChannelId;
 use fundamentals_derive::DecodeWire;
 
-use crate::gossip_store_msg::GossipStoreChannelAmount;
+use crate::bolt7::{ChannelAnnouncement, ChannelUpdate, NodeAnnouncement};
+use crate::gossip_stor_wiregen::GossipStoreChannelAmount;
 
 trait GossipType {
     /// Decode the gossip message from a sequence of bytes.
@@ -35,19 +36,26 @@ impl From<&str> for GossipNodeId {
 }
 
 impl GossipNodeId {
-    pub(crate) fn from_bytes(buff: &Point) -> std::io::Result<Self> {
+    pub(crate) fn from_bytes(buff: &[u8]) -> std::io::Result<Self> {
         Ok(GossipNodeId {
             node_id: PublicKey::from_slice(buff).unwrap().to_string(),
         })
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct GossipNode {
     node_id: GossipNodeId,
     announced: bool,
     raw_message: Option<NodeAnnouncement>,
     channels: Vec<GossipChannel>,
+}
+
+impl Debug for GossipNode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "node_id: {:?}", self.node_id)?;
+        writeln!(f, "announced: {:?}", self.announced)
+    }
 }
 
 impl GossipNode {
@@ -71,7 +79,7 @@ impl GossipNode {
 }
 
 /// Channel Information stored inside the Gossip Map.
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct GossipChannel {
     inner: ChannelAnnouncement,
     annound_offset: u32,
@@ -83,6 +91,13 @@ pub struct GossipChannel {
     satoshi: Option<u64>,
     half_channels: HashMap<u8, GossipPartialChannel>,
     private: bool,
+}
+
+impl Debug for GossipChannel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "node_id_1: {:?}", self.node_one)?;
+        writeln!(f, "node_id_2: {:?}", self.node_two)
+    }
 }
 
 impl GossipChannel {
