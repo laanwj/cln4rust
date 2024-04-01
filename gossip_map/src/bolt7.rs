@@ -70,6 +70,7 @@ pub struct NodeAnnouncement {
     pub rgb_color: BitFlag,
     pub alias: BitFlag,
     pub addresses: BitFlag,
+    pub node_ann_tlvs: Stream,
 }
 
 #[derive(DecodeWire, EncodeWire, Debug, Clone)]
