@@ -1,0 +1,14 @@
+diff --git a/gossip_map/spec/bolt7.csv b/gossip_map/spec/bolt7.csv
+index 35a2dc6..865a3fa 100644
+--- a/gossip_map/spec/bolt7.csv
++++ b/gossip_map/spec/bolt7.csv
+@@ -26,6 +26,9 @@ msgdata,node_announcement,rgb_color,byte,3
+ msgdata,node_announcement,alias,byte,32
+ msgdata,node_announcement,addrlen,u16,
+ msgdata,node_announcement,addresses,byte,addrlen
++msgdata,node_announcement,tlvs,node_ann_tlvs,
++tlvtype,node_ann_tlvs,option_will_fund,1
++tlvdata,node_ann_tlvs,option_will_fund,lease_rates,lease_rates,
+ msgtype,channel_update,258
+ msgdata,channel_update,signature,signature,
+ msgdata,channel_update,chain_hash,chain_hash,
