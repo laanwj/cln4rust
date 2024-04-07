@@ -10,7 +10,6 @@ use clightningrpc_common::types::Request;
 use serde_json::Value;
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
-use tokio::sync::Mutex;
 
 use crate::commands::builtin::{InitRPC, ManifestRPC};
 use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
@@ -280,18 +279,16 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             let level = LevelFilter::from_str(&level).unwrap();
             let _ = log::set_logger(&Log {}).map(|()| log::set_max_level(level));
         }
-        let plugin = Arc::new(Mutex::new(self.clone()));
-        plugin
-            .lock()
-            .await
-            .rpc_method
+        self.rpc_method
             .insert("getmanifest".to_owned(), Box::new(ManifestRPC {}));
-        plugin.lock().await.rpc_method.insert(
+        self.rpc_method.insert(
             "init".to_owned(),
             Box::new(InitRPC::<T> {
                 on_init: self.on_init.clone(),
             }),
         );
+
+        let plugin = Box::new(self.clone());
         // FIXME: core lightning end with the double endline, so this can cause
         // problem for some input reader.
         // we need to parse the writer, and avoid this while loop
@@ -302,10 +299,9 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 continue;
             };
             if let Some(id) = request.id {
-                let plugin = plugin.clone();
+                let mut plugin = plugin.clone();
                 let _ = tokio::spawn(async move {
                     let mut writer = io::stdout();
-                    let mut plugin = plugin.lock().await;
                     // when the id is specified this is a RPC or Hook, so we need to return a response
                     let response = plugin.call_rpc_method(request.method, request.params);
                     let mut rpc_response = init_success_response(id);
