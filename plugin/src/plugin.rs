@@ -2,14 +2,15 @@
 //!
 //! Unofficial API interface to develop plugin in Rust.
 use std::collections::{HashMap, HashSet};
-use std::io;
-use std::io::Write;
 use std::string::String;
 use std::sync::Arc;
 
 use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
 use clightningrpc_common::types::Request;
 use serde_json::Value;
+use tokio::io;
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
+use tokio::sync::Mutex;
 
 use crate::commands::builtin::{InitRPC, ManifestRPC};
 use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
@@ -21,7 +22,6 @@ use crate::types::{LogLevel, RpcOption};
 pub use log::*;
 
 #[derive(Clone)]
-#[allow(dead_code)]
 pub struct Plugin<T>
 where
     // FIXME: move the static life time to a local life time for plugin
@@ -53,6 +53,10 @@ where
     on_init: Option<Arc<dyn Fn(&mut Plugin<T>) -> Value>>,
 }
 
+// FIXME: add comments for this
+unsafe impl<T: Clone> Sync for Plugin<T> {}
+unsafe impl<T: Clone> Send for Plugin<T> {}
+
 #[cfg(feature = "log")]
 pub struct Log;
 
@@ -77,10 +81,14 @@ impl log::Log for Log {
                 method: "log".to_owned(),
                 params: payload,
             };
-            writer
-                .write_all(serde_json::to_string(&request).unwrap().as_bytes())
-                .unwrap();
-            writer.flush().unwrap();
+
+            let _ = tokio::task::spawn(async move {
+                writer
+                    .write_all(serde_json::to_string(&request).unwrap().as_bytes())
+                    .await
+                    .unwrap();
+                writer.flush().await.unwrap();
+            });
         }
     }
 
@@ -122,10 +130,13 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             method: "log".to_owned(),
             params: payload,
         };
-        writer
-            .write_all(serde_json::to_string(&request).unwrap().as_bytes())
-            .unwrap();
-        writer.flush().unwrap();
+        let _ = tokio::task::spawn(async move {
+            writer
+                .write_all(serde_json::to_string(&request).unwrap().as_bytes())
+                .await
+                .unwrap();
+            writer.flush().await.unwrap();
+        });
     }
 
     /// register the plugin option.
@@ -188,9 +199,10 @@ impl<'a, T: 'a + Clone> Plugin<T> {
 
     fn call_rpc_method(
         &'a mut self,
-        name: &str,
+        name: String,
         params: serde_json::Value,
     ) -> Result<serde_json::Value, PluginError> {
+        let name = &name;
         let Some(command) = self.rpc_method.get(name) else {
             return self.call_hook(name, params);
         };
@@ -256,9 +268,9 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         }
     }
 
-    pub fn start(mut self) {
+    pub async fn start(mut self) {
         let reader = io::stdin();
-        let mut writer = io::stdout();
+        let mut reader = io::BufReader::new(reader);
         let mut buffer = String::new();
         #[cfg(feature = "log")]
         {
@@ -268,9 +280,13 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             let level = LevelFilter::from_str(&level).unwrap();
             let _ = log::set_logger(&Log {}).map(|()| log::set_max_level(level));
         }
-        self.rpc_method
+        let plugin = Arc::new(Mutex::new(self.clone()));
+        plugin
+            .lock()
+            .await
+            .rpc_method
             .insert("getmanifest".to_owned(), Box::new(ManifestRPC {}));
-        self.rpc_method.insert(
+        plugin.lock().await.rpc_method.insert(
             "init".to_owned(),
             Box::new(InitRPC::<T> {
                 on_init: self.on_init.clone(),
@@ -279,21 +295,28 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         // FIXME: core lightning end with the double endline, so this can cause
         // problem for some input reader.
         // we need to parse the writer, and avoid this while loop
-        while let Ok(_) = reader.read_line(&mut buffer) {
+        while let Ok(_) = reader.read_line(&mut buffer).await {
             let req_str = buffer.to_string();
             buffer.clear();
             let Ok(request) = serde_json::from_str::<Request<serde_json::Value>>(&req_str) else {
                 continue;
             };
             if let Some(id) = request.id {
-                // when the id is specified this is a RPC or Hook, so we need to return a response
-                let response = self.call_rpc_method(&request.method, request.params);
-                let mut rpc_response = init_success_response(id);
-                self.write_respose(&response, &mut rpc_response);
-                writer
-                    .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
-                    .unwrap();
-                writer.flush().unwrap();
+                let plugin = plugin.clone();
+                let _ = tokio::spawn(async move {
+                    let mut writer = io::stdout();
+                    let mut plugin = plugin.lock().await;
+                    // when the id is specified this is a RPC or Hook, so we need to return a response
+                    let response = plugin.call_rpc_method(request.method, request.params);
+                    let mut rpc_response = init_success_response(id);
+                    plugin.write_respose(&response, &mut rpc_response);
+                    writer
+                        .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
+                        .await
+                        .unwrap();
+                    writer.flush().await.unwrap();
+                })
+                .await;
             } else {
                 // in case of the id is None, we are receiving the notification, so the server is not
                 // interested in the answer.

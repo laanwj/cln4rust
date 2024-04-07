@@ -35,7 +35,8 @@ impl RPCCommand<PluginState> for OnShutdown {
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let plugin = Plugin::<PluginState>::new(PluginState(()), true)
         .add_rpc_method(
             "hello",
@@ -56,5 +57,5 @@ fn main() {
             json!({})
         })
         .clone();
-    plugin.start();
+    plugin.start().await;
 }
