@@ -66,11 +66,13 @@ impl log::Log for Log {
     }
 
     fn log(&self, record: &Record) {
+        use std::io::Write;
+
         if self.enabled(record.metadata()) {
             let level: LogLevel = record.level().into();
             let msg = record.args();
 
-            let mut writer = io::stdout();
+            let mut writer = std::io::stdout();
             let mut payload = init_payload();
             add_str(&mut payload, "level", &level.to_string());
             add_str(&mut payload, "message", &format!("{msg}"));
@@ -81,13 +83,10 @@ impl log::Log for Log {
                 params: payload,
             };
 
-            let _ = tokio::task::spawn(async move {
-                writer
-                    .write_all(serde_json::to_string(&request).unwrap().as_bytes())
-                    .await
-                    .unwrap();
-                writer.flush().await.unwrap();
-            });
+            writer
+                .write_all(serde_json::to_string(&request).unwrap().as_bytes())
+                .unwrap();
+            writer.flush().unwrap();
         }
     }
 
