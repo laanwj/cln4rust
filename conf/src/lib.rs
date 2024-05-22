@@ -169,6 +169,18 @@ impl CLNConf {
         Ok(())
     }
 
+    pub fn rm_subconf(&mut self, path: &str) -> Result<(), ParsingError> {
+        if let Some(index) = self.includes.iter().position(|x| x.path == path) {
+            self.includes.remove(index);
+        } else {
+            return Err(ParsingError {
+                core: 2,
+                cause: format!("include {path} not found"),
+            });
+        }
+        Ok(())
+    }
+
     pub fn flush(&self) -> Result<(), std::io::Error> {
         let content = format!("{self}");
         let file = File::new(&self.path);
@@ -254,6 +266,30 @@ mod tests {
 
         assert!(conf.fields.contains_key("plugin"));
         assert!(conf.fields.contains_key("network"));
+
+        cleanup_file(path.as_str());
+    }
+
+    #[test]
+    fn subconf_add_rm() {
+        let path = build_file("plugin=foo\nnetwork=bitcoin");
+        assert!(path.is_ok());
+        let path = path.unwrap();
+        let mut conf = CLNConf::new(path.to_string(), false);
+        let result = conf.parse();
+        assert!(result.is_ok(), "{:#?}", result);
+        assert_eq!(conf.fields.keys().len(), 2);
+        assert_eq!(conf.includes.len(), 0);
+
+        assert!(conf.fields.contains_key("plugin"));
+        assert!(conf.fields.contains_key("network"));
+
+        let subconf = CLNConf::new("/some/path".to_string(), false);
+        assert!(conf.add_subconf(subconf).is_ok());
+        assert_eq!(conf.includes.len(), 1);
+
+        assert!(conf.rm_subconf("/some/path").is_ok());
+        assert_eq!(conf.includes.len(), 0);
 
         cleanup_file(path.as_str());
     }
