@@ -531,4 +531,7 @@ pub struct NewAddr {
 }
 
 /// 'stop' command
-pub type Stop = String;
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Stop {
+    pub result: Option<String>,
+}
