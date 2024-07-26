@@ -4,12 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1"
 log = "0.4.21"
 byteorder = "1.4.3"
 hex = "0.4.3"
 bitcoin = { version = "0.30.0" }
-fundamentals = { git = "https://github.com/lnspec-tools/ln-fundamentals.git" }
-fundamentals-derive = { git = "https://github.com/lnspec-tools/ln-fundamentals.git" }
+fundamentals = { git = "https://github.com/lnspec-tools/ln-fundamentals.git", branch = "macros/fix_fixed_read" }
+fundamentals-derive = { git = "https://github.com/lnspec-tools/ln-fundamentals.git", branch = "macros/fix_fixed_read" }
 lightning = "0.0.121"
 
 [dev-dependencies]

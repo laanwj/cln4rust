@@ -30,6 +30,7 @@ use crate::gossip_types::{GossipChannel, GossipNode, GossipNodeId, GossipStoredH
 /// written by core lightning.
 #[derive(Debug)]
 struct GossipMap {
+    // FIXME: make this optional
     path: String,
     version: u8,
     stream: Option<BufReader<File>>,
@@ -52,7 +53,7 @@ impl GossipMap {
         }
     }
 
-    pub fn from_file(file_name: &str) -> io::Result<Self> {
+    pub fn from_file(file_name: &str) -> anyhow::Result<Self> {
         log::debug!("Loading gossip map from file `{file_name}`");
         let gossip_store = File::open(file_name)?;
         let stream = BufReader::new(gossip_store);
@@ -83,32 +84,27 @@ impl GossipMap {
     /// add a channel announcement message inside the gossip map.
     fn add_channel_announcement(&mut self, channel_announce: ChannelAnnouncement) {}
 
-    fn refresh(&mut self) -> std::io::Result<()> {
+    fn refresh(&mut self) -> anyhow::Result<()> {
         let gossip_store = File::open(self.path.clone())?;
         let stream = BufReader::new(gossip_store);
         let mut stream = peekable_stream::PeekableStream::new(stream);
 
         let version = u8::from_wire(&mut stream)? as u16;
         if (version & GOSSIP_STORE_MAJOR_VERSION_MASK) != GOSSIP_STORE_MAJOR_VERSION {
-            return Err(Error::new(
-                ErrorKind::Other,
-                "Invalid gossip store version {version}",
-            ));
+            anyhow::bail!("Invalid gossip store version {version}");
         }
         self.version = version as u8;
 
         let mut last_short_channel_id: Option<ShortChannelId> = None;
         while let Ok(header) = GossipStoredHeader::from_wire(&mut stream) {
             log::debug!("header {:?}", header);
-            match header.flag() {
-                flags::GOSSIP_STORE_LEN_DELETED_BIT | flags::GOSSIP_STORE_LEN_RATELIMIT_BIT => {
-                    continue
-                }
-                _ => {}
+            if (header.flag() & flags::GOSSIP_STORE_LEN_DELETED_BIT) != 0 {
+                log::debug!("flags::GOSSIP_STORE_LEN_DELETED_BIT");
+                continue;
             }
-            let tyemsg = stream.peek_msgtype()?;
-            log::info!("type: {tyemsg}");
-            match tyemsg {
+            let typmsg = stream.peek_msgtype()?;
+            log::info!("type: {typmsg}");
+            match typmsg {
                 // channel announcement!
                 256 => {
                     let channel_announcement = ChannelAnnouncement::from_wire(&mut stream)?;
@@ -128,7 +124,7 @@ impl GossipMap {
                     }
                     last_short_channel_id = Some(channel_announcement.short_channel_id);
                     let channel = GossipChannel::new(channel_announcement, &node_one, &node_two);
-                    // SAFETY: this is sage because the node is always present, due the
+                    // SAFETY: It is safe to unwrap because the node is always present, due the
                     // previous checks.
                     let node_one = self.nodes.get_mut(&node_one).unwrap();
                     node_one.add_channel(&channel.clone());
@@ -175,21 +171,20 @@ impl GossipMap {
                     }
                 }
                 258 => {
-                    log::info!("fgound channel update");
+                    log::info!("found channel update");
                     let channel_update = ChannelUpdate::from_wire(&mut stream)?;
-                    if self.channels.contains_key(&channel_update.short_channel_id) {
-                        // SAFETY: we check the existence before!
-                        let channel = self
-                            .channels
-                            .get_mut(&channel_update.short_channel_id)
-                            .unwrap();
+                    if let Some(channel) = self.channels.get_mut(&channel_update.short_channel_id) {
+                        log::info!(
+                            "found channel with short id `{}`",
+                            hex::encode(channel_update.short_channel_id)
+                        );
                         channel.channel_update(&channel_update)
                     } else {
                         self.orphan_channel_updates
                             .insert(channel_update.short_channel_id, channel_update);
                     }
                 }
-                _ => assert!(false),
+                _ => anyhow::bail!("Unexpected message with type `{typmsg}`"),
             }
         }
         log::info!("{:#?}", self.nodes);
@@ -218,7 +213,7 @@ mod tests {
     #[test]
     fn read_gossipmap_from_file() {
         init();
-        let path = "/run/media/vincent/VincentSSD/.lightning/testnet/gossip_store";
+        let path = "/run/media/vincent/VincentSSD/.lightning/signet/gossip_store";
         let pubkey = "03b39d1ddf13ce486de74e9e44e0538f960401a9ec75534ba9cfe4100d65426880";
         let map = GossipMap::from_file(path);
         assert!(map.is_ok(), "{:?}", map);
