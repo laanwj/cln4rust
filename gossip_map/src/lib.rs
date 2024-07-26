@@ -215,8 +215,6 @@ impl GossipMap {
                 }
             }
         }
-        log::info!("{:#?}", self.nodes);
-        log::info!("{:#?}", self.channels);
         Ok(())
     }
 }
@@ -241,8 +239,8 @@ mod tests {
     #[test]
     fn read_gossipmap_from_file() {
         init();
-        let path = "/run/media/vincent/VincentSSD/.lightning/testnet/gossip_store";
-        let pubkey = "03b39d1ddf13ce486de74e9e44e0538f960401a9ec75534ba9cfe4100d65426880";
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../contrib/gossip_store");
+        let pubkey = "03e2408a49f07d2f4083a47344138ef89e7617e63919202c92aa8d49b574a560ae";
         let map = GossipMap::from_file(path);
         assert!(map.is_ok(), "{:?}", map);
         let map = map.unwrap();
