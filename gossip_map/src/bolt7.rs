@@ -41,8 +41,9 @@ pub struct ChannelUpdate {
     pub chain_hash: ChainHash,
     pub short_channel_id: ShortChannelId,
     pub timestamp: u32,
-    pub message_flags: BitFlag,
-    pub channel_flags: BitFlag,
+    // FIXME: these are u8 but the codegen will decode it to BitFlag
+    pub message_flags: u8,
+    pub channel_flags: u8,
     pub cltv_expiry_delta: u16,
     pub htlc_minimum_msat: u64,
     pub fee_base_msat: u32,
@@ -59,6 +60,27 @@ pub struct GossipTimestampFilter {
     pub timestamp_range: u32,
 }
 
+macro_rules! to_wire_type_with_size {
+    ($ty: ty, $size: expr) => {
+        impl ToWire for $ty {
+            fn to_wire<W: Write>(&self, buff: &mut W) -> std::io::Result<()> {
+                buff.write_all(self)
+            }
+        }
+
+        impl FromWire for $ty {
+            fn from_wire<R: Read>(reader: &mut R) -> std::io::Result<Self> {
+                let mut buff = [0; $size];
+                reader.read_exact(&mut buff)?;
+                Ok(buff)
+            }
+        }
+    };
+}
+
+pub type Alias = [u8; 32];
+pub type Rgb = [u8; 3];
+
 #[derive(DecodeWire, EncodeWire, Debug, Clone)]
 pub struct NodeAnnouncement {
     #[msg_type = 257]
@@ -67,8 +89,8 @@ pub struct NodeAnnouncement {
     pub features: BitFlag,
     pub timestamp: u32,
     pub node_id: Point,
-    pub rgb_color: BitFlag,
-    pub alias: BitFlag,
+    pub rgb_color: Rgb,
+    pub alias: Alias,
     pub addresses: BitFlag,
     pub node_ann_tlvs: Stream,
 }
