@@ -26,9 +26,8 @@ use crate::gossip_types::{GossipChannel, GossipNode, GossipNodeId, GossipStoredH
 /// Gossip map implementation, that allow you to manage the gossip_store
 /// written by core lightning.
 #[derive(Debug)]
-struct GossipMap {
-    // FIXME: make this optional
-    path: String,
+pub struct GossipMap {
+    path: Option<String>,
     version: u8,
     stream: Option<BufReader<File>>,
     nodes: HashMap<GossipNodeId, GossipNode>,
@@ -41,7 +40,7 @@ impl GossipMap {
     pub fn new(version: u8) -> Self {
         log::debug!("gossip map version `{version}`");
         GossipMap {
-            path: "".to_owned(),
+            path: None,
             version,
             stream: None,
             nodes: HashMap::new(),
@@ -55,7 +54,7 @@ impl GossipMap {
         let gossip_store = File::open(file_name)?;
         let stream = BufReader::new(gossip_store);
         let mut gossip_map = GossipMap {
-            path: file_name.to_owned(),
+            path: Some(file_name.to_owned()),
             version: 0,
             stream: Some(stream),
             nodes: HashMap::new(),
@@ -76,13 +75,21 @@ impl GossipMap {
     }
 
     /// add a node announcement message inside the gossip map
-    fn add_node_announcement(&mut self, node_announce: NodeAnnouncement) {}
+    fn add_node_announcement(&mut self, node_announce: NodeAnnouncement) {
+        unimplemented!()
+    }
 
     /// add a channel announcement message inside the gossip map.
-    fn add_channel_announcement(&mut self, channel_announce: ChannelAnnouncement) {}
+    fn add_channel_announcement(&mut self, channel_announce: ChannelAnnouncement) {
+        unimplemented!()
+    }
 
     fn refresh(&mut self) -> anyhow::Result<()> {
-        let gossip_store = File::open(self.path.clone())?;
+        let gossip_store = File::open(
+            self.path
+                .as_ref()
+                .ok_or(anyhow::anyhow!("Gossip map not found"))?,
+        )?;
         let mut stream = BufReader::new(gossip_store);
 
         let version = u8::from_wire(&mut stream)? as u16;
