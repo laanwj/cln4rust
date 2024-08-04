@@ -28,11 +28,11 @@ use crate::gossip_types::{GossipChannel, GossipNode, GossipNodeId, GossipStoredH
 #[derive(Debug)]
 pub struct GossipMap {
     path: Option<String>,
-    version: u8,
     stream: Option<BufReader<File>>,
-    nodes: HashMap<GossipNodeId, GossipNode>,
-    channels: HashMap<ShortChannelId, GossipChannel>,
-    orphan_channel_updates: HashMap<ShortChannelId, ChannelUpdate>,
+    pub version: u8,
+    pub nodes: HashMap<GossipNodeId, GossipNode>,
+    pub channels: HashMap<ShortChannelId, GossipChannel>,
+    pub orphan_channel_updates: HashMap<ShortChannelId, ChannelUpdate>,
 }
 
 impl GossipMap {
