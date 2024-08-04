@@ -10,7 +10,7 @@ pub use fundamentals::*;
 mod bolt7;
 mod flags;
 mod gossip_stor_wiregen;
-mod gossip_types;
+pub mod gossip_types;
 
 use crate::bolt7::{ChannelAnnouncement, ChannelUpdate, NodeAnnouncement};
 use crate::flags::{

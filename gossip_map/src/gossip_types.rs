@@ -11,17 +11,6 @@ use fundamentals_derive::DecodeWire;
 use crate::bolt7::{ChannelAnnouncement, ChannelUpdate, NodeAnnouncement};
 use crate::gossip_stor_wiregen::GossipStoreChannelAmount;
 
-trait GossipType {
-    /// Decode the gossip message from a sequence of bytes.
-    fn decode(stream: &mut dyn BufRead) -> Result<Self, std::io::Error>
-    where
-        Self: Sized;
-
-    /// Encode the gossip message in a sequence of bytes.
-    fn encode(&self) -> Bytes;
-}
-
-/// Node Id encoded for the gossip map
 #[derive(Eq, Hash, PartialEq, Debug, Clone)]
 pub struct GossipNodeId {
     pub(crate) node_id: String,
@@ -81,16 +70,16 @@ impl GossipNode {
 /// Channel Information stored inside the Gossip Map.
 #[derive(Clone)]
 pub struct GossipChannel {
-    inner: ChannelAnnouncement,
-    annound_offset: u32,
-    scid: ShortChannelId,
-    node_one: GossipNodeId,
-    node_two: GossipNodeId,
-    update_fields: Vec<HashMap<String, String>>,
-    update_offset: Vec<u32>,
-    satoshi: Option<u64>,
-    half_channels: HashMap<u8, GossipPartialChannel>,
-    private: bool,
+    pub inner: ChannelAnnouncement,
+    pub annound_offset: u32,
+    pub scid: ShortChannelId,
+    pub node_one: GossipNodeId,
+    pub node_two: GossipNodeId,
+    pub update_fields: Vec<HashMap<String, String>>,
+    pub update_offset: Vec<u32>,
+    pub satoshi: Option<u64>,
+    pub half_channels: HashMap<u8, GossipPartialChannel>,
+    pub private: bool,
 }
 
 impl Debug for GossipChannel {
