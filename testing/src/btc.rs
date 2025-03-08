@@ -77,10 +77,11 @@ impl BtcNode {
         let user = "crab".to_owned();
         let pass = "crab".to_owned();
         let port = port::random_free_port().unwrap();
+        // FIXME: be able to customize the bitcoind command with custom args
         let process = macros::bitcoind!(
             dir,
             port,
-            "-server -{network} -rpcuser={user} -rpcpassword={pass}"
+            "-server -{network} -rpcuser={user} -rpcpassword={pass} -listen=0"
         )?;
         let rpc = Client::new(
             &format!("http://localhost:{port}"),

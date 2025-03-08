@@ -36,14 +36,18 @@ pub mod fixtures {
     pub fn lightningd() -> cln::Node {
         init();
         let pwd = std::env::var("PWD").unwrap();
-        let cln = async_run!(cln::Node::with_params(&format!("--developer --plugin={pwd}/target/debug/examples/foo_plugin --plugin={pwd}/target/debug/examples/macros_ex"), "regtest")).unwrap();
+        let cln = async_run!(cln::Node::with_params(&format!("--developer --allow-deprecated-apis=true --plugin={pwd}/target/debug/examples/foo_plugin --plugin={pwd}/target/debug/examples/macros_ex"), "regtest")).unwrap();
         cln
     }
 
     #[fixture]
     pub fn lightningd_second() -> cln::Node {
         init();
-        let cln = async_run!(cln::Node::with_params("--developer", "regtest")).unwrap();
+        let cln = async_run!(cln::Node::with_params(
+            "--developer --allow-deprecated-apis=true",
+            "regtest"
+        ))
+        .unwrap();
         cln
     }
 }
