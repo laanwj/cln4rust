@@ -61,6 +61,8 @@ impl Drop for Node {
             let Some(child) = process.id() else {
                 continue;
             };
+            // Read the content of the logs and print on the stdout
+            let _ = self.print_logs();
             let Ok(mut kill) = std::process::Command::new("kill")
                 .args(["-s", "SIGKILL", &child.to_string()])
                 .spawn()
@@ -135,7 +137,7 @@ impl Node {
 
     pub fn print_logs(&self) -> anyhow::Result<()> {
         let content = std::fs::read_to_string(format!("{}/log.log", self.cln_dir))?;
-        log::info!("{content}");
+        println!("{content}");
         Ok(())
     }
 
