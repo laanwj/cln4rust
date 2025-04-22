@@ -2,14 +2,16 @@
 //!
 //! Unofficial API interface to develop plugin in Rust.
 use std::collections::{HashMap, HashSet};
-use std::io;
 use std::io::Write;
 use std::string::String;
 use std::sync::Arc;
 
+use serde_json::Value;
+use tokio::io;
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+
 use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
 use clightningrpc_common::types::Request;
-use serde_json::Value;
 
 use crate::commands::builtin::{InitRPC, ManifestRPC};
 use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
@@ -67,7 +69,7 @@ impl log::Log for Log {
             let level: LogLevel = record.level().into();
             let msg = record.args();
 
-            let mut writer = io::stdout();
+            let mut writer = std::io::stdout();
             let mut payload = init_payload();
             add_str(&mut payload, "level", &level.to_string());
             add_str(&mut payload, "message", &format!("{msg}"));
@@ -112,7 +114,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     }
 
     pub fn log(&self, level: LogLevel, msg: &str) {
-        let mut writer = io::stdout();
+        let mut writer = std::io::stdout();
         let mut payload = init_payload();
         add_str(&mut payload, "level", &level.to_string());
         add_str(&mut payload, "message", msg);
@@ -256,10 +258,7 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         }
     }
 
-    pub fn start(mut self) {
-        let reader = io::stdin();
-        let mut writer = io::stdout();
-        let mut buffer = String::new();
+    pub async fn start(mut self) {
         #[cfg(feature = "log")]
         {
             use std::str::FromStr;
@@ -268,6 +267,8 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             let level = LevelFilter::from_str(&level).unwrap();
             let _ = log::set_logger(&Log {}).map(|()| log::set_max_level(level));
         }
+
+        // Every plugin must implement the getmanifest & init method
         self.rpc_method
             .insert("getmanifest".to_owned(), Box::new(ManifestRPC {}));
         self.rpc_method.insert(
@@ -276,28 +277,54 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 on_init: self.on_init.clone(),
             }),
         );
-        // FIXME: core lightning end with the double endline, so this can cause
-        // problem for some input reader.
-        // we need to parse the writer, and avoid this while loop
-        while let Ok(_) = reader.read_line(&mut buffer) {
-            let req_str = buffer.to_string();
-            buffer.clear();
-            let Ok(request) = serde_json::from_str::<Request<serde_json::Value>>(&req_str) else {
-                continue;
-            };
-            if let Some(id) = request.id {
-                // when the id is specified this is a RPC or Hook, so we need to return a response
-                let response = self.call_rpc_method(&request.method, request.params);
-                let mut rpc_response = init_success_response(id);
-                self.write_respose(&response, &mut rpc_response);
-                writer
-                    .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
-                    .unwrap();
-                writer.flush().unwrap();
-            } else {
-                // in case of the id is None, we are receiving the notification, so the server is not
-                // interested in the answer.
-                self.handle_notification(&request.method, request.params);
+
+        let reader = BufReader::new(tokio::io::stdin());
+        let mut writer = tokio::io::stdout();
+
+        // Read input until double endline to handle Core Lightning's message format
+        let mut lines = reader.lines();
+        let mut buffer = String::new();
+        loop {
+            match lines.next_line().await {
+                Ok(Some(line)) => {
+                    buffer.push_str(&line);
+                    buffer.push_str("\n");
+                    // Check if we've hit a double endline (empty line after content)
+                    if line.is_empty() {
+                        if !buffer.trim().is_empty() {
+                            // Process the accumulated buffer as a complete message
+                            let req_str = buffer.trim().to_string();
+                            buffer.clear();
+                            let Ok(request) =
+                                serde_json::from_str::<Request<serde_json::Value>>(&req_str)
+                            else {
+                                continue;
+                            };
+                            if let Some(id) = request.id {
+                                // when the id is specified this is a RPC or Hook, so we need to return a response
+                                let response =
+                                    self.call_rpc_method(&request.method, request.params);
+                                let mut rpc_response = init_success_response(id);
+                                self.write_respose(&response, &mut rpc_response);
+                                writer
+                                    .write_all(
+                                        serde_json::to_string(&rpc_response).unwrap().as_bytes(),
+                                    )
+                                    .await
+                                    .unwrap();
+                                writer.flush().await.unwrap();
+                            } else {
+                                // in case of the id is None, we are receiving the notification, so the server is not
+                                // interested in the answer.
+                                self.handle_notification(&request.method, request.params);
+                            }
+                        } else {
+                            buffer.clear();
+                        }
+                    }
+                }
+                Ok(None) => break, // End of input
+                Err(_) => break,   // Error reading input
             }
         }
     }

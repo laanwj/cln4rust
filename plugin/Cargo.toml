@@ -14,6 +14,7 @@ readme = "README.md"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 clightningrpc-common = { version = "0.3.0-beta.4" }
+tokio = { version = "1", features = ["io-std"] }
 log = { version = "0.4.17", optional = true }
 
 [features]
