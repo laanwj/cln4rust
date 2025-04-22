@@ -14,7 +14,7 @@ fmt: ## Format the file
 
 check: ## Run all the tests inside the workspace
 	@make default
-	$(CC) test -- --show-output
+	RUST_LOG=debug $(CC) test -- --show-output
 
 example: # build the examples
 	$(CC) build --example foo_plugin
