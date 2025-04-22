@@ -12,3 +12,7 @@ serde_json = "1.0.1"
 anyhow = "1.0.71"
 rstest = "0.10.0"
 uuid = { version = "0.8.2", features = ["v4"]}
+tokio-test-shutdown-timeout = "0.0.2"
+
+[features]
+async = ["clightning-testing/async"]

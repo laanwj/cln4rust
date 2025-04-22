@@ -67,7 +67,6 @@ pub struct Node {
 
 impl Drop for Node {
     fn drop(&mut self) {
-        let _ = self.rpc().as_ref().stop();
         for process in self.process.iter() {
             let Some(child) = process.id() else {
                 continue;
@@ -141,6 +140,8 @@ impl Node {
         wait_for!(async { rpc.getinfo().await });
         #[cfg(not(feature = "async"))]
         wait_for!(async { rpc.getinfo() });
+
+        log::info!("rpc is ready");
 
         let node = Self {
             inner: rpc,
