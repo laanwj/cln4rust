@@ -1,43 +1,26 @@
-//! High-level interface to c-lightning RPC
+//! High-level async interface to c-lightning RPC
 use std::path::Path;
+use std::time::Duration;
 
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use clightningrpc_common::client;
-use clightningrpc_common::errors::Error;
+use crate::types::RouteItem;
+use clightningrpc_common::r#async::Client;
 
+use crate::errors::Error;
+use crate::lightningrpc::PayOptions;
 use crate::requests;
 use crate::responses;
-use crate::types::RouteItem;
 
-/// Structure providing a high-level interface to the c-lightning daemon RPC
+/// Structure providing a high-level async interface to the c-lightning daemon RPC
 #[derive(Debug)]
 pub struct LightningRPC {
-    client: client::Client,
-}
-
-/// Optional arguments for pay() request
-#[derive(Debug, Clone, Default)]
-pub struct PayOptions<'f> {
-    /// {msatoshi} (if and only if {bolt11} does not have amount)
-    pub msatoshi: Option<u64>,
-    /// {description} (required if {bolt11} uses description hash)
-    pub description: Option<&'f str>,
-    /// {riskfactor} (default 1.0)
-    pub riskfactor: Option<f64>,
-    /// {maxfeepercent} (default 0.5) the maximum acceptable fee as a percentage (e.g. 0.5 => 0.5%)
-    pub maxfeepercent: Option<f64>,
-    /// {exemptfee} (default 5000 msat) disables the maxfeepercent check for fees below the threshold
-    pub exemptfee: Option<u64>,
-    /// {retry_for} (default 60) the integer number of seconds before we stop retrying
-    pub retry_for: Option<u64>,
-    /// {maxdelay} (default 500) the maximum number of blocks we allow the funds to possibly get locked
-    pub maxdelay: Option<u64>,
+    client: Client,
 }
 
 impl LightningRPC {
-    /// Create a new connection from a UNIX socket path.
+    /// Create a new async connection from a UNIX socket path.
     ///
     /// # Arguments
     ///
@@ -46,24 +29,27 @@ impl LightningRPC {
     /// lightningd.
     pub fn new<P: AsRef<Path>>(sockpath: P) -> LightningRPC {
         LightningRPC {
-            client: client::Client::new(sockpath),
+            client: Client::new(sockpath),
         }
     }
 
-    /// Get reference to the low-level client connection
-    pub fn client(&mut self) -> &mut client::Client {
+    /// Set an optional timeout for requests
+    pub fn set_timeout(&mut self, timeout: Option<Duration>) {
+        self.client.set_timeout(timeout);
+    }
+
+    pub fn client(&mut self) -> &mut Client {
         &mut self.client
     }
 
-    /// Generic call function for RPC calls.
-    pub fn call<T: Serialize, U: DeserializeOwned>(
+    /// Generic call function for async RPC calls.
+    pub async fn call<T: Serialize, U: DeserializeOwned>(
         &self,
         method: &str,
         input: T,
     ) -> Result<U, Error> {
-        self.client
-            .send_request(method, input)
-            .and_then(|res| res.into_result())
+        let response = self.client.send_request(method, input).await?;
+        response.into_result()
     }
 
     /// Show information about this node.
@@ -71,8 +57,8 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn getinfo(&self) -> Result<responses::GetInfo, Error> {
-        self.call("getinfo", requests::GetInfo {})
+    pub async fn getinfo(&self) -> Result<responses::GetInfo, Error> {
+        self.call("getinfo", requests::GetInfo {}).await
     }
 
     /// Return feerate estimates, either satoshi-per-kw ({style} perkw) or satoshi-per-kb ({style}
@@ -81,8 +67,8 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn feerates(&self, style: &str) -> Result<responses::FeeRates, Error> {
-        self.call("feerates", requests::FeeRates { style })
+    pub async fn feerates(&self, style: &str) -> Result<responses::FeeRates, Error> {
+        self.call("feerates", requests::FeeRates { style }).await
     }
 
     /// Show node {id} (or all, if no {id}), in our local network view.
@@ -90,8 +76,8 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn listnodes(&self, id: Option<&str>) -> Result<responses::ListNodes, Error> {
-        self.call("listnodes", requests::ListNodes { id })
+    pub async fn listnodes(&self, id: Option<&str>) -> Result<responses::ListNodes, Error> {
+        self.call("listnodes", requests::ListNodes { id }).await
     }
 
     /// Show channel {short_channel_id} (or all known channels, if no {short_channel_id}).
@@ -99,7 +85,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn listchannels(
+    pub async fn listchannels(
         &self,
         short_channel_id: Option<&str>,
         source: Option<&str>,
@@ -113,6 +99,7 @@ impl LightningRPC {
                 destination,
             },
         )
+        .await
     }
 
     /// List available commands, or give verbose help on one command.
@@ -120,8 +107,8 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn help(&self, command: Option<&str>) -> Result<responses::Help, Error> {
-        self.call("help", requests::Help { command })
+    pub async fn help(&self, command: Option<&str>) -> Result<responses::Help, Error> {
+        self.call("help", requests::Help { command }).await
     }
 
     /// Show logs, with optional log {level} (info|unusual|debug|io).
@@ -129,8 +116,8 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn getlog(&self, level: Option<&str>) -> Result<responses::GetLog, Error> {
-        self.call("getlog", requests::GetLog { level })
+    pub async fn getlog(&self, level: Option<&str>) -> Result<responses::GetLog, Error> {
+        self.call("getlog", requests::GetLog { level }).await
     }
 
     /// List all configuration options, or with [config], just that one.
@@ -140,8 +127,9 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn listconfigs(&self, config: Option<&str>) -> Result<responses::ListConfigs, Error> {
+    pub async fn listconfigs(&self, config: Option<&str>) -> Result<responses::ListConfigs, Error> {
         self.call("listconfigs", requests::ListConfigs { config })
+            .await
     }
 
     /// Show current peers, if {level} is set, include {log}s.
@@ -149,12 +137,13 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn listpeers(
+    pub async fn listpeers(
         &self,
         id: Option<&str>,
         level: Option<&str>,
     ) -> Result<responses::ListPeers, Error> {
         self.call("listpeers", requests::ListPeers { id, level })
+            .await
     }
 
     /// Show invoice {label} (or all, if no {label)).
@@ -162,7 +151,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn listinvoices(
+    pub async fn listinvoices(
         &self,
         label: Option<&str>,
         invstring: Option<&str>,
@@ -178,6 +167,7 @@ impl LightningRPC {
                 offer_id,
             },
         )
+        .await
     }
 
     /// Create an invoice for {msatoshi} with {label} and {description} with
@@ -186,7 +176,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn invoice(
+    pub async fn invoice(
         &self,
         amount_msat: Option<u64>,
         label: &str,
@@ -196,28 +186,34 @@ impl LightningRPC {
         deschashonly: Option<bool>,
     ) -> Result<responses::Invoice, Error> {
         match amount_msat {
-            None => self.call(
-                "invoice",
-                requests::AnyInvoice {
-                    amount_msat: "any",
-                    label,
-                    description,
-                    preimage,
-                    expiry,
-                    deschashonly,
-                },
-            ),
-            Some(amount_msat) => self.call(
-                "invoice",
-                requests::Invoice {
-                    amount_msat,
-                    label,
-                    description,
-                    preimage,
-                    expiry,
-                    deschashonly,
-                },
-            ),
+            None => {
+                self.call(
+                    "invoice",
+                    requests::AnyInvoice {
+                        amount_msat: "any",
+                        label,
+                        description,
+                        preimage,
+                        expiry,
+                        deschashonly,
+                    },
+                )
+                .await
+            }
+            Some(amount_msat) => {
+                self.call(
+                    "invoice",
+                    requests::Invoice {
+                        amount_msat,
+                        label,
+                        description,
+                        preimage,
+                        expiry,
+                        deschashonly,
+                    },
+                )
+                .await
+            }
         }
     }
 
@@ -227,7 +223,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn createinvoice(
+    pub async fn createinvoice(
         &self,
         invstring: &str,
         label: &str,
@@ -241,6 +237,7 @@ impl LightningRPC {
                 preimage,
             },
         )
+        .await
     }
 
     /// Delete unpaid invoice {label} with {status}
@@ -248,8 +245,13 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn delinvoice(&self, label: &str, status: &str) -> Result<responses::DelInvoice, Error> {
+    pub async fn delinvoice(
+        &self,
+        label: &str,
+        status: &str,
+    ) -> Result<responses::DelInvoice, Error> {
         self.call("delinvoice", requests::DelInvoice { label, status })
+            .await
     }
 
     /// Delete all expired invoices that expired as of given {maxexpirytime} (a UNIX epoch time),
@@ -258,7 +260,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn delexpiredinvoice(
+    pub async fn delexpiredinvoice(
         &self,
         maxexpirytime: Option<u64>,
     ) -> Result<responses::DelExpiredInvoice, Error> {
@@ -266,6 +268,7 @@ impl LightningRPC {
             "delexpiredinvoice",
             requests::DelExpiredInvoice { maxexpirytime },
         )
+        .await
     }
 
     /// Set up autoclean of expired invoices. Perform cleanup every {cycle_seconds} (default 3600),
@@ -275,7 +278,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn autocleaninvoice(
+    pub async fn autocleaninvoice(
         &self,
         cycle_seconds: Option<u64>,
         expired_by: Option<u64>,
@@ -287,6 +290,7 @@ impl LightningRPC {
                 expired_by,
             },
         )
+        .await
     }
 
     /// Wait for the next invoice to be paid, after {lastpay_index}.
@@ -295,11 +299,12 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn waitanyinvoice(
+    pub async fn waitanyinvoice(
         &self,
         lastpay_index: Option<u64>,
     ) -> Result<responses::WaitAnyInvoice, Error> {
         self.call("waitanyinvoice", requests::WaitAnyInvoice { lastpay_index })
+            .await
     }
 
     /// Wait for an incoming payment matching the invoice with {label}.
@@ -307,8 +312,9 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn waitinvoice(&self, label: &str) -> Result<responses::WaitInvoice, Error> {
+    pub async fn waitinvoice(&self, label: &str) -> Result<responses::WaitInvoice, Error> {
         self.call("waitinvoice", requests::WaitInvoice { label })
+            .await
     }
 
     /// Send a lightning payment.
@@ -321,7 +327,11 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn pay(&self, bolt11: &str, options: PayOptions) -> Result<responses::Pay, Error> {
+    pub async fn pay(
+        &self,
+        bolt11: &str,
+        options: PayOptions<'_>,
+    ) -> Result<responses::Pay, Error> {
         self.call(
             "pay",
             requests::Pay {
@@ -335,6 +345,7 @@ impl LightningRPC {
                 maxdelay: options.maxdelay,
             },
         )
+        .await
     }
 
     /// Send along {route} in return for preimage of {payment_hash}, with optional {description}.
@@ -342,7 +353,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn sendpay(
+    pub async fn sendpay(
         &self,
         route: Vec<RouteItem>,
         payment_hash: &str,
@@ -358,6 +369,7 @@ impl LightningRPC {
                 msatoshi,
             },
         )
+        .await
     }
 
     /// Wait for payment attempt on {payment_hash} to succeed or fail, but only up to {timeout} seconds.
@@ -365,7 +377,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn waitsendpay(
+    pub async fn waitsendpay(
         &self,
         payment_hash: &str,
         timeout: u64,
@@ -377,6 +389,7 @@ impl LightningRPC {
                 timeout,
             },
         )
+        .await
     }
 
     /// Show outgoing payments.
@@ -384,7 +397,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn listsendpays(
+    pub async fn listsendpays(
         &self,
         bolt11: Option<&str>,
         payment_hash: Option<&str>,
@@ -396,6 +409,7 @@ impl LightningRPC {
                 payment_hash,
             },
         )
+        .await
     }
 
     /// Decode {bolt11}, using {description} if necessary.
@@ -403,7 +417,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn decodepay(
+    pub async fn decodepay(
         &self,
         bolt11: &str,
         description: Option<&str>,
@@ -415,6 +429,7 @@ impl LightningRPC {
                 description,
             },
         )
+        .await
     }
 
     /// Show route to {id} for {msatoshi}, using {riskfactor} and optional {cltv} (default 9). If
@@ -426,7 +441,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn getroute(
+    pub async fn getroute(
         &self,
         id: &str,
         msatoshi: u64,
@@ -448,6 +463,7 @@ impl LightningRPC {
                 seed,
             },
         )
+        .await
     }
 
     /// Connect to {id} at {host} (which can end in ':port' if not default). {id} can also be of
@@ -456,8 +472,8 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn connect(&self, id: &str, host: Option<&str>) -> Result<responses::Connect, Error> {
-        self.call("connect", requests::Connect { id, host })
+    pub async fn connect(&self, id: &str, host: Option<&str>) -> Result<responses::Connect, Error> {
+        self.call("connect", requests::Connect { id, host }).await
     }
 
     /// Disconnect from peer with {peer_id}.
@@ -465,8 +481,8 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn disconnect(&self, id: &str) -> Result<responses::Disconnect, Error> {
-        self.call("disconnect", requests::Disconnect { id })
+    pub async fn disconnect(&self, id: &str) -> Result<responses::Disconnect, Error> {
+        self.call("disconnect", requests::Disconnect { id }).await
     }
 
     /// Fund a new channel with another lightning node.
@@ -481,7 +497,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn fundchannel(
+    pub async fn fundchannel(
         &self,
         id: &str,
         amount: requests::AmountOrAll,
@@ -495,6 +511,7 @@ impl LightningRPC {
                 feerate,
             },
         )
+        .await
     }
 
     /// Close the channel with {id} (either peer ID, channel ID, or short channel ID). If {force}
@@ -504,13 +521,14 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn close(
+    pub async fn close(
         &self,
         id: &str,
         force: Option<bool>,
         timeout: Option<u64>,
     ) -> Result<responses::Close, Error> {
         self.call("close", requests::Close { id, force, timeout })
+            .await
     }
 
     /// Send {peerid} a ping of length {len} (default 128) asking for {pongbytes} (default 128).
@@ -518,13 +536,14 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn ping(
+    pub async fn ping(
         &self,
         id: &str,
         len: Option<u64>,
         pongbytes: Option<u64>,
     ) -> Result<responses::Ping, Error> {
         self.call("ping", requests::Ping { id, len, pongbytes })
+            .await
     }
 
     /// Show available funds from the internal wallet.
@@ -532,8 +551,8 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn listfunds(&self) -> Result<responses::ListFunds, Error> {
-        self.call("listfunds", requests::ListFunds {})
+    pub async fn listfunds(&self) -> Result<responses::ListFunds, Error> {
+        self.call("listfunds", requests::ListFunds {}).await
     }
 
     /// Send to destination address via Bitcoin transaction.
@@ -548,7 +567,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn withdraw(
+    pub async fn withdraw(
         &self,
         destination: &str,
         satoshi: requests::AmountOrAll,
@@ -564,6 +583,7 @@ impl LightningRPC {
                 minconf,
             },
         )
+        .await
     }
 
     /// Get a new {bech32, p2sh-segwit} address to fund a channel (default is bech32).
@@ -571,8 +591,9 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn newaddr(&self, addresstype: Option<&str>) -> Result<responses::NewAddr, Error> {
+    pub async fn newaddr(&self, addresstype: Option<&str>) -> Result<responses::NewAddr, Error> {
         self.call("newaddr", requests::NewAddr { addresstype })
+            .await
     }
 
     /// Shut down the lightningd process.
@@ -580,21 +601,7 @@ impl LightningRPC {
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn stop(&self) -> Result<responses::Stop, Error> {
-        self.call("stop", requests::Stop {})
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn set_timeout() {
-        use crate::LightningRPC;
-        use std::time::Duration;
-
-        let mut lightning = LightningRPC::new("/test");
-        lightning
-            .client()
-            .set_timeout(Some(Duration::from_millis(100)));
+    pub async fn stop(&self) -> Result<responses::Stop, Error> {
+        self.call("stop", requests::Stop {}).await
     }
 }
