@@ -18,7 +18,6 @@
 //! Support for connecting to JSONRPC servers over UNIX socets, sending requests,
 //! and parsing responses
 //!
-
 use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::time::Duration;

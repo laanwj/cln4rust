@@ -9,3 +9,6 @@ pub mod client;
 pub mod errors;
 pub mod json_utils;
 pub mod types;
+
+#[cfg(feature = "async")]
+pub mod r#async;
