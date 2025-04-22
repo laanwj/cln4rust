@@ -36,6 +36,13 @@ pub mod requests;
 pub mod responses;
 pub mod types;
 
+#[cfg(feature = "async")]
+pub mod r#async;
+
+pub use clightningrpc_common::errors;
+
 // Re-export high-level connection type
+#[cfg(not(feature = "async"))]
 pub use crate::lightningrpc::LightningRPC;
-pub use clightningrpc_common::errors::Error;
+#[cfg(feature = "async")]
+pub use crate::r#async::LightningRPC;

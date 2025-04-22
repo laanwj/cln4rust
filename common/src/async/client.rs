@@ -16,17 +16,17 @@ use crate::types::{Request, Response};
 
 /// A handle to a remote JSONRPC server for async operations
 #[derive(Debug)]
-pub struct AsyncClient {
+pub struct Client {
     /// Path to the lightning-rpc socket file
     sockpath: PathBuf,
     /// Timeout for RPC request
     timeout: Option<Duration>,
 }
 
-impl AsyncClient {
+impl Client {
     /// Creates a new async client using the path to the socket file and initializing the timeout field to None
-    pub fn new<P: AsRef<Path>>(sockpath: P) -> AsyncClient {
-        AsyncClient {
+    pub fn new<P: AsRef<Path>>(sockpath: P) -> Client {
+        Client {
             sockpath: sockpath.as_ref().to_path_buf(),
             timeout: None,
         }
@@ -43,7 +43,6 @@ impl AsyncClient {
         method: &str,
         params: S,
     ) -> Result<Response<D>, Error> {
-        // Setup connection
         let mut stream = UnixStream::connect(&self.sockpath).await?;
         if let Some(timeout) = self.timeout {
             tokio::time::timeout(timeout, async {
@@ -67,6 +66,12 @@ impl AsyncClient {
                         break;
                     }
                     response_data.extend_from_slice(&buffer[..n]);
+                    // Check if the response ends with double newline (\n\n)
+                    if response_data.len() >= 2
+                        && &response_data[response_data.len() - 2..] == b"\n\n"
+                    {
+                        break;
+                    }
                 }
 
                 // Deserialize the response
@@ -112,6 +117,11 @@ impl AsyncClient {
                     break;
                 }
                 response_data.extend_from_slice(&buffer[..n]);
+                // Check if the response ends with double newline (\n\n)
+                if response_data.len() >= 2 && &response_data[response_data.len() - 2..] == b"\n\n"
+                {
+                    break;
+                }
             }
 
             // Deserialize the response

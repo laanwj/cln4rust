@@ -11,3 +11,6 @@ port-selector = "0.1.6"
 anyhow = "1.0.71"
 tokio = { version = "1.22.0", features = ["process", "time", "fs", "io-util"] }
 corepc-node = "0.7.0"
+
+[features]
+async = ["clightningrpc/async"]

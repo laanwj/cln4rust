@@ -6,6 +6,9 @@ use port_selector as port;
 use tempfile::TempDir;
 use tokio::fs;
 
+#[cfg(feature = "async")]
+use clightningrpc::r#async::LightningRPC;
+#[cfg(not(feature = "async"))]
 use clightningrpc::LightningRPC;
 use corepc_node::{Conf, Node as BtcNode};
 
@@ -64,7 +67,7 @@ pub struct Node {
 
 impl Drop for Node {
     fn drop(&mut self) {
-        let _ = self.rpc().stop();
+        let _ = self.rpc().as_ref().stop();
         for process in self.process.iter() {
             let Some(child) = process.id() else {
                 continue;
@@ -133,6 +136,10 @@ impl Node {
         log::info!("rpc_path: {}", rpc_path.to_str().unwrap());
         let rpc = LightningRPC::new(rpc_path);
         let rpc = Arc::new(rpc);
+
+        #[cfg(feature = "async")]
+        wait_for!(async { rpc.getinfo().await });
+        #[cfg(not(feature = "async"))]
         wait_for!(async { rpc.getinfo() });
 
         let node = Self {
@@ -185,7 +192,12 @@ impl Node {
 
     pub async fn stop(&mut self) -> anyhow::Result<()> {
         log::info!("stop lightning node");
-        self.inner.stop()?;
+
+        #[cfg(feature = "async")]
+        self.inner.as_ref().stop().await?;
+        #[cfg(not(feature = "async"))]
+        self.inner.as_ref().stop()?;
+
         for process in self.process.iter_mut() {
             process.kill().await?;
             let _ = process.wait().await?;
