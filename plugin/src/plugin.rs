@@ -276,10 +276,12 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 on_init: self.on_init.clone(),
             }),
         );
-        // FIXME: core lightning end with the double endline, so this can cause
-        // problem for some input reader.
-        // we need to parse the writer, and avoid this while loop
-        while let Ok(_) = reader.read_line(&mut buffer) {
+        // Read input and handle EOF to prevent high CPU usage if the sending process dies
+        while let Ok(n) = reader.read_line(&mut buffer) {
+            if n == 0 {
+                // EOF reached
+                break;
+            }
             let req_str = buffer.to_string();
             buffer.clear();
             let Ok(request) = serde_json::from_str::<Request<serde_json::Value>>(&req_str) else {
