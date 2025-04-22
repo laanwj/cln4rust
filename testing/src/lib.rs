@@ -5,6 +5,9 @@ pub mod prelude {
     pub use tempfile;
 
     pub use clightningrpc;
+    pub use corepc_node as btc;
+    pub use corepc_node::client;
+    pub use corepc_node::client::bitcoin;
 
     pub use crate::check_dir_or_make_if_missing;
     pub use crate::macros::*;
