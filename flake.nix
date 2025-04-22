@@ -52,6 +52,7 @@
           shellHook = ''
             export HOST_CC=gcc
             export PWD="$(pwd)"
+            export BITCOIND_EXE="${pkgs.bitcoind}/bin/bitcoind"
           '';
         };
       }
