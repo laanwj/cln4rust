@@ -1,9 +1,12 @@
 use std::sync::Once;
 
-#[cfg(test)]
+#[cfg(all(test, not(feature = "async")))]
 mod test_plugin;
-#[cfg(test)]
+#[cfg(all(test, not(feature = "async")))]
 mod test_rpc;
+
+#[cfg(all(test, feature = "async"))]
+mod test_rpc_async;
 
 static INIT: Once = Once::new();
 
