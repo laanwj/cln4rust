@@ -53,7 +53,6 @@ pub mod macros {
 pub struct Node {
     inner: Arc<LightningRPC>,
     pub port: u16,
-    root_path: Arc<TempDir>,
     cln_dir: String,
     // This is unused, but it's used to keep the directory alive,
     // otherwise when the main reference to the node is dropped,
