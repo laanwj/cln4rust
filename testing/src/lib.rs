@@ -1,11 +1,9 @@
-pub mod btc;
 pub mod cln;
 
 pub mod prelude {
     pub use port_selector as port;
     pub use tempfile;
 
-    pub use bitcoincore_rpc;
     pub use clightningrpc;
 
     pub use crate::check_dir_or_make_if_missing;

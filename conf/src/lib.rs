@@ -370,8 +370,8 @@ mod tests {
 
         let mut conf = CLNConf::new(path.to_string(), false);
         let result = conf.parse();
-        assert!(result.is_ok());
-        assert_eq!(conf.fields.keys().len(), 2);
+        assert!(result.is_ok(), "{:#?}", result);
+        assert_eq!(conf.fields.keys().len(), 2, "{:#?}", conf.fields);
         println!("{conf:?}");
         assert!(conf
             .fields

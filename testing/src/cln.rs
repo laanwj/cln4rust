@@ -1,12 +1,14 @@
 //! Integration testing library for core lightning
+use std::os::unix::fs::PermissionsExt;
 use std::sync::Arc;
 
 use port_selector as port;
 use tempfile::TempDir;
+use tokio::fs;
 
 use clightningrpc::LightningRPC;
+use corepc_node::{Conf, Node as BtcNode};
 
-use crate::btc::BtcNode;
 use crate::prelude::*;
 
 pub mod macros {
@@ -21,17 +23,20 @@ pub mod macros {
                 let args_tok: Vec<&str> = args.split(" ").collect();
 
                 let path = format!("{}/.lightning", $dir.path().to_str().unwrap());
+
+                // Create and set the write permissions for the lightning directory
+                fs::create_dir_all(path.clone()).await.unwrap();
+                fs::set_permissions(path.clone(), std::fs::Permissions::from_mode(0o755)).await.unwrap();
+
                 log::info!("core lightning home {path}");
                 check_dir_or_make_if_missing(path.clone()).await.unwrap();
                 let mut command = Command::new("lightningd");
                 command
                     .args(&args_tok)
-                    .arg(format!("--addr=127.0.0.1:{}", $port))
-                    .arg(format!("--bind-addr=127.0.0.1:{}", $port + 1))
+                    .arg(format!("--bind-addr=127.0.0.1:{}", $port))
                     .arg(format!("--lightning-dir={path}"))
                     .arg("--developer")
                     .arg("--dev-fast-gossip")
-                    .arg("--funding-confirms=1")
                     .arg(format!("--log-file={path}/log.log"))
                     .stdout(std::process::Stdio::null())
                     .spawn()
@@ -50,6 +55,10 @@ pub struct Node {
     pub port: u16,
     root_path: Arc<TempDir>,
     cln_dir: String,
+    // This is unused, but it's used to keep the directory alive,
+    // otherwise when the main reference to the node is dropped,
+    // the directory is deleted.
+    root_path: Arc<TempDir>,
     bitcoin: Arc<BtcNode>,
     process: Vec<tokio::process::Child>,
 }
@@ -71,61 +80,91 @@ impl Drop for Node {
             };
             let _ = kill.wait();
         }
-
-        let result = std::fs::remove_dir_all(self.root_path.path());
-        log::debug!(target: "cln", "clean up function {:?}", result);
     }
 }
 
 impl Node {
-    pub async fn tmp(network: &str) -> anyhow::Result<Self> {
-        Self::with_params("", network).await
+    pub async fn tmp() -> anyhow::Result<Self> {
+        let mut conf = Conf::default();
+        conf.wallet = None;
+        let conf = Arc::new(conf);
+        Self::with_conf(conf).await
     }
 
-    pub async fn with_params(params: &str, network: &str) -> anyhow::Result<Self> {
-        let btc = BtcNode::tmp(network).await?;
+    pub async fn with_conf(conf: Arc<Conf<'static>>) -> anyhow::Result<Self> {
+        let conf_clone = conf.clone();
+        let btc = tokio::task::spawn_blocking(move || {
+            if let Ok(exec_path) = corepc_node::exe_path() {
+                let btc = BtcNode::with_conf(exec_path, conf_clone.as_ref())?;
+                Ok(btc)
+            } else {
+                anyhow::bail!("corepc-node exec path not found");
+            }
+        })
+        .await??;
         let btc = Arc::new(btc);
-        Self::with_btc_and_params(btc.clone(), params, network).await
+        Self::with_btc_and_params(btc.clone(), None).await
     }
 
     pub async fn with_btc_and_params(
         btc: Arc<BtcNode>,
-        params: &str,
-        network: &str,
+        params: Option<String>,
     ) -> anyhow::Result<Self> {
         let dir = tempfile::tempdir()?;
 
         let cln_path = format!("{}/.lightning", dir.path().to_str().unwrap());
         let port = port::random_free_port().unwrap();
+
+        let addr = btc.params.rpc_socket;
+        let cookie_user = btc
+            .params
+            .get_cookie_values()?
+            .ok_or(anyhow::anyhow!("cookie not found"))?;
         let process = macros::lightningd!(
             dir,
             port,
-            "--network={} --log-level=debug --dev-bitcoind-poll=1 --bitcoin-rpcuser={} --bitcoin-rpcpassword={} --bitcoin-rpcport={} {}",
-            network,
-            btc.user,
-            btc.pass,
-            btc.port,
-            params,
+            "--network=regtest --log-level=debug --dev-bitcoind-poll=1 --bitcoin-rpcuser={} --bitcoin-rpcpassword={} --bitcoin-rpcport={} {}",
+            cookie_user.user,
+            cookie_user.password,
+            addr.port(),
+            params.unwrap_or_default(),
         )?;
 
-        let rpc = LightningRPC::new(
-            dir.path()
-                .join(format!(".lightning/{}", network))
-                .join("lightning-rpc"),
-        );
+        let rpc_path = dir.path().join(".lightning/regtest").join("lightning-rpc");
+        log::info!("rpc_path: {}", rpc_path.to_str().unwrap());
+        let rpc = LightningRPC::new(rpc_path);
         let rpc = Arc::new(rpc);
         wait_for!(async { rpc.getinfo() });
 
-        Ok(Self {
+        let node = Self {
             inner: rpc,
-            root_path: dir.into(),
+            root_path: Arc::new(dir),
             bitcoin: btc,
             port,
             process: vec![process],
             cln_dir: cln_path,
-        })
+        };
+        log::info!("logs: {}", node.logs().unwrap());
+        Ok(node)
     }
 
+    pub async fn with_params(params: &str) -> anyhow::Result<Self> {
+        let mut conf = Conf::default();
+        conf.wallet = None;
+
+        let conf = Arc::new(conf);
+        let btc = tokio::task::spawn_blocking(move || {
+            if let Ok(exec_path) = corepc_node::exe_path() {
+                let btc = BtcNode::with_conf(exec_path, conf.as_ref())?;
+                Ok(btc)
+            } else {
+                anyhow::bail!("bitcoind exec path not found");
+            }
+        })
+        .await??;
+        let btc = Arc::new(btc);
+        Self::with_btc_and_params(btc, Some(params.to_string())).await
+    }
     pub fn rpc(&self) -> Arc<LightningRPC> {
         self.inner.clone()
     }
@@ -153,7 +192,6 @@ impl Node {
             let _ = process.wait().await?;
             log::debug!("killing process");
         }
-        self.bitcoin.stop().await?;
         Ok(())
     }
 }
