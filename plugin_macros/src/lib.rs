@@ -6,6 +6,7 @@
 use kproc_parser::kparser::KParserTracer;
 use kproc_parser::proc_macro::TokenStream;
 
+mod hook;
 mod notification;
 mod plugin;
 mod rpc_method;
@@ -105,4 +106,13 @@ pub fn rpc_method(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn notification(attr: TokenStream, item: TokenStream) -> TokenStream {
     notification::parse(attr, item)
+}
+
+/// procedural macros that can be used wit the following code
+/// ```no_run
+///
+/// ```
+#[proc_macro_attribute]
+pub fn hook(attr: TokenStream, item: TokenStream) -> TokenStream {
+    hook::parse(attr, item)
 }
