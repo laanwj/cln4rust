@@ -531,6 +531,83 @@ impl LightningRPC {
         )
     }
 
+    /// Create a new offer.
+    #[deprecated(
+        since = "0.1.0",
+        note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
+    )]
+    #[allow(clippy::too_many_arguments)]
+    pub fn offer<'a>(
+        &self,
+        amount: &'a str,
+        description: &'a str,
+        issuer: Option<&'a str>,
+        label: Option<&'a str>,
+        quantity_min: Option<u64>,
+        quantity_max: Option<u64>,
+        absolute_expiry: Option<u64>,
+        recurrence: Option<&'a str>,
+        recurrence_base: Option<&'a str>,
+        recurrence_paywindow: Option<&'a str>,
+        recurrence_limit: Option<u32>,
+        single_use: Option<bool>,
+    ) -> Result<responses::OfferResponse, Error> {
+        self.call(
+            "offer",
+            requests::Offer {
+                amount,
+                description,
+                issuer,
+                label,
+                quantity_min,
+                quantity_max,
+                absolute_expiry,
+                recurrence,
+                recurrence_base,
+                recurrence_paywindow,
+                recurrence_limit,
+                single_use,
+            },
+        )
+    }
+
+    /// List all offers.
+    #[deprecated(
+        since = "0.1.0",
+        note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
+    )]
+    pub fn listoffers(
+        &self,
+        offer_id: Option<&str>,
+        active_only: Option<bool>,
+    ) -> Result<responses::ListOffersResponse, Error> {
+        self.call(
+            "listoffers",
+            requests::ListOffers {
+                offer_id,
+                active_only,
+            },
+        )
+    }
+
+    /// Enable an offer.
+    #[deprecated(
+        since = "0.1.0",
+        note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
+    )]
+    pub fn enableoffer(&self, offer_id: &str) -> Result<responses::EnableOfferResponse, Error> {
+        self.call("enableoffer", requests::EnableOffer { offer_id })
+    }
+
+    /// Disable an offer.
+    #[deprecated(
+        since = "0.1.0",
+        note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
+    )]
+    pub fn disableoffer(&self, offer_id: &str) -> Result<responses::DisableOfferResponse, Error> {
+        self.call("disableoffer", requests::DisableOffer { offer_id })
+    }
+
     /// Send {peerid} a ping of length {len} (default 128) asking for {pongbytes} (default 128).
     #[deprecated(
         since = "0.1.0",

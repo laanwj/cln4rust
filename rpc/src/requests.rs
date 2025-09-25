@@ -327,3 +327,51 @@ pub struct NewAddr<'a> {
 /// 'stop' command
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Stop {}
+
+/// 'offer' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Offer<'a> {
+    pub amount: &'a str,
+    pub description: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub issuer: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quantity_min: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quantity_max: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub absolute_expiry: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recurrence: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recurrence_base: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recurrence_paywindow: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recurrence_limit: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub single_use: Option<bool>,
+}
+
+/// 'listoffers' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListOffers<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub offer_id: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub active_only: Option<bool>,
+}
+
+/// 'enableoffer' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct EnableOffer<'a> {
+    pub offer_id: &'a str,
+}
+
+/// 'disableoffer' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct DisableOffer<'a> {
+    pub offer_id: &'a str,
+}

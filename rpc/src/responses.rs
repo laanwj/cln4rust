@@ -535,3 +535,27 @@ pub struct NewAddr {
 pub struct Stop {
     pub result: Option<String>,
 }
+
+/// 'offer' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct OfferResponse {
+    pub offer_id: String,
+    pub active: bool,
+    pub single_use: bool,
+    pub bolt12: String,
+    pub used: bool,
+    pub created: bool,
+    pub label: Option<String>,
+}
+
+/// 'listoffers' command
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ListOffersResponse {
+    pub offers: Vec<OfferResponse>,
+}
+
+/// 'enableoffer' command
+pub type EnableOfferResponse = OfferResponse;
+
+/// 'disableoffer' command
+pub type DisableOfferResponse = OfferResponse;
