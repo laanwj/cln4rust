@@ -279,9 +279,17 @@ pub struct FundChannel<'a> {
 pub struct Close<'a> {
     pub id: &'a str,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub force: Option<bool>,
+    pub unilateraltimeout: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub timeout: Option<u64>,
+    pub destination: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fee_negotiation_step: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub wrong_funding: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub force_lease_closed: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub feerange: Option<Vec<&'a str>>,
 }
 
 /// 'ping' command

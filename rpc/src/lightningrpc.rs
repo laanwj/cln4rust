@@ -497,20 +497,38 @@ impl LightningRPC {
         )
     }
 
-    /// Close the channel with {id} (either peer ID, channel ID, or short channel ID). If {force}
-    /// (default false) is true, force a unilateral close after {timeout} seconds (default 30),
-    /// otherwise just schedule a mutual close later and fail after timing out.
+    /// Close the channel with {id} (either peer ID, channel ID, or short channel ID).
+    /// To force a unilateral close, set {unilateraltimeout} to the desired number of seconds.
+    /// Note: A force close is not possible with an active peer connection; the peer must be disconnected.
+    /// If the peer is offline, the channel will be closed unilaterally after the timeout.
+    /// A short timeout (e.g., 1 second) is recommended for a force close if the peer is unresponsive.
     #[deprecated(
         since = "0.1.0",
         note = "Core Lightning API changes frequently, making strongly typed methods hard to maintain. Use the generic `call` method with serde_json until a compiler is shipped or the API stabilizes."
     )]
-    pub fn close(
+    #[allow(clippy::too_many_arguments)]
+    pub fn close<'a>(
         &self,
-        id: &str,
-        force: Option<bool>,
-        timeout: Option<u64>,
+        id: &'a str,
+        unilateraltimeout: Option<u32>,
+        destination: Option<&'a str>,
+        fee_negotiation_step: Option<&'a str>,
+        wrong_funding: Option<&'a str>,
+        force_lease_closed: Option<bool>,
+        feerange: Option<Vec<&'a str>>,
     ) -> Result<responses::Close, Error> {
-        self.call("close", requests::Close { id, force, timeout })
+        self.call(
+            "close",
+            requests::Close {
+                id,
+                unilateraltimeout,
+                destination,
+                fee_negotiation_step,
+                wrong_funding,
+                force_lease_closed,
+                feerange,
+            },
+        )
     }
 
     /// Send {peerid} a ping of length {len} (default 128) asking for {pongbytes} (default 128).
