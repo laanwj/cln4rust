@@ -77,8 +77,7 @@ impl log::Log for Log {
                 method: "log".to_owned(),
                 params: payload,
             };
-            let _ = writer
-                .write_all(serde_json::to_string(&request).unwrap().as_bytes());
+            let _ = writer.write_all(serde_json::to_string(&request).unwrap().as_bytes());
             let _ = writer.flush();
         }
     }
