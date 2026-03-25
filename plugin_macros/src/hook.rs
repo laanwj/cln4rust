@@ -121,7 +121,10 @@ fn generate_hook_method(method_call: HookCall, tracer: &dyn KParserTracer) -> To
 
     let before_expr = match &method_call.before {
         Some(list) => {
-            let items: Vec<String> = list.iter().map(|s| format!("\"{s}\".to_string()")).collect();
+            let items: Vec<String> = list
+                .iter()
+                .map(|s| format!("\"{s}\".to_string()"))
+                .collect();
             format!("Some(vec![{}])", items.join(", "))
         }
         None => "None".to_string(),
@@ -129,7 +132,10 @@ fn generate_hook_method(method_call: HookCall, tracer: &dyn KParserTracer) -> To
 
     let after_expr = match &method_call.after {
         Some(list) => {
-            let items: Vec<String> = list.iter().map(|s| format!("\"{s}\".to_string()")).collect();
+            let items: Vec<String> = list
+                .iter()
+                .map(|s| format!("\"{s}\".to_string()"))
+                .collect();
             format!("Some(vec![{}])", items.join(", "))
         }
         None => "None".to_string(),
