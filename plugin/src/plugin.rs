@@ -120,10 +120,11 @@ impl<'a, T: 'a + Clone> Plugin<T> {
             method: "log".to_owned(),
             params: payload,
         };
-        writer
-            .write_all(serde_json::to_string(&request).unwrap().as_bytes())
-            .unwrap();
-        writer.flush().unwrap();
+        // Best-effort: if the parent (lightningd) has gone away the write
+        // will fail with BrokenPipe. Drop the error rather than panic — the
+        // main read loop will observe EOF on stdin and exit cleanly.
+        let _ = writer.write_all(serde_json::to_string(&request).unwrap().as_bytes());
+        let _ = writer.flush();
     }
 
     /// register the plugin option.
@@ -290,10 +291,18 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 let response = self.call_rpc_method(&request.method, request.params);
                 let mut rpc_response = init_success_response(id);
                 self.write_respose(&response, &mut rpc_response);
-                writer
+                // If the write fails the parent (lightningd) has gone away;
+                // exit cleanly instead of panicking on BrokenPipe. The next
+                // read_line will return EOF and break the outer loop too.
+                if writer
                     .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
-                    .unwrap();
-                writer.flush().unwrap();
+                    .is_err()
+                {
+                    break;
+                }
+                if writer.flush().is_err() {
+                    break;
+                }
             } else {
                 // in case of the id is None, we are receiving the notification, so the server is not
                 // interested in the answer.
