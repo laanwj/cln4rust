@@ -53,6 +53,18 @@ impl std::fmt::Display for PluginDeclaration {
                 }
             }
         }
+        if let Some(ref inner) = self.hooks {
+            let mut inner = KTokenStream::new(&inner);
+            while !inner.is_end() {
+                let hook = inner.advance();
+                writeln!(f, "let call = {}();", hook)?;
+                writeln!(f, "plugin.register_hook(&call.hook_name.clone(), call.before.clone(), call.after.clone(), call);")?;
+                if let Err(err) = check!(",", inner.advance()) {
+                    err.emit();
+                    return Ok(());
+                }
+            }
+        }
 
         writeln!(f, "plugin\n }}")
     }
