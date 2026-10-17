@@ -222,12 +222,31 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     where
         F: RPCCommand<T> + 'static,
     {
+        self.register_hook_with_filters(hook_name, before, after, None, callback)
+    }
+
+    /// Register a hook that Core Lightning only calls for the given
+    /// `filters`: command names for `rpc_command` (Core Lightning v25.12 or
+    /// later), message types for `custommsg`. Hooks that do not support
+    /// filters make Core Lightning refuse the plugin.
+    pub fn register_hook_with_filters<F: 'static>(
+        &'a mut self,
+        hook_name: &str,
+        before: Option<Vec<String>>,
+        after: Option<Vec<String>>,
+        filters: Option<Vec<serde_json::Value>>,
+        callback: F,
+    ) -> Self
+    where
+        F: RPCCommand<T> + 'static,
+    {
         self.rpc_hook
             .insert(hook_name.to_owned(), Box::new(callback));
         self.hook_info.insert(RPCHookInfo {
             name: hook_name.to_owned(),
             before,
             after,
+            filters,
         });
         self.clone()
     }
@@ -309,5 +328,52 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 self.handle_notification(&request.method, request.params);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+    use crate::commands::builtin::ManifestRPC;
+
+    #[derive(Clone)]
+    struct Hook;
+
+    impl RPCCommand<()> for Hook {}
+
+    fn manifest_hooks(plugin: &mut Plugin<()>) -> Vec<Value> {
+        let manifest = ManifestRPC {}.call(plugin, json!({})).unwrap();
+        manifest["hooks"].as_array().unwrap().clone()
+    }
+
+    #[test]
+    fn hooks_without_filters_keep_the_old_manifest() {
+        let mut plugin = Plugin::new((), false);
+        plugin.register_hook("htlc_accepted", None, None, Hook);
+        let hooks = manifest_hooks(&mut plugin);
+        assert_eq!(hooks.len(), 1);
+        assert_eq!(hooks[0]["name"], "htlc_accepted");
+        assert!(hooks[0].get("filters").is_none());
+    }
+
+    #[test]
+    fn hook_filters_are_in_the_manifest() {
+        let mut plugin = Plugin::new((), false);
+        plugin.register_hook_with_filters(
+            "rpc_command",
+            None,
+            None,
+            Some(vec![json!("pay"), json!("xpay")]),
+            Hook,
+        );
+        plugin.register_hook_with_filters("custommsg", None, None, Some(vec![json!(32769)]), Hook);
+        let mut hooks = manifest_hooks(&mut plugin);
+        hooks.sort_by_key(|h| h["name"].as_str().unwrap().to_owned());
+        assert_eq!(hooks[0]["name"], "custommsg");
+        assert_eq!(hooks[0]["filters"], json!([32769]));
+        assert_eq!(hooks[1]["name"], "rpc_command");
+        assert_eq!(hooks[1]["filters"], json!(["pay", "xpay"]));
     }
 }
