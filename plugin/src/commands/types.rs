@@ -20,6 +20,12 @@ pub struct RPCHookInfo {
     pub name: String,
     pub before: Option<Vec<String>>,
     pub after: Option<Vec<String>>,
+    /// Only call the hook for these values, e.g. command names for
+    /// `rpc_command` or message types for `custommsg`. Core Lightning
+    /// rejects filters on hooks that do not support them, so the field is
+    /// left out of the manifest when unset.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filters: Option<Vec<serde_json::Value>>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
