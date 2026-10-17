@@ -14,3 +14,24 @@ fn main() {
     assert!(map.get_node(pubkey).is_some(), "node with id `{pubkey}` not found!");
 }
 ```
+
+## Reading the gossip store incrementally
+
+`GossipStoreReader` returns the raw records of the gossip store one at
+the time. When it has read all the records, it returns `None`, and the
+next call returns the records that `gossipd` appended in the meantime.
+It also follows the store when `gossipd` rewrites it on startup.
+
+``` rust
+fn main() -> anyhow::Result<()> {
+    let mut reader = GossipStoreReader::new("/home/user/.lightning/bitcoin/gossip_store");
+    while let Some(record) = reader.next_record()? {
+        if record.is_deleted() {
+            continue;
+        }
+        // `record.msg` is the raw message, starting with its type.
+        println!("message of type {} at offset {}", record.msg_type(), record.offset);
+    }
+    Ok(())
+}
+```

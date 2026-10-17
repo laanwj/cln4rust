@@ -2,6 +2,9 @@
 
 pub static GOSSIP_STORE_MAJOR_VERSION: u16 = 0 << 5;
 pub static GOSSIP_STORE_MAJOR_VERSION_MASK: u16 = 0xE0;
+pub const GOSSIP_STORE_MINOR_VERSION_MASK: u8 = 0x1F;
+/// First minor version where gossipd sets the completed bit.
+pub const GOSSIP_STORE_COMPLETED_MINOR_VERSION: u8 = 15;
 
 /// Deleted fields should be ignored: on restart, they will be removed as the gossip_store is rewritten.
 pub const GOSSIP_STORE_LEN_DELETED_BIT: u16 = 0x8000;
@@ -11,6 +14,11 @@ pub const GOSSIP_STORE_LEN_PUSH_BIT: u16 = 0x4000;
 /// The ratelimit flag indicates that this gossip message came too fast.
 /// The message are corded in the gossip map, but don't relay it to peers.
 pub const GOSSIP_STORE_LEN_RATELIMIT_BIT: u16 = 0x2000;
+/// From version 15 the bit of the ratelimit flag is set once the whole
+/// record has been written.
+pub const GOSSIP_STORE_LEN_COMPLETED_BIT: u16 = 0x2000;
+/// The channel announcement is closed, it will be deleted after 12 blocks.
+pub const GOSSIP_STORE_LEN_DYING_BIT: u16 = 0x0800;
 
 // These duplicate constants in lightning/gossipd/gossip_store_wiregen.h
 pub const WIRE_GOSSIP_STORE_PRIVATE_CHANNEL: u16 = 4104;
@@ -18,3 +26,5 @@ pub const WIRE_GOSSIP_STORE_PRIVATE_UPDATE: u16 = 4102;
 pub const WIRE_GOSSIP_STORE_DELETE_CHAN: u16 = 4103;
 pub const WIRE_GOSSIP_STORE_ENDED: u16 = 4105;
 pub const WIRE_GOSSIP_STORE_CHANNEL_AMOUNT: u16 = 4101;
+pub const WIRE_GOSSIP_STORE_CHAN_DYING: u16 = 4106;
+pub const WIRE_GOSSIP_STORE_UUID: u16 = 4107;

@@ -8,9 +8,12 @@ use fundamentals::types::ShortChannelId;
 pub use fundamentals::*;
 
 mod bolt7;
-mod flags;
+pub mod flags;
 mod gossip_stor_wiregen;
 pub mod gossip_types;
+pub mod store;
+
+pub use store::{GossipStoreReader, GossipStoreRecord};
 
 use crate::bolt7::{ChannelAnnouncement, ChannelUpdate, NodeAnnouncement};
 use crate::flags::{
