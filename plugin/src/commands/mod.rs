@@ -8,6 +8,7 @@ use serde_json::json;
 
 use super::plugin::Plugin;
 use crate::errors::PluginError;
+use crate::responder::Responder;
 
 /// RPCCommand is an implementation of the callback using the command pattern.
 ///
@@ -21,6 +22,22 @@ pub trait RPCCommand<T: Clone>: RPCCommandClone<T> {
         _: serde_json::Value,
     ) -> Result<serde_json::Value, PluginError> {
         Ok(json!({}))
+    }
+
+    /// Handle a request that may be answered after this method returns.
+    ///
+    /// The default runs [`RPCCommand::call`] and answers right away, so the
+    /// plugin reads the next request only once this one is answered.
+    /// Override it to move `responder` to another thread or task and return
+    /// at once: the plugin then serves other requests while this one is in
+    /// progress, and the response is written when `responder` answers.
+    fn call_deferred(
+        &self,
+        plugin: &mut Plugin<T>,
+        request: serde_json::Value,
+        responder: Responder,
+    ) {
+        responder.respond(self.call(plugin, request));
     }
 
     /// void call is a generic method that it is used to simulate a callback with a void return type
