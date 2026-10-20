@@ -82,6 +82,32 @@ fn main() {
 }
 ```
 
+## Long running requests
+
+The plugin reads the next request only once a handler returns. A request
+that takes long to serve (a payment, a hook waiting on something) can be
+answered later instead: override `call_deferred`, move the `Responder` to
+another thread or task and return right away. The plugin goes on serving
+other requests, and the response is written when the `Responder` answers.
+
+```rust
+use clightningrpc_plugin::responder::Responder;
+
+#[derive(Clone)]
+struct SlowRPC {}
+
+impl RPCCommand<PluginState> for SlowRPC {
+    fn call_deferred(&self, _plugin: &mut Plugin<PluginState>, request: Value, responder: Responder) {
+        std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_secs(10));
+            responder.respond(Ok(request));
+        });
+    }
+}
+```
+
+A `Responder` dropped without answering answers with an error.
+
 # Contributing guidelines
 
 Read our [Hacking guide](https://github.com/laanwj/rust-clightning-rpc/blob/master/docs/MAINTAINERS.md)
