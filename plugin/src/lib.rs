@@ -11,4 +11,5 @@ pub mod commands;
 pub mod errors;
 pub mod macros;
 pub mod plugin;
+pub mod responder;
 pub mod types;
