@@ -3,11 +3,11 @@
 //! Unofficial API interface to develop plugin in Rust.
 use std::collections::{HashMap, HashSet};
 use std::io;
-use std::io::Write;
+use std::io::{BufRead, Write};
 use std::string::String;
 use std::sync::Arc;
 
-use clightningrpc_common::json_utils::{add_str, init_payload, init_success_response};
+use clightningrpc_common::json_utils::{add_str, init_payload};
 use clightningrpc_common::types::Request;
 use serde_json::Value;
 
@@ -15,6 +15,7 @@ use crate::commands::builtin::{InitRPC, ManifestRPC};
 use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
 use crate::commands::RPCCommand;
 use crate::errors::PluginError;
+use crate::responder::{Output, Responder};
 use crate::types::{LogLevel, RpcOption};
 
 #[cfg(feature = "log")]
@@ -185,26 +186,20 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         self.clone()
     }
 
-    fn call_rpc_method(
-        &'a mut self,
-        name: &str,
-        params: serde_json::Value,
-    ) -> Result<serde_json::Value, PluginError> {
-        let Some(command) = self.rpc_method.get(name) else {
-            return self.call_hook(name, params);
-        };
-        command.clone().call(self, params)
-    }
-
-    fn call_hook(
-        &mut self,
-        name: &str,
-        params: serde_json::Value,
-    ) -> Result<serde_json::Value, PluginError> {
-        let Some(command) = self.rpc_hook.get(name) else {
-            return Err(crate::error!("callback for method/hook `{name}` not found"));
-        };
-        command.clone().call(self, params)
+    /// Run the method or hook `name`, which answers through `responder`
+    /// now or later.
+    fn dispatch(&'a mut self, name: &str, params: serde_json::Value, responder: Responder) {
+        let command = self
+            .rpc_method
+            .get(name)
+            .or_else(|| self.rpc_hook.get(name))
+            .cloned();
+        match command {
+            Some(command) => command.call_deferred(self, params, responder),
+            None => responder.respond(Err(crate::error!(
+                "callback for method/hook `{name}` not found"
+            ))),
+        }
     }
 
     fn handle_notification(&'a mut self, name: &str, params: serde_json::Value) {
@@ -260,23 +255,14 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         self.clone()
     }
 
-    fn write_respose(
-        &mut self,
-        result: &Result<serde_json::Value, PluginError>,
-        response: &mut serde_json::Value,
-    ) {
-        match result {
-            Ok(json_resp) => response["result"] = json_resp.to_owned(),
-            Err(json_err) => {
-                let err_resp = serde_json::to_value(json_err).unwrap();
-                response["error"] = err_resp;
-            }
-        }
+    pub fn start(self) {
+        self.start_with_io(io::stdin().lock(), io::stdout());
     }
 
-    pub fn start(mut self) {
-        let reader = io::stdin();
-        let mut writer = io::stdout();
+    /// Serve requests read from `reader` and write the responses to
+    /// `writer`, until `reader` reaches EOF.
+    fn start_with_io<R: BufRead, W: Write + Send + 'static>(mut self, mut reader: R, writer: W) {
+        let output = Output::new(writer);
         let mut buffer = String::new();
         #[cfg(feature = "log")]
         {
@@ -306,20 +292,13 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 continue;
             };
             if let Some(id) = request.id {
-                // when the id is specified this is a RPC or Hook, so we need to return a response
-                let response = self.call_rpc_method(&request.method, request.params);
-                let mut rpc_response = init_success_response(id);
-                self.write_respose(&response, &mut rpc_response);
-                // If the write fails the parent (lightningd) has gone away;
-                // exit cleanly instead of panicking on BrokenPipe. The next
-                // read_line will return EOF and break the outer loop too.
-                if writer
-                    .write_all(serde_json::to_string(&rpc_response).unwrap().as_bytes())
-                    .is_err()
-                {
-                    break;
-                }
-                if writer.flush().is_err() {
+                // when the id is specified this is a RPC or Hook, so we need to return a response,
+                // now or later.
+                let responder = Responder::new(id, output.clone());
+                self.dispatch(&request.method, request.params, responder);
+                // If a write failed the parent (lightningd) has gone away;
+                // exit cleanly instead of panicking on BrokenPipe.
+                if output.failed() {
                     break;
                 }
             } else {
@@ -375,5 +354,198 @@ mod tests {
         assert_eq!(hooks[0]["filters"], json!([32769]));
         assert_eq!(hooks[1]["name"], "rpc_command");
         assert_eq!(hooks[1]["filters"], json!(["pay", "xpay"]));
+    }
+
+    /// A writer the test can read back while the plugin still holds it.
+    #[derive(Clone, Default)]
+    struct SharedBuf(Arc<std::sync::Mutex<Vec<u8>>>);
+
+    impl Write for SharedBuf {
+        fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+            self.0.lock().unwrap().write(buf)
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    impl SharedBuf {
+        /// The responses written so far, in order.
+        fn responses(&self) -> Vec<Value> {
+            let bytes = self.0.lock().unwrap().clone();
+            serde_json::Deserializer::from_slice(&bytes)
+                .into_iter::<Value>()
+                .map(|v| v.unwrap())
+                .collect()
+        }
+    }
+
+    fn request(id: u16, method: &str) -> String {
+        format!(
+            "{}\n",
+            json!({ "jsonrpc": "2.0", "id": id, "method": method, "params": {} })
+        )
+    }
+
+    #[derive(Clone)]
+    struct Echo(&'static str);
+
+    impl RPCCommand<()> for Echo {
+        fn call(&self, _: &mut Plugin<()>, _: Value) -> Result<Value, PluginError> {
+            Ok(json!({ "from": self.0 }))
+        }
+    }
+
+    /// Answers from another thread once the test sends it a value.
+    #[derive(Clone)]
+    struct Deferred {
+        release: Arc<std::sync::Mutex<Option<std::sync::mpsc::Receiver<Value>>>>,
+        done: std::sync::mpsc::Sender<()>,
+    }
+
+    impl RPCCommand<()> for Deferred {
+        fn call_deferred(&self, _: &mut Plugin<()>, _: Value, responder: Responder) {
+            let release = self.release.lock().unwrap().take().unwrap();
+            let done = self.done.clone();
+            std::thread::spawn(move || {
+                let value = release.recv().unwrap();
+                responder.respond(Ok(value));
+                done.send(()).unwrap();
+            });
+        }
+    }
+
+    #[test]
+    fn deferred_requests_do_not_block_the_next_ones() {
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let (done_tx, done_rx) = std::sync::mpsc::channel();
+        let mut plugin = Plugin::new((), false);
+        plugin.add_rpc_method(
+            "slow",
+            "",
+            "",
+            Deferred {
+                release: Arc::new(std::sync::Mutex::new(Some(release_rx))),
+                done: done_tx,
+            },
+        );
+        plugin.add_rpc_method("fast", "", "", Echo("fast"));
+        plugin.register_hook("htlc_accepted", None, None, Echo("hook"));
+
+        let input = [
+            request(1, "slow"),
+            request(2, "fast"),
+            request(3, "htlc_accepted"),
+            request(4, "missing"),
+        ]
+        .concat();
+        let output = SharedBuf::default();
+        // Every request is read and the quick ones answered while `slow`
+        // is still pending.
+        plugin.start_with_io(io::Cursor::new(input), output.clone());
+        let responses = output.responses();
+        let ids: Vec<_> = responses.iter().map(|r| r["id"].clone()).collect();
+        assert_eq!(ids, vec![json!(2), json!(3), json!(4)]);
+        assert_eq!(responses[0]["result"], json!({ "from": "fast" }));
+        assert_eq!(responses[1]["result"], json!({ "from": "hook" }));
+        assert!(responses[2]["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("`missing` not found"));
+
+        release_tx.send(json!({ "from": "slow" })).unwrap();
+        done_rx.recv().unwrap();
+        let responses = output.responses();
+        assert_eq!(responses.len(), 4);
+        assert_eq!(responses[3]["id"], json!(1));
+        assert_eq!(responses[3]["result"], json!({ "from": "slow" }));
+    }
+
+    #[test]
+    fn concurrent_responses_are_whole_messages() {
+        #[derive(Clone)]
+        struct Threaded;
+
+        impl RPCCommand<()> for Threaded {
+            fn call_deferred(&self, _: &mut Plugin<()>, request: Value, responder: Responder) {
+                std::thread::spawn(move || responder.respond(Ok(request)));
+            }
+        }
+
+        let mut plugin = Plugin::new((), false);
+        plugin.add_rpc_method("threaded", "", "", Threaded);
+        let count = 200u16;
+        let input: String = (0..count)
+            .map(|id| {
+                let params = json!({ "id": id, "padding": "x".repeat(4096) });
+                format!(
+                    "{}\n",
+                    json!({ "jsonrpc": "2.0", "id": id, "method": "threaded", "params": params })
+                )
+            })
+            .collect();
+        let output = SharedBuf::default();
+        plugin.start_with_io(io::Cursor::new(input), output.clone());
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        while output.responses().len() < count as usize {
+            assert!(std::time::Instant::now() < deadline, "missing responses");
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        let mut ids: Vec<_> = output
+            .responses()
+            .iter()
+            .map(|r| {
+                assert_eq!(r["result"]["id"], r["id"]);
+                r["id"].as_u64().unwrap()
+            })
+            .collect();
+        ids.sort();
+        assert_eq!(ids, (0..count as u64).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn dropped_responder_answers_with_an_error() {
+        #[derive(Clone)]
+        struct Forgetful;
+
+        impl RPCCommand<()> for Forgetful {
+            fn call_deferred(&self, _: &mut Plugin<()>, _: Value, _responder: Responder) {}
+        }
+
+        let mut plugin = Plugin::new((), false);
+        plugin.add_rpc_method("forgetful", "", "", Forgetful);
+        let output = SharedBuf::default();
+        plugin.start_with_io(io::Cursor::new(request(7, "forgetful")), output.clone());
+        let responses = output.responses();
+        assert_eq!(responses.len(), 1);
+        assert_eq!(responses[0]["id"], json!(7));
+        assert!(responses[0]["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("without answering"));
+    }
+
+    #[test]
+    fn synchronous_handlers_answer_in_order() {
+        let mut plugin = Plugin::new((), false);
+        plugin.add_rpc_method("a", "", "", Echo("a"));
+        plugin.add_rpc_method("b", "", "", Echo("b"));
+        let input = [request(1, "a"), request(2, "b"), request(3, "a")].concat();
+        let output = SharedBuf::default();
+        plugin.start_with_io(io::Cursor::new(input), output.clone());
+        let responses = output.responses();
+        let got: Vec<_> = responses
+            .iter()
+            .map(|r| (r["id"].clone(), r["result"]["from"].clone()))
+            .collect();
+        assert_eq!(
+            got,
+            vec![
+                (json!(1), json!("a")),
+                (json!(2), json!("b")),
+                (json!(3), json!("a"))
+            ]
+        );
     }
 }
