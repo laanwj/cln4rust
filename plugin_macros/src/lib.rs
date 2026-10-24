@@ -6,6 +6,7 @@
 use kproc_parser::kparser::KParserTracer;
 use kproc_parser::proc_macro::TokenStream;
 
+mod hook;
 mod notification;
 mod plugin;
 mod rpc_method;
@@ -105,4 +106,25 @@ pub fn rpc_method(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn notification(attr: TokenStream, item: TokenStream) -> TokenStream {
     notification::parse(attr, item)
+}
+
+/// procedural macros that can be used with the following code
+/// ```no_run
+/// use serde_json::{json, Value};
+/// use clightningrpc_plugin_macros::hook;
+/// use clightningrpc_plugin::commands::RPCCommand;
+/// use clightningrpc_plugin::plugin::Plugin;
+/// use clightningrpc_plugin::errors::PluginError;
+///
+/// #[derive(Clone)]
+/// struct State;
+///
+/// #[hook(hook_name = "htlc_accepted")]
+/// fn on_htlc_accepted(plugin: &mut Plugin<State>, request: Value) -> Result<Value, PluginError> {
+///     Ok(json!({"result": "continue"}))
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn hook(attr: TokenStream, item: TokenStream) -> TokenStream {
+    hook::parse(attr, item)
 }

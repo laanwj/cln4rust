@@ -40,6 +40,11 @@ fn on_shutdown(_: &mut Plugin<State>, _: &Value) {
     std::process::exit(0);
 }
 
+#[hook(hook_name = "htlc_accepted")]
+fn on_htlc_accepted(_plugin: &mut Plugin<State>, _request: Value) -> Result<Value, PluginError> {
+    Ok(json!({"result": "continue"}))
+}
+
 fn main() {
     let plugin = plugin! {
         state: State::new(),
@@ -51,7 +56,9 @@ fn main() {
         methods: [
             foo_rpc,
         ],
-        hooks: [],
+        hooks: [
+            on_htlc_accepted,
+        ],
     };
     plugin.start();
 }
