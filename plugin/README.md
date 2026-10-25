@@ -108,6 +108,32 @@ impl RPCCommand<PluginState> for SlowRPC {
 
 A `Responder` dropped without answering answers with an error.
 
+## Async handlers
+
+With the `async` feature, a plugin can read requests on a tokio runtime
+with `start_async` and serve methods written as async functions. Each
+request runs as a task with a clone of the plugin state, so the plugin goes
+on serving other requests while it is pending. Synchronous handlers keep
+working next to them.
+
+```rust
+use clightningrpc_plugin::commands::asynchronous::AsyncCommand;
+use clightningrpc_plugin::errors::PluginError;
+
+async fn hello(state: PluginState, request: Value) -> Result<Value, PluginError> {
+    Ok(json!({ "hello": request }))
+}
+
+#[tokio::main]
+async fn main() {
+    let mut plugin = Plugin::<PluginState>::new(PluginState(()), true);
+    plugin.add_async_rpc_method("hello", "", "Say hello", hello);
+    // Hooks take any handler wrapped in an `AsyncCommand`.
+    plugin.register_hook("rpc_command", None, None, AsyncCommand::new(hello));
+    plugin.start_async().await;
+}
+```
+
 # Contributing guidelines
 
 Read our [Hacking guide](https://github.com/laanwj/rust-clightning-rpc/blob/master/docs/MAINTAINERS.md)
