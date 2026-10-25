@@ -11,6 +11,8 @@ use clightningrpc_common::json_utils::{add_str, init_payload};
 use clightningrpc_common::types::Request;
 use serde_json::Value;
 
+#[cfg(feature = "async")]
+use crate::commands::asynchronous::{AsyncCommand, AsyncRPCCommand};
 use crate::commands::builtin::{InitRPC, ManifestRPC};
 use crate::commands::types::{CLNConf, RPCHookInfo, RPCMethodInfo};
 use crate::commands::RPCCommand;
@@ -186,6 +188,23 @@ impl<'a, T: 'a + Clone> Plugin<T> {
         self.clone()
     }
 
+    /// Register a method written as an async function: each request runs
+    /// as a task on the tokio runtime, with a clone of the plugin state.
+    /// The plugin must run with [`Plugin::start_async`].
+    #[cfg(feature = "async")]
+    pub fn add_async_rpc_method<F>(
+        &'a mut self,
+        name: &str,
+        usage: &str,
+        description: &str,
+        callback: F,
+    ) -> Self
+    where
+        F: AsyncRPCCommand<T> + 'static,
+    {
+        self.add_rpc_method(name, usage, description, AsyncCommand::new(callback))
+    }
+
     /// Run the method or hook `name`, which answers through `responder`
     /// now or later.
     fn dispatch(&'a mut self, name: &str, params: serde_json::Value, responder: Responder) {
@@ -262,8 +281,58 @@ impl<'a, T: 'a + Clone> Plugin<T> {
     /// Serve requests read from `reader` and write the responses to
     /// `writer`, until `reader` reaches EOF.
     fn start_with_io<R: BufRead, W: Write + Send + 'static>(mut self, mut reader: R, writer: W) {
-        let output = Output::new(writer);
+        let output = self.prepare(writer);
         let mut buffer = String::new();
+        // Read input and handle EOF to prevent high CPU usage if the sending process dies
+        while let Ok(n) = reader.read_line(&mut buffer) {
+            if n == 0 {
+                // EOF reached
+                break;
+            }
+            let served = self.serve(&buffer, &output);
+            buffer.clear();
+            if !served {
+                break;
+            }
+        }
+    }
+
+    /// Like [`Plugin::start`], but read requests on the current tokio
+    /// runtime, which runs the handlers registered with
+    /// [`Plugin::add_async_rpc_method`] or wrapped in
+    /// [`AsyncCommand`]. Synchronous handlers keep working, and run on the
+    /// task reading the requests.
+    #[cfg(feature = "async")]
+    pub async fn start_async(self) {
+        let stdin = tokio::io::BufReader::new(tokio::io::stdin());
+        self.start_with_async_io(stdin, io::stdout()).await;
+    }
+
+    #[cfg(feature = "async")]
+    async fn start_with_async_io<R, W>(mut self, mut reader: R, writer: W)
+    where
+        R: tokio::io::AsyncBufRead + Unpin,
+        W: Write + Send + 'static,
+    {
+        use tokio::io::AsyncBufReadExt;
+
+        let output = self.prepare(writer);
+        let mut buffer = String::new();
+        while let Ok(n) = reader.read_line(&mut buffer).await {
+            if n == 0 {
+                break;
+            }
+            let served = self.serve(&buffer, &output);
+            buffer.clear();
+            if !served {
+                break;
+            }
+        }
+    }
+
+    /// Set up logging and the builtin methods, and return the output the
+    /// responses are written to.
+    fn prepare<W: Write + Send + 'static>(&mut self, writer: W) -> Arc<Output> {
         #[cfg(feature = "log")]
         {
             use std::str::FromStr;
@@ -280,32 +349,30 @@ impl<'a, T: 'a + Clone> Plugin<T> {
                 on_init: self.on_init.clone(),
             }),
         );
-        // Read input and handle EOF to prevent high CPU usage if the sending process dies
-        while let Ok(n) = reader.read_line(&mut buffer) {
-            if n == 0 {
-                // EOF reached
-                break;
-            }
-            let req_str = buffer.to_string();
-            buffer.clear();
-            let Ok(request) = serde_json::from_str::<Request<serde_json::Value>>(&req_str) else {
-                continue;
-            };
-            if let Some(id) = request.id {
-                // when the id is specified this is a RPC or Hook, so we need to return a response,
-                // now or later.
-                let responder = Responder::new(id, output.clone());
-                self.dispatch(&request.method, request.params, responder);
-                // If a write failed the parent (lightningd) has gone away;
-                // exit cleanly instead of panicking on BrokenPipe.
-                if output.failed() {
-                    break;
-                }
-            } else {
-                // in case of the id is None, we are receiving the notification, so the server is not
-                // interested in the answer.
-                self.handle_notification(&request.method, request.params);
-            }
+        Output::new(writer)
+    }
+
+    /// Serve one line read from lightningd. Returns false when lightningd
+    /// has gone away and the plugin should stop.
+    fn serve(&mut self, line: &str, output: &Arc<Output>) -> bool {
+        // lightningd ends every message with an empty line, which is skipped
+        // here like anything else that is not a request.
+        let Ok(request) = serde_json::from_str::<Request<serde_json::Value>>(line) else {
+            return true;
+        };
+        if let Some(id) = request.id {
+            // when the id is specified this is a RPC or Hook, so we need to return a response,
+            // now or later.
+            let responder = Responder::new(id, output.clone());
+            self.dispatch(&request.method, request.params, responder);
+            // If a write failed the parent (lightningd) has gone away;
+            // exit cleanly instead of panicking on BrokenPipe.
+            !output.failed()
+        } else {
+            // in case of the id is None, we are receiving the notification, so the server is not
+            // interested in the answer.
+            self.handle_notification(&request.method, request.params);
+            true
         }
     }
 }
@@ -547,5 +614,132 @@ mod tests {
                 (json!(3), json!("a"))
             ]
         );
+    }
+
+    #[cfg(feature = "async")]
+    mod asynchronous {
+        use std::sync::Arc;
+        use std::time::Duration;
+
+        use serde_json::{json, Value};
+        use tokio::sync::Notify;
+
+        use super::{request, SharedBuf};
+        use crate::commands::asynchronous::AsyncCommand;
+        use crate::commands::RPCCommand;
+        use crate::errors::PluginError;
+        use crate::plugin::Plugin;
+
+        /// Wait until `count` responses are written.
+        async fn responses(output: &SharedBuf, count: usize) -> Vec<Value> {
+            tokio::time::timeout(Duration::from_secs(10), async {
+                loop {
+                    let responses = output.responses();
+                    if responses.len() >= count {
+                        return responses;
+                    }
+                    tokio::time::sleep(Duration::from_millis(10)).await;
+                }
+            })
+            .await
+            .expect("missing responses")
+        }
+
+        async fn wait(state: Arc<Notify>, _: Value) -> Result<Value, PluginError> {
+            state.notified().await;
+            Ok(json!({ "from": "wait" }))
+        }
+
+        async fn wake(state: Arc<Notify>, _: Value) -> Result<Value, PluginError> {
+            state.notify_one();
+            Ok(json!({ "from": "wake" }))
+        }
+
+        #[tokio::test]
+        async fn async_requests_do_not_block_the_next_ones() {
+            let mut plugin = Plugin::new(Arc::new(Notify::new()), false);
+            plugin.add_async_rpc_method("wait", "", "", wait);
+            plugin.add_async_rpc_method("wake", "", "", wake);
+            // `wait` only completes once `wake`, read after it, has run.
+            let input = [request(1, "wait"), request(2, "wake")].concat();
+            let output = SharedBuf::default();
+            plugin
+                .start_with_async_io(input.as_bytes(), output.clone())
+                .await;
+            let mut got: Vec<_> = responses(&output, 2)
+                .await
+                .iter()
+                .map(|r| (r["id"].as_u64().unwrap(), r["result"]["from"].clone()))
+                .collect();
+            got.sort_by_key(|(id, _)| *id);
+            assert_eq!(got, vec![(1, json!("wait")), (2, json!("wake"))]);
+        }
+
+        #[derive(Clone)]
+        struct Echo;
+
+        impl RPCCommand<Arc<Notify>> for Echo {
+            fn call(&self, _: &mut Plugin<Arc<Notify>>, _: Value) -> Result<Value, PluginError> {
+                Ok(json!({ "from": "echo" }))
+            }
+        }
+
+        #[tokio::test]
+        async fn synchronous_handlers_and_hooks_work_on_the_async_loop() {
+            let mut plugin = Plugin::new(Arc::new(Notify::new()), false);
+            plugin.add_rpc_method("echo", "", "", Echo);
+            plugin.register_hook_with_filters(
+                "rpc_command",
+                None,
+                None,
+                Some(vec![json!("pay")]),
+                AsyncCommand::new(|_: Arc<Notify>, request: Value| async move {
+                    Ok(json!({ "seen": request }))
+                }),
+            );
+            let input = [request(1, "echo"), request(2, "rpc_command")].concat();
+            let output = SharedBuf::default();
+            plugin
+                .start_with_async_io(input.as_bytes(), output.clone())
+                .await;
+            let mut responses = responses(&output, 2).await;
+            responses.sort_by_key(|r| r["id"].as_u64().unwrap());
+            assert_eq!(responses[0]["result"], json!({ "from": "echo" }));
+            assert_eq!(responses[1]["result"], json!({ "seen": {} }));
+        }
+
+        #[tokio::test]
+        async fn a_panicking_handler_answers_with_an_error() {
+            async fn panics(_: Arc<Notify>, _: Value) -> Result<Value, PluginError> {
+                panic!("handler bug")
+            }
+
+            let mut plugin = Plugin::new(Arc::new(Notify::new()), false);
+            plugin.add_async_rpc_method("panics", "", "", panics);
+            let output = SharedBuf::default();
+            plugin
+                .start_with_async_io(request(5, "panics").as_bytes(), output.clone())
+                .await;
+            let responses = responses(&output, 1).await;
+            assert_eq!(responses[0]["id"], json!(5));
+            assert!(responses[0]["error"]["message"]
+                .as_str()
+                .unwrap()
+                .contains("without answering"));
+        }
+
+        #[test]
+        fn async_handlers_need_the_async_loop() {
+            let mut plugin = Plugin::new(Arc::new(Notify::new()), false);
+            plugin.add_async_rpc_method("wake", "", "", wake);
+            let output = SharedBuf::default();
+            plugin.start_with_io(std::io::Cursor::new(request(3, "wake")), output.clone());
+            let responses = output.responses();
+            assert_eq!(responses[0]["id"], json!(3));
+            assert!(responses[0]["error"]["message"]
+                .as_str()
+                .unwrap()
+                .contains("start_async"));
+        }
     }
 }

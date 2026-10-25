@@ -15,6 +15,12 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 clightningrpc-common = { version = "0.3.0-beta.4" }
 log = { version = "0.4.17", optional = true }
+tokio = { version = "1", optional = true, features = ["rt", "io-std", "io-util"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std", "io-util", "sync", "time"] }
 
 [features]
 log = ["dep:log"]
+# Read requests on a tokio runtime and serve async handlers as tasks.
+async = ["dep:tokio"]

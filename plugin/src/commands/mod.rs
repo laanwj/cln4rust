@@ -1,6 +1,8 @@
 //!
 //!
 //! author: https://github.com/vincenzopalazzo
+#[cfg(feature = "async")]
+pub mod asynchronous;
 pub mod builtin;
 pub mod types;
 
